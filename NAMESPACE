@@ -1,0 +1,19 @@
+useDynLib(PythonInR)
+importFrom("pack", unpack)
+export(autodetectPython,
+       pyConnect,
+       pyIsConnected,
+       pyVersion,
+       pyExit,
+       pyExec,
+       pyExecg,
+       pyExecp,
+       pyExecfile,
+       pyPrint,
+       pyCall,
+       pyGet,
+       pySet,
+       pyType,
+       pyImport,
+       pyHelp,
+       pyDir)

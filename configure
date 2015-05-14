@@ -1,0 +1,40 @@
+#! /bin/sh
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# create the makevars for unix like systems (tested on debian and ubuntu)
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+if ! [ -z "$USESPECIALPYTHONVERSION" ]; then
+    alias python="$USESPECIALPYTHONVERSION"
+fi 
+
+PYVERSION=`python -c "import sys;import distutils.sysconfig as sc;sys.stdout.write(sc.get_config_var('VERSION'))"`
+PYINCLUDE=`python -c "import sys;import distutils.sysconfig as sc;sys.stdout.write(sc.get_config_var('INCLUDEPY'))"`
+PYBINPATH=`python -c "import sys;import os;sys.stdout.write(os.path.dirname(sys.executable))"`
+PY3FLAG=`python -c 'import sys; print("%i" % (sys.hexversion<0x03000000))'`
+
+echo $PYVERSION
+echo $PYBINPATH
+echo $PY3FLAG
+
+if [ $PY3FLAG -eq 0 ]; then
+    echo "python version is > 3"
+    PYXY="PYTHONLIBXY=libpython"$PYVERSION"m.so"
+    PYLIBS="PKG_LIBS="`$PYBINPATH/python$PYVERSION-config --ldflags`
+    PYCFLAGS="PKG_CFLAGS="`$PYBINPATH/python$PYVERSION-config --cflags`" -D $PYXY -D PYTHON_IN_R_NO_EXPLICIT_LINKING"
+else 
+    echo "python version is < 3"
+    PYXY="PYTHONLIBXY=libpython"$PYVERSION".so"
+    PYLIBS="PKG_LIBS="`$PYBINPATH/python$PYVERSION-config --ldflags`
+    PYCFLAGS="PKG_CFLAGS="`$PYBINPATH/python$PYVERSION-config --cflags`" -D $PYXY -D PYTHON_IN_R_NO_EXPLICIT_LINKING"
+fi
+
+echo -e "\n"
+echo $PYLIBS
+echo $PYCFLAGS
+echo -e "\n"
+
+echo $PYLIBS > src/Makevars
+echo $PYCFLAGS >> src/Makevars
+

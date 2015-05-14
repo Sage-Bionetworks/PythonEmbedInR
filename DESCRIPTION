@@ -1,0 +1,16 @@
+Package: PythonInR
+Title: Use Python from R
+Version: 0.1-0
+Author: Florian Schwendinger [aut, cre]
+Maintainer: Florian Schwendinger <FlorianSchwendinger@gmx.at>
+Description: Interact with Python from within R.
+Depends: R (>= 3.0.0)
+Imports: pack
+Suggests: knitr 
+SystemRequirements: Python (>= 2.7) with header files and shared library (UNIX) / static library (Windows)
+Note: More information about the system requirements can be found in the README
+    file.
+URL: http://pythoninr.bitbucket.org/
+License: GPL-3
+VignetteBuilder: knitr
+NeedsCompilation: yes
