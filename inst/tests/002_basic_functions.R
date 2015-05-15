@@ -4,9 +4,6 @@ require(testthat)
 require(PythonInR)
 invisible(capture.output(pyConnect()))
 
-#' ## pyInfo
-pyInfo()
-
 #' ## pyHelp
 expect_that(pyHelp("string"), prints_text("DESCRIPTION"))
 
