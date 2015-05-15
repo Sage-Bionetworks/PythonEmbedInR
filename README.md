@@ -1,11 +1,11 @@
-# PythonInR - Another package to access Python from within R
+# PythonInR - Makes accessing Python from within R as easy as pie.
 
 The main page of the documentation is located at [http://pythoninr.bitbucket.org/](http://pythoninr.bitbucket.org/).
 
 ## Dependencies
 
-**Python** >= 2.7   
-**R** >= 3.0.0  
+**Python** >= 2.7.0
+**R** >= 2.15.0
  
 **R-packages:**   
 - pack
@@ -35,12 +35,14 @@ There are no additional dependencies on Windows.
 ## Installation
 ```r
     install.packages("PythonInR")
+#   or
+    install_bitbucket("Floooo/PythonInR")
 ```
 
 ## NOTES
 ### Python 3
 Through api changes in Python 3 the function `execfile` is no longer available,
-the package provides a `execfile` function following the typical
+the PythonInR package provides a `execfile` function following the typical
 [workaround](http://www.diveintopython3.net/porting-code-to-python-3-with-2to3.html#execfile).
 ```python
 def execfile(filename):
@@ -132,4 +134,3 @@ More information can be found [here](http://www.diveintopython3.net/strings.html
 | pySet            | Set a R variable in Python                         | `pySet("pi", pi)`                                                    |
 | pyType           | Get the type of a Python variable                  | `pyType("sys")`                                                      |
 | pyVersion        | Returns the version of Python                      | `pyVersion()`                                                        |
-
