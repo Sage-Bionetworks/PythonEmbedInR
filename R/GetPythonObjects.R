@@ -86,7 +86,7 @@ setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass 
 setClass("prDataFrame")
 setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass = "prDataFrame"),
           function(key, simplify, pyClass){
-    x <- pyExecg(sprintf("x = %s.toDict()", key), simplify = simplify)[['x']]
+    x <- pyExecg(sprintf("x = %s.toDict()", key))[['x']]
     df <- as.data.frame(unname(x['data.frame']), stringsAsFactors=FALSE)
     rownames(df) <- x[['rownames']]
     return(df)

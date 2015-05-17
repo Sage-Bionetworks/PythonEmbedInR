@@ -31,23 +31,13 @@ pySet <- function(key, value,
     if ( pyConnectionCheck() ) return(invisible(NULL))
     check_string(key)
 
-    #NOTE: polyClass is only needed to generate a different behavior when numpy is available
-    polyClass <- vector()
     if (useNumpy & (class(value) == "matrix")){
-        class(polyClass) <- "ndarray"
+        class(value) <- "ndarray"
     }else if (usePandas & (class(value) == "data.frame")){
-        class(polyClass) <- "DataFrame"
-    }else if (class(value) == "matrix"){
-        # matrix checks if length(attr(x, "dim")) == 2, as soon as 
-        # attr(x, "dim") <- c(0,0) class changes from vector to matrix
-        polyClass <- matrix()
-    }else{
-        class(polyClass) <- class(value)
+        class(value) <- "DataFrame"
     }
-
-    #print(sprintf("class value: %s", class(value)))
-    #print(sprintf("class polyClass: %s", class(polyClass)))
-    returnValue <- pySetPoly(key, value, polyClass)
+    
+    returnValue <- pySetPoly(key, value)
     invisible(returnValue)
 }
 
@@ -64,7 +54,7 @@ pySetSimple <- function(key, value){
 # pySetPoly is a polymorphic function
 # =========
 # The goal is to provide a part which can easily modified by the user. 
-pySetPoly <- function(key, value, polyClass){
+pySetPoly <- function(key, value){
     value <- pySetSimple(key, value)
     NULL
 }
@@ -82,28 +72,28 @@ pySetVector <- function(key, value){
 }
 
 # logical
-setMethod("pySetPoly", signature(key="character", value = "logical", polyClass = "logical"),
-          function(key, value, polyClass) pySetVector(key, value))
+setMethod("pySetPoly", signature(key="character", value = "logical"),
+          function(key, value) pySetVector(key, value))
 
 # integer
-setMethod("pySetPoly", signature(key="character", value = "integer", polyClass = "integer"),
-          function(key, value, polyClass) pySetVector(key, value))
+setMethod("pySetPoly", signature(key="character", value = "integer"),
+          function(key, value) pySetVector(key, value))
 
 # numeric
-setMethod("pySetPoly", signature(key="character", value = "numeric", polyClass = "numeric"),
-          function(key, value, polyClass) pySetVector(key, value))
+setMethod("pySetPoly", signature(key="character", value = "numeric"),
+          function(key, value) pySetVector(key, value))
 
 # character
-setMethod("pySetPoly", signature(key="character", value = "character", polyClass = "character"),
-          function(key, value, polyClass) pySetVector(key, value))
+setMethod("pySetPoly", signature(key="character", value = "character"),
+          function(key, value) pySetVector(key, value))
 
 # ----------------------------------------------------------
 # matrix
 # ----------------------------------------------------------
 # prMatrix (a pretty reduced matrix class)
 # ========
-setMethod("pySetPoly", signature(key="character", value = "matrix", polyClass = "matrix"),
-          function(key, value, polyClass){
+setMethod("pySetPoly", signature(key="character", value = "matrix"),
+          function(key, value){
     rnam <- rownames(value)
     cnam <- colnames(value)
     xdim <- dim(value)
@@ -122,8 +112,8 @@ setMethod("pySetPoly", signature(key="character", value = "matrix", polyClass = 
 # numpy.ndarray
 # =============
 setClass("ndarray")
-setMethod("pySetPoly", signature(key="character", value = "matrix", polyClass = "ndarray"),
-          function(key, value, polyClass){
+setMethod("pySetPoly", signature(key="character", value = "ndarray"),
+          function(key, value){
     rownames(value) <- NULL
     colnames(value) <- NULL
     value <- apply(value, 1, function(x) as.list(x))
@@ -140,8 +130,8 @@ setMethod("pySetPoly", signature(key="character", value = "matrix", polyClass = 
 # ----------------------------------------------------------
 # prDataFrame
 # ===========
-setMethod("pySetPoly", signature(key="character", value = "data.frame", polyClass = "data.frame"),
-          function(key, value, polyClass){
+setMethod("pySetPoly", signature(key="character", value = "data.frame"),
+          function(key, value){
     rnam <- rownames(value)
     cnam <- colnames(value)
     xdim <- dim(value)
@@ -158,8 +148,8 @@ setMethod("pySetPoly", signature(key="character", value = "data.frame", polyClas
 # pandas.DataFrame
 # ================
 setClass("DataFrame")
-setMethod("pySetPoly", signature(key="character", value = "data.frame", polyClass = "DataFrame"),
-          function(key, value, polyClass){
+setMethod("pySetPoly", signature(key="character", value = "DataFrame"),
+          function(key, value){
     rnam <- rownames(value)
     xdim <- dim(value)
     rownames(value) <- NULL

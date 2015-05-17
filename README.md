@@ -51,62 +51,141 @@ def execfile(filename):
 
 ## Type Casting
 ### R to Python (pySet)
+To allow a nearly one to one conversion from R to Python, PythonInR provides
+Python classes for vectors, matrices and data.frames which allow 
+an easy conversion from R to Python and back. The names of the classes are prVector,
+prMatrix and prDataFrame.
 
-| R                  | length (n) | Python  |
-| ------------------ | ---------- | ------- |
-| NULL               |            |    None |
-| any type           |          0 |    None |
-| logical            |          1 | boolean |
-| integer            |          1 | integer |
-| numeric            |          1 | double  |
-| character          |          1 | unicode |
-| logical            |      n > 1 |    list |
-| integer            |      n > 1 |    list |
-| numeric            |      n > 1 |    list |
-| character          |      n > 1 |    list |
-| list without names |      n > 0 |    list |
-| list with names    |      n > 0 |    dict |
-| matrix             |      n > 0 |    dict |
-| data.frame         |      n > 0 |    dict |
+#### Default Conversion
+| R                  | length (n) | Python      |
+| ------------------ | ---------- | ----------- |
+| NULL               |            | None        |
+| logical            |          1 | boolean     |
+| integer            |          1 | integer     |
+| numeric            |          1 | double      |
+| character          |          1 | unicode     |
+| logical            |      n > 1 | prVector    |
+| integer            |      n > 1 | prVector    |
+| numeric            |      n > 1 | prVector    |
+| character          |      n > 1 | prVector    |
+| list without names |      n > 0 | list        |
+| list with names    |      n > 0 | dict        |
+| matrix             |      n > 0 | prMatrix    |
+| data.frame         |      n > 0 | prDataFrame |
+
+
+#### Change the predefined conversion of pySet
+PythonInR is designed in way that the conversion of types can easily added or changed.
+This is done by utilizing polymorphism, if pySet is called, pySet calls pySetPoly
+which can be easily modified by the user. The following example shows how pySetPoly 
+can be used to modify the behavior of pySet on the example of integer vectors.
+
+The predefined type casting for integer vectors at a R level looks like the following.
+```r
+setMethod("pySetPoly", signature(key="character", value = "integer"),
+          function(key, value){
+    success <- pySetSimple(key, list(vector=unname(value), names=names(value), rClass=class(value)))
+    cmd <- sprintf("%s = PythonInR.prVector(%s['vector'], %s['names'], %s['rClass'])", 
+                   key, key, key, key)
+    pyExec(cmd)
+})
+```
+To change the predefined behavior one can simply use setMethod again.
+```r
+pySetPoly <- PythonInR:::pySetPoly
+showMethods("pySetPoly")
+
+pySet("x", 1:3)
+pyPrint(x)
+pyType("x")
+
+setMethod("pySetPoly",
+          signature(key="character", value = "integer"),
+          function(key, value){
+    PythonInR:::pySetSimple(key, value)
+})
+
+pySet("x", 1:3)
+pyPrint(x)
+pyType("x")
+```
+**NOTE PythonInR:::pySetSimple**   
+The functions **pySetSimple** and **pySetPoly** shouldn't be used **outside** the function 
+**pySet** since they don't check if R is connected to Python which will **yield** to 
+**segfault** if R isn't connected to Python!
+
 
 **NOTE (named lists):**   
 When executing `pySet("x", list(b=3, a=2))` and `pyGet("x")` the order 
 of the elements in x will change. This is not a special behavior of **PythonInR**
-but the default behavior of Python.
+but the default behavior of Python for dictionaries.
 
 **NOTE (matrix):**   
-Matrices are either transformed to an dictionary with the keys    
-- *matrix* the matrix stored as list of lists   
-- *rownames* the row names of the matrix   
-- *colnames* the column names of the matrix   
-- *dim* the dimension of the matrix   
-or to an numpy array (if the option useNumpy is set to TRUE).
+Matrices are either transformed to an object of the class prMatrix or 
+to an numpy array (if the option useNumpy is set to TRUE).
 
 
 **NOTE (data.frame):**   
-Data frames are either transformed to an dictionary with the keys    
-- *data.frame* the data.frame stored as a dictionary    
-- *rownames* the rownames of the data.frame    
-- *dim* the dimension of the data.frame     
-of to an pandas data.frame (if the option usePandas is set to TRUE).
+Data frames are either transformed to an object of the class prDataFrame   
+or to a pandas DataFrame (if the option usePandas is set to TRUE).
 
 
 ### R to Python (pyGet)
-| Python  | R                    | simplify     |
-| ------- | -------------------- | ------------ |
-| None    | NULL                 | TRUE / FALSE |
-| boolean | logical              | TRUE / FALSE |
-| integer | integer              | TRUE / FALSE |
-| double  | numeric              | TRUE / FALSE |
-| string  | character            | TRUE / FALSE |
-| unicode | character            | TRUE / FALSE |
-| bytes   | character            | TRUE / FALSE |
-| tuple   | list                 | FALSE        |
-| tuple   | list or vector       | TRUE         |
-| list    | list                 | FALSE        |
-| list    | list or vector       | TRUE         |
-| dict    | named list           | FALSE        |
-| dict    | named list or vector | TRUE         |
+| Python      | R                    | simplify     |
+| ----------- | -------------------- | ------------ |
+| None        | NULL                 | TRUE / FALSE |
+| boolean     | logical              | TRUE / FALSE |
+| integer     | integer              | TRUE / FALSE |
+| double      | numeric              | TRUE / FALSE |
+| string      | character            | TRUE / FALSE |
+| unicode     | character            | TRUE / FALSE |
+| bytes       | character            | TRUE / FALSE |
+| tuple       | list                 | FALSE        |
+| tuple       | list or vector       | TRUE         |
+| list        | list                 | FALSE        |
+| list        | list or vector       | TRUE         |
+| dict        | named list           | FALSE        |
+| dict        | named list or vector | TRUE         |
+| prVetor     | vector               | TRUE / FALSE |
+| prMatrix    | matrix               | TRUE         |
+| prDataFrame | data.frame           | TRUE         |
+
+#### Change the predefined conversion of pyGet
+Similar to pySet the behavior of pyGet can be changed by utilizing pyGetPoly.
+The predefined version of pyGetPoly for an object of class prMatrix looks like the following
+```r
+setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass = "prMatrix"),
+          function(key, simplify, pyClass){
+    x <- pyExecg(sprintf("x = %s.toDict()", key), simplify = simplify)[['x']]
+    M <- do.call(rbind, x[['matrix']])
+    rownames(M) <- x[['rownames']]
+    colnames(M) <- x[['colnames']]
+    return(M)
+})
+```
+For objects of type "type" no conversion is defined therefore, when executing the
+following two lines a warning is issued and only the string representation is returned.
+```r
+pyExecp("ty = type(list())")
+pyGet("ty")
+```
+One can define a new function to get elements of type "type" as follows.
+```r
+pyGetPoly <- PythonInR:::pyGetPoly
+setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass = "type"),
+          function(key, simplify, pyClass){
+    pyExecg(sprintf("x = %s.__name__", key))[['x']]
+})
+
+pyGet("ty")
+pyExecp("myListType = type(list())")
+pyGet("myListType")
+```
+
+**NOTE pyGetPoly**   
+The functions **pyGetPoly** shouldn't be used **outside** the function 
+**pyGet** since it doesn't check if R is connected to Python which will **yield** to 
+**segfault** if R isn't connected to Python!
 
 
 **NOTE (bytes):**   
