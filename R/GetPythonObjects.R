@@ -12,7 +12,6 @@
 #' @description The function pyGet gets Python objects by name and transforms 
 #'              them into R objects. 
 #' @param key a string specifying the name of a Python object.
-#' @param namespace an optional string providing the name of the namespace.
 #' @param simplify an optional logical value, if TRUE R converts Python lists 
 #'        into R vectors whenever possible, else it translates Python lists 
 #'        always into R lists.
@@ -26,7 +25,7 @@
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
 #' pyGet("__name__")
-#' pyGet("path", "sys")
+#' pyGet("sys.path")
 #' pyExec("
 #' from datetime import date
 #' today = date.today()
@@ -35,45 +34,67 @@
 #' pyPrint("today")
 #' pyGet("today")
 # -----------------------------------------------------------
-pyGet <- function(key, namespace="__main__", simplify=TRUE){
+pyGet <- function(key, simplify=TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))
     check_string(key)
-    splittedName <- unlist(strsplit(key, ".", fixed=TRUE))
 
-    # special conversions based on the type
-    type <- .Call("py_get_type", splittedName, namespace)
-    if ( grepl("pandas.*DataFrame", type) ){
-        x <- pyExecg(sprintf("x = %s.to_dict()", key))[["x"]]
-        return( as.data.frame(x, stringsAsFactors=FALSE) )
-    }
-    if ( grepl("numpy", type) ){
-        x <- pyExecg(sprintf("x = %s.tolist()", key))[['x']]
-        return( do.call(rbind, x) )
-    }
+    pyClass <- pyExecg(sprintf("x=type(%s).__name__", key))[['x']]
+    class(pyClass) <- pyClass
 
     if (getOption("winPython364")){
-        x <- try(.Call("py_get", splittedName, namespace, simplify), silent = TRUE)
-        msg <- makeErrorMsg()
-        if (!is.null(msg)) stop(msg)
+        # TODO: Test this!
+        x <- tryCatch(pyGetPoly(key, pyClass), 
+                      error = function(e) e, 
+                      finally = {msg <- makeErrorMsg()
+                                 if (!is.null(msg)) stop(msg)})
     }else{
-        x <- .Call("py_get", splittedName, namespace, simplify)
-    }   
-
-    if ( is.null(names(x)) ) return(x)
-
-    # special conversions based on the names of the list retrieved
-    type2 <- paste(sort(names(x)), collapse="")
-    if ( type2 == "colnamesdimmatrixrownames" ){
-        M <- do.call(rbind, x[['matrix']])
-        rownames(M) <- x[['rownames']]
-        colnames(M) <- x[['colnames']]
-        return(M)
-    }else if( type2 == "data.framedimrownames" ){
-        df <- as.data.frame(unname(x['data.frame']), stringsAsFactors=FALSE)
-        rownames(df) <- x[['rownames']]
-        return(df)
+        x <- pyGetPoly(key, simplify, pyClass)
     }
 
     return(x)
 }
 
+pyGetPoly <- function(key, simplify, pyClass) pyExecg(sprintf("x = %s", key), simplify=simplify)[['x']]
+setGeneric("pyGetPoly")
+
+setClass("prVector")
+setMethod("pyGetPoly", signature(key = "character", simplify = "logical", pyClass = "prVector"),
+          function(key, simplify, pyClass){
+    x <- pyExecg(sprintf("x = %s.toDict()", key), simplify = simplify)[['x']]
+    y <- setNames(x[['vector']], x[['names']])
+    if (is.null(y)) class(y) <- x[['rClass']]
+    y
+})
+
+setClass("prMatrix")
+setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass = "prMatrix"),
+          function(key, simplify, pyClass){
+    x <- pyExecg(sprintf("x = %s.toDict()", key), simplify = simplify)[['x']]
+    M <- do.call(rbind, x[['matrix']])
+    rownames(M) <- x[['rownames']]
+    colnames(M) <- x[['colnames']]
+    return(M)
+})
+
+setClass("ndarray")
+setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass = "ndarray"),
+          function(key, simplify, pyClass){
+    x <- pyExecg(sprintf("x = %s.tolist()", key), simplify = simplify)[['x']]
+    return( do.call(rbind, x) )
+})
+
+setClass("prDataFrame")
+setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass = "prDataFrame"),
+          function(key, simplify, pyClass){
+    x <- pyExecg(sprintf("x = %s.toDict()", key), simplify = simplify)[['x']]
+    df <- as.data.frame(unname(x['data.frame']), stringsAsFactors=FALSE)
+    rownames(df) <- x[['rownames']]
+    return(df)
+})
+
+setClass("DataFrame")
+setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass = "DataFrame"),
+          function(key, simplify, pyClass){
+    x <- pyExecg(sprintf("x = %s.to_dict()", key), simplify = simplify)[["x"]]
+    return( as.data.frame(x, stringsAsFactors=FALSE) )
+})

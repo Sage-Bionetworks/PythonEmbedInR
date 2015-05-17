@@ -5,8 +5,7 @@
 # ------------------------------------------------------------------------------
 
 # <<<TODO: 
-#    a) Write a S4 converter class for set and get.
-#    b) Add the options "error", "warning" and "ignore"
+#    -) Add the options "error", "warning" and "ignore"
 #       to pyGet.
 # >>>
 #getDefaultTypeCastsSet <- function(useNumpy, usePandas)
@@ -163,6 +162,7 @@ pyConnect <- function(pythonExePath=NULL, dllDir=NULL, pythonHome=NULL){
         }else{
             silent <- pyConnectStatic()
         }
+        pyImportPythonInR()
     }
     invisible(NULL)
 }
@@ -203,7 +203,7 @@ pyInfo <- function(){
 #  -----------------------------------------------------------------------------
 pyVersion <- function(){
     if ( pyConnectionCheck() ) return(invisible(NULL))
-    pyGet("version", namespace="sys")
+    pyGet("sys.version")
 }
 
 #  -----------------------------------------------------------------------------

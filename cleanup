@@ -1,5 +1,5 @@
 #!/bin/sh
 
-rm -f src/*.o src/*.so src/Makevars
+rm -f src/*.o src/*.so src/*.rds src/Makevars
 #rm -f src/*.o src/*.so
 

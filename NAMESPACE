@@ -1,5 +1,6 @@
 useDynLib(PythonInR)
 importFrom("pack", unpack)
+import(methods)
 export(autodetectPython,
        pyConnect,
        pyIsConnected,

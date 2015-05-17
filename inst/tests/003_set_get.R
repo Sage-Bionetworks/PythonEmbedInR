@@ -124,7 +124,7 @@ x <- list(genNamedList(d), genNamedList(d), genNamedList(d),
           list(genNamedList(d), 
                list(genNamedList(d)),  genNamedList(d))
           )
-expect_that(pySet("r", x), equals(0))
+expect_that(pySet("r", x), equals(NULL))
 expect_that(is.identical(sort(names(unlist(x))),
                          sort(names(unlist(pyGet("r"))))), equals(TRUE))
 
@@ -132,16 +132,16 @@ expect_that(is.identical(sort(names(unlist(x))),
 x <- matrix(1:8, 4, 2)
 rownames(x) <- paste0("row", (1:dim(x)[1]))
 colnames(x) <- paste0("col", (1:dim(x)[2]))
-expect_that(pySet("r", x), equals(0))
+expect_that(pySet("r", x), equals(NULL))
 expect_that(pyGet("r"), is_identical_to(x))
 M <- as.matrix(cars)
 rownames(M) <- paste0("row", (1:dim(M)[1]))
-expect_that(pySet("rmatrix", M), equals(0))
+expect_that(pySet("rmatrix", M), equals(NULL))
 expect_that(pyGet("rmatrix"), is_identical_to(M))
 
 #' ## Data.Frame
 rownames(cars) <- buildAscii(dim(cars)[1], 5)
-expect_that(pySet("r", cars), equals(0))
+expect_that(pySet("r", cars), equals(NULL))
 # NOTE: since Python dict changes the order of the columns I can't translate it 1:1
 expect_that(pyGet("r")[,colnames(cars)], is_identical_to(cars))
 

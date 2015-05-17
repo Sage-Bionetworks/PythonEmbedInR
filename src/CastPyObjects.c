@@ -179,6 +179,8 @@ SEXP py_dict_to_r_vec(PyObject *py_object, int r_vector_type){
     SEXP r_vec, r_vec_names;
     long vec_len;
 
+	if (r_vector_type == 0) return R_NilValue;
+
     py_len = PyLong_FromSsize_t(PyDict_Size(py_object));
     vec_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
@@ -189,7 +191,9 @@ SEXP py_dict_to_r_vec(PyObject *py_object, int r_vector_type){
     PROTECT(r_vec = allocVector(r_vector_type, vec_len));
     PROTECT(r_vec_names = allocVector(VECSXP, vec_len)); // allocate it as list since in Python it just has to be an unmuateable
 
-    if (r_vector_type == 10){                                         // boolean
+	// TODO: I return now NULL instead of list(NULL) which should also be possible
+	//       I would some how set a NULL with class list
+	if (r_vector_type == 10){                                           // boolean
         for (long i=0; i < vec_len; i++){
             py_i = PyLong_FromLong(i);
             item = PyList_GetItem(py_keys, PyLong_AsSsize_t(py_i));
@@ -314,12 +318,12 @@ SEXP py_list_to_r_vec(PyObject *py_object, int r_vector_type){
     SEXP r_vec;
     long vec_len;
     
+    if (r_vector_type == 0) return R_NilValue; // since you also can't create NULL vectors in R
+    
     py_len = PyLong_FromSsize_t(PyList_GET_SIZE(py_object));
     vec_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
     item = NULL;
-    
-    if (r_vector_type == 0) return R_NilValue; // since you also can't create NULL vectors in R
 
     PROTECT(r_vec = allocVector(r_vector_type, vec_len));
 
@@ -379,12 +383,12 @@ SEXP py_tuple_to_r_vec(PyObject *py_object, int r_vector_type){
     SEXP r_vec;
     long vec_len;
     
+    if (r_vector_type == 0) return R_NilValue; // since you also can't create NULL vectors in R
+    
     py_len = PyLong_FromSsize_t(PyTuple_GET_SIZE(py_object));
     vec_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
     item = NULL;
-    
-    if (r_vector_type == 0) return R_NilValue; // since you also can't create NULL vectors in R
 
     PROTECT(r_vec = allocVector(r_vector_type, vec_len));
 
@@ -645,7 +649,7 @@ SEXP py_to_r(PyObject *py_object, int simplify){
     }else if(PyDict_Check(py_object)){                                   // Dict
         if (simplify){
 	        r_type = PyDict_AllSameType(py_object);
-	        if ( r_type > -1 ){ 
+	        if ( r_type > -1 ){
 	            r_val = py_dict_to_r_vec(py_object, r_type);
 	        }else{
 	          r_val = py_dict_to_r_list(py_object, simplify);
