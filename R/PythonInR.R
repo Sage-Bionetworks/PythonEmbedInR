@@ -53,24 +53,24 @@ pyConnectWinDll <- function(dllName, dllDir, majorVersion,
             if (dllVersion != 64) stop("32 bit dll (Python) can not be linked to 64 bit R!")
         }
     }
-	if (is.null(majorVersion)){
-		majorVersion = as.integer(regmatches(dllName, regexpr("[0-9]", dllName)))
-	}
+    if (is.null(majorVersion)){
+        majorVersion = as.integer(regmatches(dllName, regexpr("[0-9]", dllName)))
+    }
     useCstdout <- if ( (majorVersion==3) & (pyArch=='64bit') ) FALSE else TRUE
     #cat("useCstdout: ", useCstdout, "\n")
     if (!is.null(pythonHome)){
         Sys.setenv(PYTHONHOME=pythonHome)
     }    
-	.Call( "py_set_major_version", majorVersion)
-	.Call( "py_connect", dllName, dllDir, as.integer(useAlteredSearchPath) )
-	.Call( "py_get_process_addresses" )
-	.Call( "py_set_program_name", "PythonInR" )
-	if(useCstdout){
+    .Call( "py_set_major_version", majorVersion)
+    .Call( "py_connect", dllName, dllDir, as.integer(useAlteredSearchPath) )
+    .Call( "py_get_process_addresses" )
+    .Call( "py_set_program_name", "PythonInR" )
+    if(useCstdout){
         .Call( "py_import_append_logCatcher" ) # has to be before py_initialize
     }
-	.Call( "py_initialize", 1 )
-	.Call( "py_init_py_values" )
-	if(useCstdout){
+    .Call( "py_initialize", 1 )
+    .Call( "py_init_py_values" )
+    if(useCstdout){
         .Call( "py_init_redirect_stderrout" )
     }
     # import define a alternative to execfile as sugested at various sources
@@ -85,7 +85,7 @@ pyConnectWinDll <- function(dllName, dllDir, majorVersion,
 }
 
 pyConnectStatic <- function(){
-	.Call( "py_connect", 1 )
+    .Call( "py_connect", 1 )
 }
 
 pyCranConnect <- function(){
@@ -94,9 +94,9 @@ pyCranConnect <- function(){
             pyConnect()
         }else{
             # NOTE: Python 64bit is not available on the windows version of cran.
-			#       I just never connect to Python therefore the tests can run 
-			#       on the 32bit version as planed and I have not much to change 
-			#       if Python 64bit gets available.
+            #       I just never connect to Python therefore the tests can run 
+            #       on the 32bit version as planed and I have not much to change 
+            #       if Python 64bit gets available.
             #pyConnect()
         }
     }else{
@@ -142,10 +142,10 @@ pyCranConnect <- function(){
 #' }
 #  -----------------------------------------------------------------------------
 pyConnect <- function(pythonExePath=NULL, dllDir=NULL, pythonHome=NULL){
-	if(pyIsConnected()){
+    if(pyIsConnected()){
         cat("R is already connected to Python!\n")
     }else{
-		if (.Call( "isDllVersion")){
+        if (.Call( "isDllVersion")){
             py <- autodetectPython(pythonExePath)
             dllName <- py[['dllName']]
             if (is.null(dllDir)){
@@ -163,6 +163,9 @@ pyConnect <- function(pythonExePath=NULL, dllDir=NULL, pythonHome=NULL){
             silent <- pyConnectStatic()
         }
         pyImportPythonInR()
+
+        packageStartupMessage(sprintf("\nInitialize Python Version %s\n", pyVersion()))            
+
     }
     invisible(NULL)
 }

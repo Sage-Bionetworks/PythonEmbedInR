@@ -1,4 +1,6 @@
-#ifndef PYTHON_IN_R_NO_EXPLICIT_LINKING
+#ifdef PYTHON_IN_R_NO_EXPLICIT_LINKING
+int ISO_C_forbids_an_empty_translation_unit;
+#else
 #ifndef PYTHON_EXPLICIT_LINKING
 #define PYTHON_EXPLICIT_LINKING
 

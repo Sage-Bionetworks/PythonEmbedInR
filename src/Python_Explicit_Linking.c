@@ -1,5 +1,6 @@
-#ifndef PYTHON_IN_R_NO_EXPLICIT_LINKING
-
+#ifdef PYTHON_IN_R_NO_EXPLICIT_LINKING
+int ISO_C_forbids_an_empty_translation_unit = 0;
+#else
 #include "PythonInR.h"
 #include "Python_Explicit_Linking.h"
 

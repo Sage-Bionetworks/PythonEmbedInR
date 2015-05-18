@@ -65,7 +65,6 @@ static PyObject* PyInit_logCatcher(void){
       py_connect creates a connection to Python
   ----------------------------------------------------------------------------*/
 SEXP py_connect(SEXP initsigs){
-    const char *py_platform;
     #if PY_MAJOR_VERSION >= 3
         static wchar_t *argv[1] = {L""};
         PyImport_AppendInittab("logCatcher", &PyInit_logCatcher);
@@ -86,10 +85,6 @@ SEXP py_connect(SEXP initsigs){
     PySys_SetArgv(1, argv);
     Py_SetProgramName(PY_V_CHAR("PythonInR")); 
     
-    python_version = Py_GetVersion();
-    py_platform = Py_GetPlatform();
-
-    Rprintf("\nInitialize Python Version %s on %s\n", python_version, py_platform);
     PyRun_SimpleString("import sys; sys.path.append('.')");
 
     #if PY_MAJOR_VERSION < 3
@@ -111,7 +106,7 @@ SEXP py_connect(SEXP initsigs){
 }
 
 SEXP isDllVersion(void){
-	return c_to_r_integer(0);
+    return c_to_r_integer(0);
 }
 
 /*  ----------------------------------------------------------------------------
@@ -143,8 +138,8 @@ SEXP py_is_connected(void){
     
   ----------------------------------------------------------------------------*/
 SEXP py_set_major_version(SEXP pythonMajorVersion){
-	PYTHON_MAJOR_VERSION = asInteger(pythonMajorVersion);
-	return R_NilValue;
+    PYTHON_MAJOR_VERSION = asInteger(pythonMajorVersion);
+    return R_NilValue;
 }
 
 SEXP py_connect(SEXP dllName, SEXP dllDir, SEXP alteredSearchPath){
@@ -152,49 +147,49 @@ SEXP py_connect(SEXP dllName, SEXP dllDir, SEXP alteredSearchPath){
         log_file=fopen("PythonInR.log","w");
     #endif
     logging("WIN py_connect: CONNECT to dll!");
-	const char *dll_name = CHAR(STRING_ELT(dllName, 0)); // its possible that  if a full path where provided non ascii character would go wrong!
-	
-	if (GET_LENGTH(dllName) == 0) error("no dllName provided!");
-	if (GET_LENGTH(dllDir) != 0){
-		const char *dll_dir = CHAR(STRING_ELT(dllDir, 0));
+    const char *dll_name = CHAR(STRING_ELT(dllName, 0)); // its possible that  if a full path where provided non ascii character would go wrong!
+    
+    if (GET_LENGTH(dllName) == 0) error("no dllName provided!");
+    if (GET_LENGTH(dllDir) != 0){
+        const char *dll_dir = CHAR(STRING_ELT(dllDir, 0));
         logging("WIN py_connect: Set dll directory to: %s\n", dll_dir);
         SetDllDirectory(dll_dir);
-	}
-	if (GET_LENGTH(alteredSearchPath) == 0){
+    }
+    if (GET_LENGTH(alteredSearchPath) == 0){
         logging("WIN py_connect: Load library: %s\n", dll_name);
-		py_hdll = LoadLibraryA(dll_name);
-	}else{
+        py_hdll = LoadLibraryA(dll_name);
+    }else{
         logging("WIN py_connect: Load library with altered search path: %s\n", dll_name);
         /* I use LoadLibraryEx so Windows looks for dependent DLLs
            in directory of pathname first. */
-		py_hdll = LoadLibraryEx(dll_name, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
-	}
+        py_hdll = LoadLibraryEx(dll_name, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+    }
     if (py_hdll == NULL) error("Error couldn't load dll file!\n");
     return R_NilValue;
 }
 
 SEXP py_free_dll(void){
-	FreeLibrary(py_hdll);
-	return R_NilValue;
+    FreeLibrary(py_hdll);
+    return R_NilValue;
 }
 
 /* py_initialize initializes python*/
 SEXP py_initialize(SEXP initsigs){
     logging("py_initialize: Start initialization!");
-	static wchar_t *argv3K[1] = {L""};
+    static wchar_t *argv3K[1] = {L""};
     static char *argv2K[1] =  {""};
     const char *py_platform, *python_version;
     
-	Py_InitializeEx(asInteger(initsigs));
+    Py_InitializeEx(asInteger(initsigs));
     
     logging("py_initialize: SetArgv!");
-	if (PYTHON_MAJOR_VERSION >= 3) PySys_SetArgv3K(1, argv3K);
-	else PySys_SetArgv(1, argv2K);
+    if (PYTHON_MAJOR_VERSION >= 3) PySys_SetArgv3K(1, argv3K);
+    else PySys_SetArgv(1, argv2K);
     
     logging("py_initialize: Append to path!");
-	PyRun_SimpleString("import sys; sys.path.append('.')");
+    PyRun_SimpleString("import sys; sys.path.append('.')");
     
-	PYTHON_API_VERSION = py_get_api_version(); // PyModule_Create needs the API_VERSION!
+    PYTHON_API_VERSION = py_get_api_version(); // PyModule_Create needs the API_VERSION!
     python_version = Py_GetVersion();
     py_platform = Py_GetPlatform();
     Rprintf("\nInitialize Python Version %s on %s\n", python_version, py_platform);
@@ -216,19 +211,19 @@ int py_get_api_version(void){
     Py_XDECREF(sys);
     Py_XDECREF(py_namespace_dict);
     Py_XDECREF(py_object);
-	return api_version;
+    return api_version;
 }
 
 SEXP py_import_append_logCatcher(void){
-	if(PYTHON_MAJOR_VERSION >= 3){
+    if(PYTHON_MAJOR_VERSION >= 3){
         PyImport_AppendInittab3K("logCatcher", &PyInit_logCatcher);
         return(c_to_r_integer(0));
     }
-	return c_to_r_integer(-1);
+    return c_to_r_integer(-1);
 }
 
 SEXP py_init_redirect_stderrout(void){
-	if (PYTHON_MAJOR_VERSION == 2){
+    if (PYTHON_MAJOR_VERSION == 2){
         PyObject *m = Py_InitModule("logCatcher", logMethods);
         if (m == NULL) error("Couldn't initialize the logCatcher");
         PySys_SetObject("stdout", m);
@@ -239,7 +234,7 @@ SEXP py_init_redirect_stderrout(void){
         const char* moduleName = "logCatcher";
         PyImport_ImportModule(moduleName);
     }
-	return R_NilValue;
+    return R_NilValue;
 }
 
 /* normally this is is all provided by the header*/
@@ -272,7 +267,7 @@ SEXP py_init_py_values(void){
 }
 
 SEXP isDllVersion(void){
-	return c_to_r_integer(1);
+    return c_to_r_integer(1);
 }
 
 SEXP py_get_process_addresses(void){
@@ -286,16 +281,16 @@ SEXP py_set_program_name(SEXP programName){
     logging("py_set_program_name: Set Program Name!");
     const char *python_home = R_TO_C_STRING(programName);
     if (PYTHON_MAJOR_VERSION >= 3){
-		Py_SetProgramName3K(((wchar_t *)python_home));
-	}else{
-		Py_SetProgramName((char *)python_home);
-	}
+        Py_SetProgramName3K(((wchar_t *)python_home));
+    }else{
+        Py_SetProgramName((char *)python_home);
+    }
     return R_NilValue;
 }
 
 SEXP py_set_home(SEXP pythonHome){
     const char *python_home = R_TO_C_STRING(pythonHome);
-	Py_SetPythonHome((char *)python_home);
+    Py_SetPythonHome((char *)python_home);
     return R_NilValue;
 }
 
@@ -321,7 +316,7 @@ SEXP py_is_connected(void){
   ----------------------------------------------------------------------------*/
 SEXP py_close(void){
     Py_Finalize();
-	FreeLibrary(py_hdll);
+    FreeLibrary(py_hdll);
     Py_IsInitialized = NULL;
     return R_NilValue;
 }
