@@ -1,4 +1,8 @@
 #!/bin/sh
 
 rm -f src/*.o src/*.so src/*.rds src/Makevars
+<<<<<<< HEAD
+=======
+#rm -f src/*.o src/*.so
+>>>>>>> fa9ff70ea5f8e825efbdcc2b2b85ff1acfb5cedc
 
