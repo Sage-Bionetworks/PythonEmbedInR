@@ -34,6 +34,7 @@
 #' pyPrint("today")
 #' pyGet("today")
 # -----------------------------------------------------------
+# TODO: Check if the key is really a key and not a code schnippsel.
 pyGet <- function(key, simplify=TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))
     check_string(key)
