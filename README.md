@@ -22,8 +22,8 @@ by typing the following into the terminal.
     apt-get install python-dev
 ```    
 
-For **Red Hat Enterprise Linux** , **Fedora**, and other **Red Hat
-Linux-based** distributions, use the following for installation.
+For installation on **Red Hat Enterprise Linux** , **Fedora**, and other **Red Hat
+Linux-based** distributions, use the following:
 
 ```bash
     yum install python-devel
@@ -41,8 +41,8 @@ There are no additional dependencies on Windows.
 
 ## NOTES
 ### Python 3
-Through api changes in Python 3 the function `execfile` is no longer available,
-the PythonInR package provides a `execfile` function following the typical
+Due to api changes in Python 3 the function `execfile` is no longer available.
+The PythonInR package provides a `execfile` function following the typical
 [workaround](http://www.diveintopython3.net/porting-code-to-python-3-with-2to3.html#execfile).
 ```python
 def execfile(filename):
@@ -75,12 +75,12 @@ prMatrix and prDataFrame.
 
 
 #### Change the predefined conversion of pySet
-PythonInR is designed in way that the conversion of types can easily added or changed.
-This is done by utilizing polymorphism, if pySet is called, pySet calls pySetPoly
+PythonInR is designed in way that the conversion of types can easily be added or changed.
+This is done by utilizing polymorphism: if pySet is called, pySet calls pySetPoly
 which can be easily modified by the user. The following example shows how pySetPoly 
 can be used to modify the behavior of pySet on the example of integer vectors.
 
-The predefined type casting for integer vectors at a R level looks like the following.
+The predefined type casting for integer vectors at an R level looks like the following:
 ```r
 setMethod("pySetPoly", signature(key="character", value = "integer"),
           function(key, value){
@@ -111,8 +111,8 @@ pyType("x")
 ```
 **NOTE PythonInR:::pySetSimple**   
 The functions **pySetSimple** and **pySetPoly** shouldn't be used **outside** the function 
-**pySet** since they don't check if R is connected to Python which will **yield** to 
-**segfault** if R isn't connected to Python!
+**pySet** since they do not check if R is connected to Python. If R is not connected 
+to Python this will **yield** to **segfault** !
 
 
 **NOTE (named lists):**   
@@ -152,7 +152,7 @@ or to a pandas DataFrame (if the option usePandas is set to TRUE).
 
 #### Change the predefined conversion of pyGet
 Similar to pySet the behavior of pyGet can be changed by utilizing pyGetPoly.
-The predefined version of pyGetPoly for an object of class prMatrix looks like the following
+The predefined version of pyGetPoly for an object of class prMatrix looks like the following:
 ```r
 setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass = "prMatrix"),
           function(key, simplify, pyClass){
@@ -163,7 +163,7 @@ setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass 
     return(M)
 })
 ```
-For objects of type "type" no conversion is defined therefore, when executing the
+For objects of type "type" no conversion is defined.  Therefore, when executing the
 following two lines a warning is issued and only the string representation is returned.
 ```r
 pyExecp("ty = type(list())")
@@ -183,9 +183,9 @@ pyGet("myListType")
 ```
 
 **NOTE pyGetPoly**   
-The functions **pyGetPoly** shouldn't be used **outside** the function 
-**pyGet** since it doesn't check if R is connected to Python which will **yield** to 
-**segfault** if R isn't connected to Python!
+The functions **pyGetPoly** should not be used **outside** the function 
+**pyGet** since it does not check if R is connected to Python. If R is not connected 
+to Python this will **yield** to **segfault** !
 
 
 **NOTE (bytes):**   
