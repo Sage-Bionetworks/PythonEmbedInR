@@ -283,24 +283,3 @@ PyObject *r_to_py(SEXP r_object){
     }
     return py_object;
 }
-
-/*  ----------------------------------------------------------------------------
-
-    check_r_type_flags
-    Just a test function to see if the functions behave as assumed.
-    NOTE: This function is never used in any other code.
-  ----------------------------------------------------------------------------*/
-SEXP check_r_type_flags(SEXP r_object){
-    Rprintf("len: %i\n", GET_LENGTH(r_object));
-    Rprintf("len names: %i\n", GET_LENGTH(GET_NAMES(r_object)));
-
-    if (IS_LIST(r_object)) Rprintf("IS_LIST\n");
-    if (IS_LOGICAL(r_object)) Rprintf("IS_LOGICAL\n");
-    if (IS_INTEGER(r_object)) Rprintf("IS_INTEGER\n");
-    if (IS_NUMERIC(r_object)) Rprintf("IS_NUMERIC\n");
-    if (IS_CHARACTER(r_object)) Rprintf("IS_CHARACTER\n");
-    if (isComplex(r_object)) Rprintf("isComplex\n");
-
-    return R_NilValue;
-}
-

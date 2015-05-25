@@ -72,7 +72,7 @@ PyObject *get_py_object(SEXP r_var_name, SEXP r_namespace_name){
             error("variable doesn't exist!\n");
         }
         Py_XINCREF(py_namespace_dict);
-        // #NOTE: PyDict_GetItemString returns borrowed reference!!! 
+        // PyDict_GetItemString returns borrowed reference!
         py_object = PyDict_GetItemString(py_namespace_dict, R_TO_C_STRING_V(r_var_name, i));
         if (py_object == NULL){
             PyRun_SimpleString("\n");

@@ -66,7 +66,7 @@ setGeneric("pySetPoly")
 # ----------------------------------------------------------
 pySetVector <- function(key, value){
     success <- pySetSimple(key, list(vector=unname(value), names=names(value), rClass=class(value)))
-    cmd <- sprintf("%s = PythonInR.prVector(%s['vector'], %s['names'], %s['rClass'])", 
+    cmd <- sprintf("%s = __R__.PrVector(%s['vector'], %s['names'], %s['rClass'])", 
                    key, key, key, key)
     pyExec(cmd)
 }
@@ -90,7 +90,7 @@ setMethod("pySetPoly", signature(key="character", value = "character"),
 # ----------------------------------------------------------
 # matrix
 # ----------------------------------------------------------
-# prMatrix (a pretty reduced matrix class)
+# PrMatrix (a pretty reduced matrix class)
 # ========
 setMethod("pySetPoly", signature(key="character", value = "matrix"),
           function(key, value){
@@ -104,7 +104,7 @@ setMethod("pySetPoly", signature(key="character", value = "matrix"),
     
     success <- pySetSimple(key, value)
 
-    cmd <- sprintf("%s = PythonInR.prMatrix(%s['matrix'], %s['rownames'], %s['colnames'], %s['dim'])", 
+    cmd <- sprintf("%s = __R__.PrMatrix(%s['matrix'], %s['rownames'], %s['colnames'], %s['dim'])", 
                    key, key, key, key, key)
     pyExec(cmd)
 })
@@ -128,7 +128,7 @@ setMethod("pySetPoly", signature(key="character", value = "ndarray"),
 # ----------------------------------------------------------
 # data.frame
 # ----------------------------------------------------------
-# prDataFrame
+# PrDataFrame
 # ===========
 setMethod("pySetPoly", signature(key="character", value = "data.frame"),
           function(key, value){
@@ -140,7 +140,7 @@ setMethod("pySetPoly", signature(key="character", value = "data.frame"),
 
     success <- pySetSimple(key, value)
 
-    cmd <- sprintf("%s = PythonInR.prDataFrame(%s['data.frame'], %s['rownames'], %s['colnames'], %s['dim'])", 
+    cmd <- sprintf("%s = __R__.PrDataFrame(%s['data.frame'], %s['rownames'], %s['colnames'], %s['dim'])", 
                    key, key, key, key, key)
     pyExec(cmd)
 })

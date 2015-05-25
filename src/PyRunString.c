@@ -116,18 +116,23 @@ SEXP py_run_string(SEXP code, SEXP merge_namespaces, SEXP override,
     
     py_object = NULL;
     py_code = R_TO_C_STRING(code);
-
+	
+	// PyImport_AddModule -> Borrowed reference
+	// PyModule_GetDict -> Borrowed reference
     py_global = PyModule_GetDict(PyImport_AddModule("__main__"));
     py_local = PyDict_New();
 
+	// PyRun_String -> New reference
     py_object = PyRun_String(py_code, Py_file_input, py_global, py_local);
     PyRun_SimpleString("\n");
     
     if (py_object == NULL){
         PyDict_Clear(py_local);
         Py_XDECREF(py_local);
+        PyRun_SimpleString("\n");
         error("in pyExecg"); // i should see the python traceback anyways!
     }
+    
     Py_XDECREF(py_object);
     merge_namesp = INTEGER(merge_namespaces)[0];
     c_override = INTEGER(override)[0];
@@ -154,6 +159,7 @@ SEXP py_run_string(SEXP code, SEXP merge_namespaces, SEXP override,
         Py_XDECREF(py_len);
     }
     Py_XDECREF(py_local);
+    PyRun_SimpleString("\n");
     return r_object;
 }
 

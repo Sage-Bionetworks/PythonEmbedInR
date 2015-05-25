@@ -58,8 +58,8 @@ pyGet <- function(key, simplify=TRUE){
 pyGetPoly <- function(key, simplify, pyClass) pyExecg(sprintf("x = %s", key), simplify=simplify)[['x']]
 setGeneric("pyGetPoly")
 
-setClass("prVector")
-setMethod("pyGetPoly", signature(key = "character", simplify = "logical", pyClass = "prVector"),
+setClass("PrVector")
+setMethod("pyGetPoly", signature(key = "character", simplify = "logical", pyClass = "PrVector"),
           function(key, simplify, pyClass){
     x <- pyExecg(sprintf("x = %s.toDict()", key), simplify = simplify)[['x']]
     y <- setNames(x[['vector']], x[['names']])
@@ -67,8 +67,8 @@ setMethod("pyGetPoly", signature(key = "character", simplify = "logical", pyClas
     y
 })
 
-setClass("prMatrix")
-setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass = "prMatrix"),
+setClass("PrMatrix")
+setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass = "PrMatrix"),
           function(key, simplify, pyClass){
     x <- pyExecg(sprintf("x = %s.toDict()", key), simplify = simplify)[['x']]
     M <- do.call(rbind, x[['matrix']])
@@ -84,8 +84,8 @@ setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass 
     return( do.call(rbind, x) )
 })
 
-setClass("prDataFrame")
-setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass = "prDataFrame"),
+setClass("PrDataFrame")
+setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass = "PrDataFrame"),
           function(key, simplify, pyClass){
     x <- pyExecg(sprintf("x = %s.toDict()", key))[['x']]
     df <- as.data.frame(unname(x['data.frame']), stringsAsFactors=FALSE)

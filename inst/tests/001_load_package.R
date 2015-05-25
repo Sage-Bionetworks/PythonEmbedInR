@@ -1,8 +1,3 @@
-# <<<TODO: Add red background to error boxes "background-color:#FF0000 
-# require(knitr)
-# require(markdown) # required for md to html 
-# markdownToHTML('001_load_package.md', '001_load_package.html')
-# >>>    
 #' # Try to connect to Python <br/>
 
 #' ## Load packages

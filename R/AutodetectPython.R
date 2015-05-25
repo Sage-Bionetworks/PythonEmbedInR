@@ -24,7 +24,6 @@ autodetectPython <- function(pythonExePath=NULL){
     #       do essentially the same same but the function where isn't 
     #       available pre Windows 2003 since many people still use 
     #       WinXp I just leave it as backup! 
-    # <<<TODO: make this function smaller!>>>
     if (is.null(pythonExePath)){
         pyCandidates <- guessPythonExePathWhere()
         pyCandidates <- filterCandidatesByArch(pyCandidates, rArch)

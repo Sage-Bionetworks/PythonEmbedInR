@@ -251,9 +251,6 @@ typedef PyObject * (__cdecl *R_PyModule_Create2) (struct PyModuleDef*, int); // 
 // Py_Bool
 typedef PyObject * (__cdecl *R_PyBool_FromLong) (long);
     R_PyBool_FromLong PyBool_FromLong;
-
-//typedef int (__cdecl *R_PyBool_Check) (PyObject *); //TODO
-//    R_PyBool_Check PyBool_Check;    
     
 // Py_Int
 typedef PyObject * (__cdecl *R_PyInt_FromLong) (long);
@@ -432,8 +429,8 @@ typedef PyObject * (__cdecl *R_PyObject_Call) (PyObject *, PyObject *, PyObject 
     R_PyObject_Call PyObject_Call; 
 
 /* PyObject_CallMethod returns New reference
-   NOTE: Python source has a note that the args get consumed in call_function_tail
-         therefore I must not decref it!!                                               */    
+   NOTE: Python source has a note that the args get consumed in 
+         call_function_tail therefore I must not decref it!!                                               */    
 typedef PyObject * (__cdecl *R_PyObject_CallMethod) (PyObject *, char *, char *, ...);
     R_PyObject_CallMethod PyObject_CallMethod; 
 
@@ -472,7 +469,7 @@ typedef PyObject * (__cdecl *R_PyObject_CallFunction) (PyObject *, char *, ...);
                  
 #define PY_NONE Py_BuildValue("");
 #define Py_RETURN_NONE return PY_NONE
-// NOTE Py_XINCREF is des gleiche wia Py_IncRef nur hoid ois object damit mas better getn kann
+// Py_INCREF is des gleiche wia Py_IncRef nur hoid ois object damit mas better getn kann
 #define Py_INCREF(op) Py_IncRef(op)
 #define Py_DECREF(op) Py_DecRef(op)
 #define Py_XINCREF(op) do { if ((op) == NULL) ; else Py_IncRef(op); } while (0)

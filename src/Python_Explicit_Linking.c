@@ -135,8 +135,13 @@ int get_proc_addresses(HMODULE py_hdll){
     PyFloat_AsDouble = (R_PyFloat_AsDouble)GetProcAddress(py_hdll, "PyFloat_AsDouble");
         if (PyFloat_AsDouble == NULL) Rprintf("GetProcAddress: Warning couldn't load PyFloat_AsDouble\n"); 
         
-    // PyString        
-    // TODO: Python 3 has only PyUnicode_FromString
+    // PyString
+    // Here things get a little bit nasty since I don't know which version
+    // I will get but luckily I can just try till I "guess" the right name.
+    // In short I try to load PyUnicode_FromString if it is not available
+    // I try to load PyUnicodeUCS2_FromString if this works I overload
+    // PyUnicode_FromString with PyUnicodeUCS2_FromString but in the code
+    // I use always PyUnicode_FromString.
     PyUnicode_FromString = (R_PyUnicode_FromString)GetProcAddress(py_hdll, "PyUnicode_FromString");
     if (PyUnicode_FromString == NULL){
         PyUnicodeUCS2_FromString = (R_PyUnicodeUCS2_FromString)GetProcAddress(py_hdll, "PyUnicodeUCS2_FromString");
@@ -146,7 +151,6 @@ int get_proc_addresses(HMODULE py_hdll){
             PyUnicode_FromString = (R_PyUnicode_FromString)PyUnicodeUCS2_FromString;
         }
     }
-    
     
     PyUnicode_AsUTF8String = (R_PyUnicode_AsUTF8String)GetProcAddress(py_hdll, "PyUnicode_AsUTF8String");
     if (PyUnicode_AsUTF8String == NULL){
@@ -164,7 +168,6 @@ int get_proc_addresses(HMODULE py_hdll){
     }
     
     // PyUnicode_FromFormat
-    // For Python 3
     PyUnicode_FromFormat = (R_PyUnicode_FromFormat)GetProcAddress(py_hdll, "PyUnicode_FromFormat");
     if (PyUnicode_FromFormat == NULL){ // Try to load PyUnicodeUCS2_FromFormat
         PyUnicodeUCS2_FromFormat = (R_PyUnicodeUCS2_FromFormat)GetProcAddress(py_hdll, "PyUnicodeUCS2_FromFormat");
@@ -292,6 +295,8 @@ int get_proc_addresses(HMODULE py_hdll){
         
         PyString_AsString = (R_PyString_AsString)PyBytes_AsString;
         PyString_FromString = NULL;
+        // I use this name to signal that eaven when normaly string is
+        // changed to bytes in this case it was changed to unicode
         PyInternalString_FromString = (R_PyInternalString_FromString)PyUnicode_FromString;
 		
 		Py_SetProgramName3K = (R_Py_SetProgramName3K)GetProcAddress(py_hdll, "Py_SetProgramName");

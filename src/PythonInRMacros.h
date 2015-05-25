@@ -80,7 +80,7 @@
 */
 
 #define REF_CNT(ob) (PyLong_AsLong(PyLong_FromSsize_t(Py_REFCNT(ob))))
-
+#define DPRC(obj) Rprintf("#obj: %i", REF_CNT(obj))
 
 
 #ifdef PYTHON_IN_R_NO_EXPLICIT_LINKING

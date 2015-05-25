@@ -301,9 +301,6 @@ SEXP py_set_home(SEXP pythonHome){
       Returns true (one) when the Python interpreter has been initialized, 
       false (zero) if not. After Py_Finalize() is called, this returns false 
       until Py_Initialize() is called again.
-      
-      * NOTE: This version would work for both but then I get a compiler warning
-              that Py_IsInitialized will never be NULL!
   ----------------------------------------------------------------------------*/
 SEXP py_is_connected(void){
     if (Py_IsInitialized == NULL) return c_to_r_integer(0);

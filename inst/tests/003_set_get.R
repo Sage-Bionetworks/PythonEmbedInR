@@ -63,7 +63,6 @@ genNamedList <- function(difficult=TRUE){
 }
 
 #' ## Empty Elements
-#' <<<TODO: Das hab ich bis jetzt vergessen!>>>
 x <- list(logical(), numeric(), integer(), character(), list(), data.frame(), matrix())
 for (i in 1:length(x)){
     pySet(sprintf("r%i", i), x[[i]])

@@ -11,18 +11,18 @@
 /*  ----------------------------------------------------------------------------
     py_assign
 
-    #NOTE: The variable r_key_vec and r_key_name hold the same information
-             but in a different format, r_key_name is just used to produce 
-             meaningfull error messages.
-             e.g. r_key_name: "numpy.array"
-                  r_key_vec:  c("numpy", "array")
+    The variable r_key_vec and r_key_name hold the same information
+    but in a different format, r_key_name is just used to produce 
+    meaningfull error messages (pasting string is in R just easier than in C).
+        e.g. r_key_name: "numpy.array"
+             r_key_vec:  c("numpy", "array")
 
   ----------------------------------------------------------------------------*/
 SEXP py_assign(SEXP r_namespace_name, SEXP r_key_vec, SEXP r_key_name, SEXP value){
 	PyObject *py_value;
 	SEXP r_val;
     
-    py_value = r_to_py(value); //TODO: error checking
+    py_value = r_to_py(value);
     r_val = set_py_object(r_namespace_name, r_key_vec, r_key_name, py_value);
     Py_XDECREF(py_value);
 
@@ -46,11 +46,11 @@ SEXP set_py_object(SEXP r_namespace_name, SEXP r_key_vec, SEXP r_key_name, PyObj
 
     if (strcmp(namespace_name, "__main__") == 0){
         py_global = PyModule_GetDict(PyImport_AddModule("__main__"));
-        Py_XINCREF(py_global);
+        // Py_XINCREF(py_global); # TEST and DELETE
     }else{
-        r_namesp_name = c_to_r_string("__main__");
-        py_global = PyModule_GetDict(PyImport_AddModule("__main__")); // TODO: Was mach ich hier??? (neu hinzugefügt)
-        Py_XINCREF(py_global); // TODO: Was mach ich hier??? (neu hinzugefügt)
+        r_namesp_name = c_to_r_string("__main__"); // # TEST and DELETE
+        // py_global = PyModule_GetDict(PyImport_AddModule("__main__"));  # TEST and DELETE
+        // Py_XINCREF(py_global);  # TEST and DELETE
         py_global = get_py_object(r_namespace_name, r_namesp_name);
     }
 
@@ -65,7 +65,7 @@ SEXP set_py_object(SEXP r_namespace_name, SEXP r_key_vec, SEXP r_key_name, PyObj
     success = PyDict_Merge(py_global, py_local, override);
 
     Py_XDECREF(py_local);
-    Py_XDECREF(py_global);
+    // Py_XDECREF(py_global);  # TEST and DELETE
     r_val = c_to_r_integer(success);
     return r_val;
 }

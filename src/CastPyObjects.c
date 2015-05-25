@@ -95,14 +95,16 @@ int PyList_AllSameType(PyObject *py_object){
     list_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
     
+    if (list_len < 1) return 0;
+    
     py_i = PyLong_FromLong(0);
     item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
-    Py_XINCREF(item);
+    Py_XINCREF(item); // If item is NULL Py_XINCREF has no effect.
     Py_XDECREF(py_i);
     if ( item == NULL ) return 0;
     r_type = Py_GetR_Type(item); // just makes sence for the types which exists in R
     Py_XDECREF(item);
-    if ( r_type == -1 ) return r_type;
+    if ( r_type == -1 ) return r_type; // -1 is returned if it is not (None, boolean, int, long, float, string or unicode)
 
     count = 0;
     for (long i=1; i < list_len; i++){
@@ -131,6 +133,8 @@ int PyTuple_AllSameType(PyObject *py_object){
     py_len = PyLong_FromSsize_t(PyTuple_GET_SIZE(py_object));
     list_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
+    
+    if (list_len < 1) return 0; // Da dua ich jetzt doppel moppeln hier check i, auf length 0 und unten a wida.
 
     py_i = PyLong_FromLong(0);
     item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
@@ -163,6 +167,7 @@ int PyTuple_AllSameType(PyObject *py_object){
 int PyDict_AllSameType(PyObject *py_object){
     PyObject *py_values;
     int r_type;
+    // PyDict_Values -> New reference
     py_values = PyDict_Values(py_object);
     r_type = PyList_AllSameType(py_values);
     Py_XDECREF(py_values);
@@ -184,15 +189,20 @@ SEXP py_dict_to_r_vec(PyObject *py_object, int r_vector_type){
     py_len = PyLong_FromSsize_t(PyDict_Size(py_object));
     vec_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
+    
+    if (vec_len < 1) return R_NilValue;
+    
     item = NULL;
     py_keys = PyDict_Keys(py_object);
     py_values = PyDict_Values(py_object);
 
     PROTECT(r_vec = allocVector(r_vector_type, vec_len));
     PROTECT(r_vec_names = allocVector(VECSXP, vec_len)); // allocate it as list since in Python it just has to be an unmuateable
+    
+    // TODO: check vec_len = 0
 
-	// TODO: I return now NULL instead of list(NULL) which should also be possible
-	//       I would some how set a NULL with class list
+	// TODO: I return now NULL instead of list(NULL) which should also
+        //       be possible I would some how set a NULL with class list
 	if (r_vector_type == 10){                                           // boolean
         for (long i=0; i < vec_len; i++){
             py_i = PyLong_FromLong(i);
@@ -203,8 +213,8 @@ SEXP py_dict_to_r_vec(PyObject *py_object, int r_vector_type){
             item = PyList_GetItem(py_values, PyLong_AsSsize_t(py_i));
             Py_XDECREF(item);
             Py_XINCREF(item);
-            LOGICAL(r_vec)[i] = PY_TO_C_INTEGER(item);
-            Py_XDECREF(item);
+            LOGICAL(r_vec)[i] = PY_TO_C_BOOLEAN(item);
+            // Py_XDECREF(item); Booleans never follow the api in Python!
             Py_DECREF(py_i);
         }
     }else if (r_vector_type == 13){                                   // integer
@@ -257,7 +267,6 @@ SEXP py_dict_to_r_vec(PyObject *py_object, int r_vector_type){
     Py_XDECREF(py_values);
 
     UNPROTECT(2);
-
     return r_vec;
 }
 
@@ -273,6 +282,8 @@ SEXP py_dict_to_r_list(PyObject *py_object, int simplify){
     py_len = PyLong_FromSsize_t(PyDict_Size(py_object));
     list_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
+    
+    if (list_len < 1) return R_NilValue;
 
     item = NULL;
 
@@ -323,6 +334,9 @@ SEXP py_list_to_r_vec(PyObject *py_object, int r_vector_type){
     py_len = PyLong_FromSsize_t(PyList_GET_SIZE(py_object));
     vec_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
+    
+    if (vec_len < 1) return R_NilValue;
+    
     item = NULL;
 
     PROTECT(r_vec = allocVector(r_vector_type, vec_len));
@@ -332,8 +346,8 @@ SEXP py_list_to_r_vec(PyObject *py_object, int r_vector_type){
             py_i = PyLong_FromLong(i);
             item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
             Py_XINCREF(item);
-            LOGICAL(r_vec)[i] = PY_TO_C_INTEGER(item);
-            Py_XDECREF(item);
+            LOGICAL(r_vec)[i] = PY_TO_C_BOOLEAN(item);
+            // Py_XDECREF(item);
             Py_DECREF(py_i);
         }
     }else if (r_vector_type == 13){                                   // integer
@@ -388,6 +402,9 @@ SEXP py_tuple_to_r_vec(PyObject *py_object, int r_vector_type){
     py_len = PyLong_FromSsize_t(PyTuple_GET_SIZE(py_object));
     vec_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
+    
+    if (vec_len < 1) return R_NilValue;
+    
     item = NULL;
 
     PROTECT(r_vec = allocVector(r_vector_type, vec_len));
@@ -397,8 +414,8 @@ SEXP py_tuple_to_r_vec(PyObject *py_object, int r_vector_type){
             py_i = PyLong_FromLong(i);
             item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
             Py_XINCREF(item);
-            LOGICAL(r_vec)[i] = PY_TO_C_INTEGER(item);
-            Py_XDECREF(item);
+            LOGICAL(r_vec)[i] = PY_TO_C_BOOLEAN(item);
+            //Py_XDECREF(item);
             Py_DECREF(py_i);
         }
     }else if (r_vector_type == 13){                                   // integer
@@ -450,6 +467,8 @@ SEXP py_list_to_r_list(PyObject *py_object, int simplify){
     list_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
 
+	if (list_len < 1) return R_NilValue;
+
     item = NULL;
     
     PROTECT(r_list = allocVector(VECSXP, list_len));
@@ -484,6 +503,8 @@ SEXP py_tuple_to_r_list(PyObject *py_object, int simplify){
     list_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
 
+	if (list_len < 1) return R_NilValue;
+
     item = NULL;
     
     PROTECT(r_list = allocVector(VECSXP, list_len));
@@ -504,7 +525,6 @@ SEXP py_tuple_to_r_list(PyObject *py_object, int simplify){
     return r_list;
 }
 
-// not so sure if this is necessary (makes no differencs for Python3)
 long py_to_c_integer(PyObject *py_object){
     long c_long;
     if(PyInt_Check(py_object)){
