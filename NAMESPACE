@@ -1,0 +1,41 @@
+useDynLib(PythonInR)
+importFrom("pack", unpack)
+import(methods)
+import(R6)
+#import(namespace)
+
+S3method("[", "PythonInR_Tuple")
+S3method("[<-", "PythonInR_Tuple")
+
+S3method("[", "PythonInR_List")
+S3method("[<-", "PythonInR_List")
+
+S3method("[", "PythonInR_Dict")
+S3method("[<-", "PythonInR_Dict")
+
+export(autodetectPython,
+       pyAttach,
+       pyConnect,
+       pyIsConnected,
+       pyVersion,
+       pyExit,
+       pyExec,
+       pyExecg,
+       pyExecp,
+       pyExecfile,
+       pyPrint,
+       pyCall,
+       pyGet,
+       pyLend,
+       pySet,
+       pyType,
+       pyImport,
+       pyHelp,
+       pyDir,
+       pyObject,
+       pyFunction,
+       pyDict,
+       pyList,
+       pyTuple,
+       pySource,
+       BEGIN.Python)
