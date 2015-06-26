@@ -70,12 +70,11 @@ pyTuple <- function(variableName, value, regFinalizer = FALSE){
     if ( pyConnectionCheck() ) return(invisible(NULL))
     check_string(variableName)
 
-    ## TODO: here belogs more checking!
     if (!missing(value)){
-        ## create a new object
-        pySetSimple(variableName, value)
-        ## TODO: maybe use the list to tuple function
-        pyExec(sprintf('%s = tuple(%s)', variableName, variableName))
+        if ( !is.vector(value) ) stop("'value' has to be a vector or list")
+        if (length(value) < 1) value <- as.list(value)
+        class(value) <- "pyTuple"
+        pySetSimple(variableName, value)       
     }
     
     if (!pyVariableExists(variableName))

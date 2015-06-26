@@ -31,7 +31,10 @@ pyLend <- function(key){
     if ( pyClass %in% c("bool", "int", "long", "float", "str", "bytes", "unicode")){
         return(pyGet(key))
     }else if (pyIsCallable(key)){
-        return(pyFunction(key))
+        fun <- pyFunction(key)
+        class(fun) <- "pyFunction"
+        attr(fun, "name") <- key
+        return(fun)
     }else if ( pyClass == "tuple" ){
         return(pyTuple(key, regFinalizer = FALSE))
     }else if ( pyClass == "list" ){

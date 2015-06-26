@@ -1,8 +1,8 @@
 #  -----------------------------------------------------------
 #  pyAttach
 #  ========
-#' @title attach Python objects to an R environment
-#' @description A convenience function to attach Python objects to an R environment.
+#' @title attach Python objects to R
+#' @description A convenience function to attach Python objects to R.
 #'
 #' @param what a character vector the names which should be attached to R.
 #' @param env the environment where he virtual Python objects are 
@@ -21,7 +21,6 @@ pyAttach <- function(what, env = parent.frame()){
 
   for (o in what){
     po <- o
-    print(po)
     spo <- unlist(strsplit(po, split = ".", fixed = TRUE))
 
     if (length(spo) == 1){
@@ -34,19 +33,20 @@ pyAttach <- function(what, env = parent.frame()){
     
     if (pyIsCallable(po)){ # callable functions
       cfun <- sprintf(callFun, po)
-      print("assignFun")
-      assign(po, eval(parse(text=cfun)), envir=env)
+      cfun <- eval(parse(text=cfun))
+      class(cfun) <- "pyFunction"
+      attr(cfun, "name") <- po
+      retVal <- assign(po, cfun, envir=env)
     }else{ # active binding functions
       if (is.null(o)){
         afun <- sprintf(activeFun0, variableName, variableName)
       }else{
         afun <- sprintf(activeFun, variableName, o, o, variableName)
-        print(afun)
       }
-      print("makeActiveBinding")
-      makeActiveBinding(po, eval(parse(text=afun)), env=env)
+      retVal <- makeActiveBinding(po, eval(parse(text=afun)), env=env)
     }
   }
+  return(invisible(env))
 }
 
 ## new version

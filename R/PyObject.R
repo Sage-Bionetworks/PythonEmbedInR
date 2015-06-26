@@ -189,3 +189,5 @@ pyFunction <- function(variableName){
     cfun <- sprintf(callFun, variableName)
     eval(parse(text=cfun))
 }
+
+print.pyFunction <- function(x, ...) pyExecp(attr(x, "name"))

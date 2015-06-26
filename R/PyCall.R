@@ -51,5 +51,5 @@ pyCall <- function(callableObj, args=NULL, kwargs=NULL, autoTypecast=TRUE, simpl
     }else{
         returnValue <- .Call("py_call_obj", callableObj, args, kwargs, simplify, autoTypecast)
     }
-    pyTransformReturn(returnValue)
+    return(pyTransformReturn(returnValue))
 }
