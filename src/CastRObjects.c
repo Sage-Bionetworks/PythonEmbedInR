@@ -323,6 +323,15 @@ int isPyInR_PyObject(SEXP x){
     return is_py_in_r_obj;
 }
 
+int compare_r_class(SEXP x, const char *className){
+    int retVal = 0;
+    SEXP cls = getAttrib(x, R_ClassSymbol);
+    if (IS_CHARACTER(cls)){
+		retVal = (strcmp(R_TO_C_STRING_V(cls, 0), className) == 0);
+    }
+    return retVal;
+}
+
 const char *r_get_py_object_location(SEXP x){
 	SEXP cx, names;
 	int i, len;
@@ -397,6 +406,9 @@ PyObject *r_to_py(SEXP r_object){
 			const char *py_obj_name = r_get_py_object_location(r_object);
 			if ( py_obj_name == NULL) error("PythonInR object is not valid!");
 			py_object = py_get_py_obj( py_obj_name );
+			return py_object;
+		} else if ( compare_r_class(r_object, "tuple") ) {
+			py_object = r_to_py_tuple(r_object);
 			return py_object;
 		}
 	}
