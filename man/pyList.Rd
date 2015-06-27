@@ -2,22 +2,28 @@
 % Please edit documentation in R/PyObjectList.R
 \name{pyList}
 \alias{pyList}
-\title{create a virtual Python list}
+\title{Create a virtual Python list}
 \usage{
 pyList(key, value, regFinalizer = TRUE)
 }
 \arguments{
-\item{key}{TODO}
+\item{key}{a character string giving the name of the Python object.}
 
-\item{value}{TODO}
+\item{value}{an optional value, allowed values are vectors, lists and NULL.}
 
-\item{regFinalizer}{TODO}
+\item{regFinalizer}{a logical indicating if a finalizer should be
+be registered, the default value is TRUE.}
 }
 \description{
-The function pyList
+The function pyList creates a virtual Python object
+             of type PythonInR_List.
 }
 \details{
-TODO
+If no value is provided a virtual Python list for an existing
+         Python object is created. If the value is NULL an empty
+         virtual Python object for an empty list is created.
+         If the value is a vector or list a new Python
+         object based on the vector or list is created.
 }
 \examples{
 \dontshow{PythonInR:::pyCranConnect()}
@@ -30,5 +36,7 @@ myList
 # create a new Python list and virtual list
 myNewList <- pyList('myNewList', list(1:3, 'Hello Python'))
 myNewList[1]
+myNewList$append(4L)
+ls(myNewList)
 }
 

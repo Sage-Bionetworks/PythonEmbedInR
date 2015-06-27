@@ -2,7 +2,7 @@
 % Please edit documentation in R/PyExec.R
 \name{pyExecfile}
 \alias{pyExecfile}
-\title{executes Python source file from within R}
+\title{Executes Python source file from within R}
 \usage{
 pyExecfile(filename)
 }

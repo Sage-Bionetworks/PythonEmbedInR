@@ -2,23 +2,46 @@
 % Please edit documentation in R/PyObject.R
 \name{pyObject}
 \alias{pyObject}
-\title{create a virtual Python dictionary}
+\title{Create a virtual Python object}
 \usage{
 pyObject(key, regFinalizer = TRUE)
 }
 \arguments{
 \item{key}{a character string giving the name of the Python object.}
 
-\item{regFinalizer}{a logical}
+\item{regFinalizer}{a logical indicating if a finalizer should be
+be registered, the default value is TRUE.}
 }
 \description{
-The function pyDict creates a virtual Python object
-             of type PythonInR_Dict.
+The function pyObject creates a virtual Python object
+             of type PythonInR_Object.
 }
 \details{
-TODO
+Every PythonInR_Object has the following members:
+\itemize{
+  \item \strong{py.variableName} the variable name used in Python.
+  \item \strong{py.objectName} the name of the Python object (obtained by x.__name__)
+         or NULL.
+  \item \strong{py.type} the type of the Python object.
+  \item \strong{py.del} a function to delete the Python object.
+  \item \strong{print} for more information see R6 classes.
+  \item \strong{initialize} for more information see R6 classes.
+}
+
+The other members of PythonInR_Object's are generated dynamically
+based on the provided Python object. The function ls can be used
+to view the members of an PythonInR_Object object.
 }
 \examples{
 \dontshow{PythonInR:::pyCranConnect()}
+pyExec("import os")
+os <- pyObject("os", regFinalizer = FALSE)
+ls(os)
+## To show again the difference between pyGet and pyGet0.
+os1 <- pyGet0("os") ## has no finalizer
+os2 <- pyGet("os")  ## has a finalizer
+os$py.variableName
+os1$py.variableName
+os2$py.variableName
 }
 

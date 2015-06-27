@@ -2,7 +2,7 @@
 % Please edit documentation in R/PyExec.R
 \name{pyExecp}
 \alias{pyExecp}
-\title{executes a single line of Python code from within R}
+\title{Executes a single line of Python code from within R}
 \usage{
 pyExecp(code)
 }

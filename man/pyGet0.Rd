@@ -2,7 +2,7 @@
 % Please edit documentation in R/PyGet.R
 \name{pyGet0}
 \alias{pyGet0}
-\title{creates an R representation of an Python object}
+\title{Creates an R representation of an Python object}
 \usage{
 pyGet0(key)
 }
@@ -10,14 +10,16 @@ pyGet0(key)
 \item{key}{a string specifying the name of a Python object.}
 }
 \value{
-Returns a virtual python object.
+Returns a virtual Python object.
 }
 \description{
 The function pyGet0 gets Python objects by name.
 }
 \details{
 Primitive data types like bool, int, long, float, str,
-         bytes and unicode are
+         bytes and unicode are returned as R objects. Python tuple, lists,
+         dictionaries and other Python objects are returned as virtual
+         Python objects.
 }
 \examples{
 \dontshow{PythonInR:::pyCranConnect()}

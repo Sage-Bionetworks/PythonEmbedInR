@@ -10,13 +10,15 @@
 #  -----------------------------------------------------------
 #  pyGet0
 #  ======
-#' @title creates an R representation of an Python object
+#' @title Creates an R representation of an Python object
 #'
 #' @description The function pyGet0 gets Python objects by name.
 #' @param key a string specifying the name of a Python object.
 #' @details Primitive data types like bool, int, long, float, str, 
-#'          bytes and unicode are 
-#' @return Returns a virtual python object. 
+#'          bytes and unicode are returned as R objects. Python tuple, lists,
+#'          dictionaries and other Python objects are returned as virtual
+#'          Python objects.
+#' @return Returns a virtual Python object. 
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
 #' pyExec("import os")
@@ -55,7 +57,7 @@ pyGet0 <- function(key){
 #  -----------------------------------------------------------
 #  pyGet
 #  =====
-#' @title gets Python objects by name and transforms them into R objects
+#' @title Gets Python objects by name and transforms them into R objects
 #'
 #' @description The function pyGet gets Python objects by name and transforms 
 #'              them into R objects. 
@@ -93,7 +95,7 @@ pyGet <- function(key, autoTypecast=TRUE, simplify=TRUE){
     pyClass <- pyExecg(sprintf("try:\n\tx=type(%s).__name__\nexcept:\n\tx=None", key))[['x']]
     class(pyClass) <- pyClass
 
-    if (getOption("winPython364")){
+    if (pyOptions("winPython364")){
         # TODO: Test this!
         x <- tryCatch(pyGetPoly(key, autoTypecast, simplify, pyClass), 
                       error = function(e) e, 

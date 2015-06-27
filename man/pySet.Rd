@@ -4,8 +4,8 @@
 \alias{pySet}
 \title{assign R objects to Python}
 \usage{
-pySet(key, value, namespace = "__main__", useNumpy = getOption("useNumpy"),
-  usePandas = getOption("usePandas"))
+pySet(key, value, namespace = "__main__", useNumpy = pyOptions("useNumpy"),
+  usePandas = pyOptions("usePandas"))
 }
 \arguments{
 \item{key}{a string specifying the name of the Python object.}

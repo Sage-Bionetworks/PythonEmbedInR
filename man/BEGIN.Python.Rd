@@ -2,13 +2,13 @@
 % Please edit documentation in R/PySource.R
 \name{BEGIN.Python}
 \alias{BEGIN.Python}
-\title{execute Python directly from within R}
+\title{Execute Python interactively from within R}
 \usage{
 BEGIN.Python()
 }
 \value{
 Returns the entered code back to R, code lines which throw an
-        error ar obmitted.
+        exception are obmitted.
 }
 \description{
 The function BEGIN.Python starts an interactive

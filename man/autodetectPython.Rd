@@ -2,7 +2,7 @@
 % Please edit documentation in R/AutodetectPython.R
 \name{autodetectPython}
 \alias{autodetectPython}
-\title{autodetects the settings for Windows}
+\title{Autodetects the settings for Windows}
 \usage{
 autodetectPython(pythonExePath = NULL)
 }

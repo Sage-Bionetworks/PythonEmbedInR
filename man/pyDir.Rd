@@ -2,7 +2,7 @@
 % Please edit documentation in R/Basics.R
 \name{pyDir}
 \alias{pyDir}
-\title{is a convenience function to call the Python function \strong{dir}}
+\title{Convenience function to call the Python function \strong{dir}}
 \usage{
 pyDir(objName = NULL)
 }

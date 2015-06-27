@@ -2,22 +2,28 @@
 % Please edit documentation in R/PyObjectTuple.R
 \name{pyTuple}
 \alias{pyTuple}
-\title{create a virtual Python tuple}
+\title{Create a virtual Python tuple}
 \usage{
 pyTuple(key, value, regFinalizer = FALSE)
 }
 \arguments{
-\item{key}{TODO}
+\item{key}{a character string giving the name of the Python object.}
 
-\item{value}{TODO}
+\item{value}{an optional value, allowed values are vectors, lists and NULL.}
 
-\item{regFinalizer}{TODO}
+\item{regFinalizer}{a logical indicating if a finalizer should be
+be registered, the default value is TRUE.}
 }
 \description{
-The function pyTuple
+The function pyTuple creates a virtual Python object
+             of type PythonInR_Tuple.
 }
 \details{
-TODO
+If no value is provided a virtual Python tuple for an existing
+         Python object is created. If the value is NULL an empty
+         virtual Python object for an empty tuple is created.
+         If the value is a vector or tuple a new Python
+         object based on the vector or list is created.
 }
 \examples{
 \dontshow{PythonInR:::pyCranConnect()}
@@ -28,7 +34,7 @@ myTuple[0]
 tryCatch({myTuple[1] <- "should give an error since tuple are not mutable"},
          error = function(e) print(e))
 myTuple
-# create a new Python list and virtual list
+# create a new Python tuple and virtual tuple
 newTuple <- pyTuple('myNewTuple', list(1:3, 'Hello Python'))
 newTuple[1]
 }

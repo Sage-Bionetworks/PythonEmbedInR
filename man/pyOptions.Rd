@@ -2,19 +2,43 @@
 % Please edit documentation in R/PyOptions.R
 \name{pyOptions}
 \alias{pyOptions}
-\title{a options object}
+\title{Options for the PythonInR package}
 \usage{
 pyOptions(option, value)
 }
 \arguments{
-\item{option}{TODO}
+\item{option}{a character giving the option to set or get.}
 
-\item{value}{TODO}
+\item{value}{the new value of the option.}
 }
 \description{
-Set options.
+a function for getting and setting options in the PythonInR package.
 }
 \details{
-Hash options.
+The following options are available:
+\itemize{
+  \item \strong{numpyAlias} a character giving the numpy alias, the
+        default value is "numpy".
+  \item \strong{useNumpy} a logical giving if numpy should be used
+        when getting and setting matrices.
+  \item \strong{pandasAlias}  a character giving the pandas alias, the
+        default value is "pandas".
+  \item \strong{usePandas} a logical giving if numpy should be used
+        when getting and setting data.frames.
+  \item \strong{winPython364} a logical indicating if Python 3 64-bit
+        under windows is used, this option is set automaticly at startup
+        and shouldn't be changed.
+}
+}
+\examples{
+\dontrun{
+pyOptions()
+pyExec("import numpy as np")
+pyOptions("numpyAlias", "np")
+pyOptions("useNumpy", TRUE)
+pyExec("import pandas as pd")
+pyOptions("pandasAlias", "pd")
+pyOptions("usePandas", TRUE)
+}
 }
 

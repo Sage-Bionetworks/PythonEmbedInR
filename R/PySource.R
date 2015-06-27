@@ -18,7 +18,7 @@
 #' @param skip.echo see documentation of source
 #' @param keep.source see documentation of source
 #' @details The function pySource workes exactly like source but code 
-#'          which is in closed between BEGIN.Python and END.Python
+#'          which is in closed between BEGIN.Python and END.Python is
 #'          replaced by pyExec and the quoted version of the code.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
@@ -55,7 +55,7 @@ pySource <- function(file, local = FALSE, echo = verbose, print.eval = echo,
 #  -----------------------------------------------------------
 #  BEGIN.Python
 #  ============
-#' @title execute Python directly from within R
+#' @title Execute Python interactively from within R
 #'
 #' @description The function BEGIN.Python starts an interactive
 #'              execute, print loop.
@@ -63,7 +63,7 @@ pySource <- function(file, local = FALSE, echo = verbose, print.eval = echo,
 #'          and therefore allows interactive Python code development
 #'          from within R.
 #' @return Returns the entered code back to R, code lines which throw an
-#'         error ar obmitted.
+#'         exception are obmitted.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
 #' \dontrun{

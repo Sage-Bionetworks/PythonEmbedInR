@@ -7,7 +7,7 @@
 #  -----------------------------------------------------------------------------
 #  pyExecp
 #  =======
-#' @title executes a single line of Python code from within R
+#' @title Executes a single line of Python code from within R
 #' @description The function pyExecp is designed to execute a single line of 
 #'              Python code from within R. Thereby pyExecp tries to emulate
 #'              the natural interactive Python terminal behavior.
@@ -30,7 +30,7 @@ pyExecp <- function(code){
     check_string(code)
     if (nchar(code) > 0){
         if ( pyConnectionCheck() ) return(invisible(NULL))
-        if (getOption("winPython364")){
+        if (pyOptions("winPython364")){
             ret <- try(.Call("py_run_string_single_input", code), silent = TRUE)
             if (ret == -1){
                 msg <- makeErrorMsg()
@@ -48,7 +48,7 @@ pyExecp <- function(code){
 #  -----------------------------------------------------------------------------
 #  pyExec
 #  ======
-#' @title executes multiple lines of Python code from within R
+#' @title Executes multiple lines of Python code from within R
 #'
 #' @description The function pyExec allows to execute multiple lines of python 
 #'              code from within R. 
@@ -70,7 +70,7 @@ pyExec <- function(code){
     check_string(code)
     if (nchar(code) > 0){
         if ( pyConnectionCheck() ) return(invisible(NULL))
-        if (getOption("winPython364")){
+        if (pyOptions("winPython364")){
             ret <- try(.Call("py_run_simple_string", code), silent = TRUE)
             if (ret == -1){
                 msg <- makeErrorMsg()
@@ -96,7 +96,7 @@ pyExec <- function(code){
 #  -----------------------------------------------------------------------------
 #  pyExecg
 #  =======
-#' @title executes multiple lines of python code and get the output
+#' @title Executes multiple lines of python code and get the output
 #'
 #' @description The function pyExecg is designed to execute multiple lines of 
 #'              Python code and return the thereby generated variables to R.
@@ -124,8 +124,9 @@ pyExec <- function(code){
 #'          existing variables in the namespace __main__ should be overridden,
 #'          when a variable with the same name get's assigned to the
 #'          temporary namespace. If a python object can't be converted to an
-#'          R object, the string representation of the Python object is returned
-#'          and a warning is issued.
+#'          R object it is assigned to the Python dictionary __R__.namespace
+#'          and the type, id and an indicator if the object is a callable are 
+#'          returned.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
 #' # 1. assigns x to the global namespace
@@ -160,6 +161,12 @@ pyExec <- function(code){
 #' #      main namespace
 #' pyExecg("x=10", simplify=TRUE, mergeNamespaces=TRUE, override=TRUE)
 #' pyPrint("x") # NOTE: x is changed now!
+#' # 11. get an object which can't be typecast to an R object
+#' #     pyExecg does not transform these objects automatically
+#' pyExec("import os")
+#' z <- pyExecg("x = os")
+#' os <- PythonInR:::pyTransformReturn(z[[1]])
+#' os$getcwd()
 #  -----------------------------------------------------------------------------
 pyExecg <- function(code, returnValues=character(), autoTypecast=TRUE, returnToR=TRUE, 
                     mergeNamespaces=FALSE, override=FALSE, simplify=TRUE){
@@ -187,7 +194,7 @@ except:
 
     returnToR <- if (returnToR) 2L else 0L
     
-    if (getOption("winPython364")){
+    if (pyOptions("winPython364")){
         ret_val <- try(.Call("PythonInR_Run_String", code, 257L, autoTypecast,
                              mergeNamespaces, override, returnToR, 
                              simplify), silent = TRUE)
@@ -216,7 +223,7 @@ pyExecgIntern <- function(code, autoTypecast=TRUE, mergeNamespaces=FALSE,
 #  -----------------------------------------------------------------------------
 #  pyExecfile
 #  ==========
-#' @title executes Python source file from within R
+#' @title Executes Python source file from within R
 #'
 #' @description The function pyExecfile calls the Python function execfile. which 
 #'              is the Python equivalent to the source function provided in R.
@@ -240,7 +247,7 @@ pyExecfile <- function(filename){
 #  -----------------------------------------------------------------------------
 #  pyPrint
 #  =======
-#' @title is a convenience function to print a given Python object to the R terminal
+#' @title Convenience function to print a given Python object to the R terminal
 #'
 #' @description Prints a given Python variable to the R terminal.
 #' @param objName a character string to be evaluated in Python and printed 

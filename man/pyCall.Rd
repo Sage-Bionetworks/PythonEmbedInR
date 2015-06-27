@@ -2,7 +2,7 @@
 % Please edit documentation in R/PyCall.R
 \name{pyCall}
 \alias{pyCall}
-\title{call a callable Python object from within R}
+\title{Call a callable Python object from within R}
 \usage{
 pyCall(callableObj, args = NULL, kwargs = NULL, autoTypecast = TRUE,
   simplify = TRUE)

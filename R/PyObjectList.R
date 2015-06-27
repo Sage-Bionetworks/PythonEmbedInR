@@ -79,13 +79,19 @@ PythonInR_ListNoFinalizer <-
 #  ---------------------------------------------------------
 #  pyList
 #  ======
-#' @title create a virtual Python list
+#' @title Create a virtual Python list
 #'
-#' @description The function pyList 
-#' @param key TODO
-#' @param value TODO
-#' @param regFinalizer TODO
-#' @details TODO
+#' @description The function pyList creates a virtual Python object 
+#'              of type PythonInR_List. 
+#' @param key a character string giving the name of the Python object.
+#' @param value an optional value, allowed values are vectors, lists and NULL.
+#' @param regFinalizer a logical indicating if a finalizer should be
+#'                     be registered, the default value is TRUE.
+#' @details If no value is provided a virtual Python list for an existing
+#'          Python object is created. If the value is NULL an empty 
+#'          virtual Python object for an empty list is created.
+#'          If the value is a vector or list a new Python
+#'          object based on the vector or list is created.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
 #' pyExec('myPyList = [1, 2, 5, "Hello R!"]')
@@ -97,15 +103,20 @@ PythonInR_ListNoFinalizer <-
 #' # create a new Python list and virtual list
 #' myNewList <- pyList('myNewList', list(1:3, 'Hello Python'))
 #' myNewList[1]
+#' myNewList$append(4L)
+#' ls(myNewList)
 #  ---------------------------------------------------------
 pyList <- function(key, value, regFinalizer = TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))
     check_string(key)
 
     if (!missing(value)){
-        if ( !is.vector(value) ) stop("'value' has to be a vector or list")
-        if (length(value) < 1) value <- as.list(value)
-        pySetSimple(key, unname(value))
+        if ( length(value) < 1 ){
+            pyExec(sprintf("%s = list()", key))
+        }else{
+            if ( !is.vector(value) ) stop("'value' has to be a vector or list")
+            pySetSimple(key, unname(value))
+        }
     }
     
     if (!pyVariableExists(key))
@@ -113,7 +124,7 @@ pyList <- function(key, value, regFinalizer = TRUE){
              key))
     vIsList <- pyGet(sprintf("isinstance(%s, list)", key))
     if (!vIsList)
-        stop(sprintf("'%s' is not an instance of list"), key)
+        stop(sprintf("'%s' is not an instance of list", key))
 
     if (regFinalizer){
         py_list <- PythonInR_List$new(key, NULL, "list")

@@ -2,7 +2,7 @@
 % Please edit documentation in R/PyExec.R
 \name{pyExecg}
 \alias{pyExecg}
-\title{executes multiple lines of python code and get the output}
+\title{Executes multiple lines of python code and get the output}
 \usage{
 pyExecg(code, returnValues = character(), autoTypecast = TRUE,
   returnToR = TRUE, mergeNamespaces = FALSE, override = FALSE,
@@ -47,8 +47,9 @@ The function pyExecg executes the code in a temporary namespace,
          existing variables in the namespace __main__ should be overridden,
          when a variable with the same name get's assigned to the
          temporary namespace. If a python object can't be converted to an
-         R object, the string representation of the Python object is returned
-         and a warning is issued.
+         R object it is assigned to the Python dictionary __R__.namespace
+         and the type, id and an indicator if the object is a callable are
+         returned.
 }
 \examples{
 \dontshow{PythonInR:::pyCranConnect()}
@@ -84,5 +85,11 @@ pyPrint("y") # NOTE: a value has been assigned to y!
 #      main namespace
 pyExecg("x=10", simplify=TRUE, mergeNamespaces=TRUE, override=TRUE)
 pyPrint("x") # NOTE: x is changed now!
+# 11. get an object which can't be typecast to an R object
+#     pyExecg does not transform these objects automatically
+pyExec("import os")
+z <- pyExecg("x = os")
+os <- PythonInR:::pyTransformReturn(z[[1]])
+os$getcwd()
 }
 

@@ -2,15 +2,15 @@
 % Please edit documentation in R/Basics.R
 \name{pyType}
 \alias{pyType}
-\title{is a convenience function to call the Python function \strong{type}}
+\title{Convenience function to call the Python function \strong{type}}
 \usage{
 pyType(objName)
 }
 \arguments{
-\item{objName}{A string specifying the name of the Python object.}
+\item{objName}{a string specifying the name of the Python object.}
 }
 \value{
-The type of the specified object.
+The type of the specified object as character on success NULL otherwise.
 }
 \description{
 Convenience function to call the Python function \strong{type}.

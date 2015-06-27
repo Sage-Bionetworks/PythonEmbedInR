@@ -92,14 +92,20 @@ PythonInR_DictNoFinalizer <-
 #  ---------------------------------------------------------
 #  pyDict
 #  ======
-#' @title create a virtual Python dictionary
+#' @title Create a virtual Python dictionary
 #'
 #' @description The function pyDict creates a virtual Python object 
 #'              of type PythonInR_Dict.
 #' @param key a character string giving the name of the Python object.
-#' @param value an optional value.
-#' @param regFinalizer a logical
-#' @details TODO
+#' @param value an optional value, allowed values are named vectors, 
+#'              named lists and NULL.
+#' @param regFinalizer a logical indicating if a finalizer should be
+#'                     be registered, the default value is TRUE.
+#' @details If no value is provided a virtual Python dict for an existing
+#'          Python object is created. If the value is NULL an empty 
+#'          virtual Python object for an empty dict is created.
+#'          If the value is a named vector or named list a new Python
+#'          object based on the vector or list is created.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
 #' pyExec('myPyDict = {"a":1, "b":2, "c":3}')

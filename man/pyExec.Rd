@@ -2,7 +2,7 @@
 % Please edit documentation in R/PyExec.R
 \name{pyExec}
 \alias{pyExec}
-\title{executes multiple lines of Python code from within R}
+\title{Executes multiple lines of Python code from within R}
 \usage{
 pyExec(code)
 }

@@ -7,7 +7,7 @@
 #  -----------------------------------------------------------
 #  pyDir
 #  =====
-#' @title is a convenience function to call the Python function \strong{dir}
+#' @title Convenience function to call the Python function \strong{dir}
 #'
 #' @description A convenience function to call the Python function \strong{dir}.
 #' @param objName an optional string specifying the name of the Python object.
@@ -38,10 +38,10 @@ pyDir <- function(objName=NULL){
 #  ----------------------------------------------------------- 
 #  pyHelp
 #  ======
-#' @title is a convenience function to access the Python \strong{help} system
+#' @title Convenience function to access the Python \strong{help} system
 #'
-#' @description A convenience function to access the Python \strong{help} system.
-#' @param topic A string specifying name or topic for which help is sought.
+#' @description a convenience function to access the Python \strong{help} system.
+#' @param topic a string specifying name or topic for which help is sought.
 #' @return Prints the help to the given string.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
@@ -55,11 +55,11 @@ pyHelp <- function(topic){
 #  -----------------------------------------------------------
 #  pyType
 #  ======
-#' @title is a convenience function to call the Python function \strong{type}
+#' @title Convenience function to call the Python function \strong{type}
 #'
 #' @description Convenience function to call the Python function \strong{type}.
-#' @param objName A string specifying the name of the Python object.
-#' @return The type of the specified object.
+#' @param objName a string specifying the name of the Python object.
+#' @return The type of the specified object as character on success NULL otherwise.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
 #' pyExec("x = dict()")

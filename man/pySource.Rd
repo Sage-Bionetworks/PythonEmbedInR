@@ -41,7 +41,7 @@ The function BEGIN.Python allows interactive development
 }
 \details{
 The function pySource workes exactly like source but code
-         which is in closed between BEGIN.Python and END.Python
+         which is in closed between BEGIN.Python and END.Python is
          replaced by pyExec and the quoted version of the code.
 }
 \examples{

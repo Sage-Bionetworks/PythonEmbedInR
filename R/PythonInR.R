@@ -3,17 +3,6 @@
 #   PythonInR provides functions to interact with Python from within R.
 #
 # ------------------------------------------------------------------------------
-
-# <<<TODO: 
-#    -) Add the options "error", "warning" and "ignore"
-#       to pyGet.
-# >>>
-#getDefaultTypeCastsSet <- function(useNumpy, usePandas)
-#getDefaultTypeCastsGet <- function(useNumpy, usePandas)
-
-#typeCastsSet <- list()
-#typeCastsGet <- list()
-
 registerLogCatcher <- function(){
 code <- '
 import io
@@ -78,7 +67,7 @@ pyConnectWinDll <- function(dllName, dllDir, majorVersion,
     if (majorVersion >= 3){
         if (!useCstdout){
             registerLogCatcher()
-            options(winPython364 = TRUE)
+            pyOptions("winPython364", TRUE)
         }
         pyExec("def execfile(filename):\n    exec(compile(open(filename, 'rb').read(), filename, 'exec'), globals())");
     }

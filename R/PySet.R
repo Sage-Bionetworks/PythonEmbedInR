@@ -32,8 +32,8 @@
 #' pySet("name", "Hello os!", namespace="os")
 #  ---------------------------------------------------------
 pySet <- function(key, value, namespace = "__main__",
-                  useNumpy=getOption("useNumpy"),
-                  usePandas=getOption("usePandas")){
+                  useNumpy=pyOptions("useNumpy"),
+                  usePandas=pyOptions("usePandas")){
     
     if ( pyConnectionCheck() ) return(invisible(NULL))
     check_string(key)
@@ -128,7 +128,7 @@ setMethod("pySetPoly", signature(key="character", value = "ndarray"),
     success <- pySetSimple(key, value)
 
     cmd <- sprintf("%s = %s.array(%s)",
-                   key, getOption("numpyAlias"), key)
+                   key, pyOptions("numpyAlias"), key)
     pyExec(cmd)
 })
 
@@ -165,6 +165,6 @@ setMethod("pySetPoly", signature(key="character", value = "DataFrame"),
     success <- pySetSimple(key, value)
 
     cmd <- sprintf("%s = %s.DataFrame(%s['data.frame'], index=%s['rownames'])",
-                               key, getOption("pandasAlias"), key, key)
+                   key, pyOptions("pandasAlias"), key, key)
     pyExec(cmd)
 })

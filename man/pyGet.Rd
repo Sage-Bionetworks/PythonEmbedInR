@@ -2,7 +2,7 @@
 % Please edit documentation in R/PyGet.R
 \name{pyGet}
 \alias{pyGet}
-\title{gets Python objects by name and transforms them into R objects}
+\title{Gets Python objects by name and transforms them into R objects}
 \usage{
 pyGet(key, autoTypecast = TRUE, simplify = TRUE)
 }

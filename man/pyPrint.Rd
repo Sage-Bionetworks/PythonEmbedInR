@@ -2,7 +2,7 @@
 % Please edit documentation in R/PyExec.R
 \name{pyPrint}
 \alias{pyPrint}
-\title{is a convenience function to print a given Python object to the R terminal}
+\title{Convenience function to print a given Python object to the R terminal}
 \usage{
 pyPrint(objName)
 }

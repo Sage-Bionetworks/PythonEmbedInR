@@ -7,13 +7,14 @@
 pyImport(import, from = NULL, as = NULL, env = parent.frame())
 }
 \arguments{
-\item{import}{a character vector}
+\item{import}{a character giving the names of the objects to import.}
 
-\item{from}{TODO}
+\item{from}{an optional character string giving the name of the module.}
 
 \item{as}{an optional string defining a alias for the module name.}
 
-\item{env}{TODO}
+\item{env}{an optional environment where the virtual Python objects are
+assigned to.}
 }
 \description{
 A convenience function to call the Python function
@@ -21,7 +22,9 @@ A convenience function to call the Python function
              the imported objects in R.
 }
 \details{
-The function pyImport has a special behavior for the packages numpy
+The function pyImport works like the function import in Python.
+
+         The function pyImport has a special behavior for the packages numpy
          and pandas. For these two packages pyImport does not only import
          numpy but also register their alias in the options. To be found when
          pyGet and pySet is used with the option useNumpy set to TRUE.
@@ -35,8 +38,13 @@ pyImport("os")
 #      The same is done for pandas, the default alias for pandas and numpy
 #      are respectively "pandas" and "numpy". The numpyAlias is used
 #      when calling pyGet or pySet with the option useNumpy set to TRUE.
-pyImport("numpy", "np")
-pyImport("pandas", "pd")
+pyImport("numpy", as="np")
+pyImport("pandas", as="pd")
+pyImport(c("getcwd", "sep"), from="os")
+getcwd()
+sep
+sep = "Hello R!"
+pyExecp("sep")
 }
 }
 

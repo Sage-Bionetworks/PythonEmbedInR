@@ -1,7 +1,7 @@
 # -----------------------------------------------------------
 # autodetectPython
 # ================
-#' @title autodetects the settings for Windows
+#' @title Autodetects the settings for Windows
 #' 
 #' @description Autodetect the settings needed to connect to
 #'              the dll file.

@@ -2,23 +2,29 @@
 % Please edit documentation in R/PyObjectDict.R
 \name{pyDict}
 \alias{pyDict}
-\title{create a virtual Python dictionary}
+\title{Create a virtual Python dictionary}
 \usage{
 pyDict(key, value, regFinalizer = TRUE)
 }
 \arguments{
 \item{key}{a character string giving the name of the Python object.}
 
-\item{value}{an optional value.}
+\item{value}{an optional value, allowed values are named vectors,
+named lists and NULL.}
 
-\item{regFinalizer}{a logical}
+\item{regFinalizer}{a logical indicating if a finalizer should be
+be registered, the default value is TRUE.}
 }
 \description{
 The function pyDict creates a virtual Python object
              of type PythonInR_Dict.
 }
 \details{
-TODO
+If no value is provided a virtual Python dict for an existing
+         Python object is created. If the value is NULL an empty
+         virtual Python object for an empty dict is created.
+         If the value is a named vector or named list a new Python
+         object based on the vector or list is created.
 }
 \examples{
 \dontshow{PythonInR:::pyCranConnect()}

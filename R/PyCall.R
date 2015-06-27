@@ -7,7 +7,7 @@
 #  -----------------------------------------------------------
 #  pyCall
 #  ======
-#' @title call a callable Python object from within R
+#' @title Call a callable Python object from within R
 #'
 #' @description Call a callable Python object from within R.
 #' @param callableObj a character string giving the name of the desired callable 
@@ -44,7 +44,7 @@ pyCall <- function(callableObj, args=NULL, kwargs=NULL, autoTypecast=TRUE, simpl
     if ( pyConnectionCheck() ) return(invisible(NULL))
     check_string(callableObj)
     
-    if (getOption("winPython364")){
+    if (pyOptions("winPython364")){
         returnValue <- try(.Call("py_call_obj", callableObj, args, kwargs, simplify, autoTypecast), 
                            silent=TRUE)
         msg <- makeErrorMsg()
