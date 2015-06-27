@@ -2,7 +2,7 @@
 % Please edit documentation in R/PySource.R
 \name{pySource}
 \alias{pySource}
-\title{}
+\title{Read mixed R and Python code from a file}
 \usage{
 pySource(file, local = FALSE, echo = verbose, print.eval = echo,
   verbose = getOption("verbose"), prompt.echo = getOption("prompt"),
@@ -10,7 +10,47 @@ pySource(file, local = FALSE, echo = verbose, print.eval = echo,
   encoding = getOption("encoding"), continue.echo = getOption("continue"),
   skip.echo = 0, keep.source = getOption("keep.source"))
 }
-\description{
+\arguments{
+\item{file}{see documentation of source}
 
+\item{local}{see documentation of source}
+
+\item{echo}{see documentation of source}
+
+\item{print.eval}{see documentation of source}
+
+\item{verbose}{see documentation of source}
+
+\item{prompt.echo}{see documentation of source}
+
+\item{max.deparse.length}{see documentation of source}
+
+\item{chdir}{see documentation of source}
+
+\item{encoding}{see documentation of source}
+
+\item{continue.echo}{see documentation of source}
+
+\item{skip.echo}{see documentation of source}
+
+\item{keep.source}{see documentation of source}
+}
+\description{
+The function BEGIN.Python allows interactive development
+             but doesn't work
+}
+\details{
+The function pySource workes exactly like source but code
+         which is in closed between BEGIN.Python and END.Python
+         replaced by pyExec and the quoted version of the code.
+}
+\examples{
+\dontshow{PythonInR:::pyCranConnect()}
+\dontrun{
+writeLines(c("x <- 3", "BEGIN.Python()",
+             "x=3**3", "print(3*u'Hello R!\\\\n')",
+             "END.Python"), "myMixedCode.R")
+pySource("myMixedCode.R")
+}
 }
 

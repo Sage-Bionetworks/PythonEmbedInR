@@ -9,46 +9,6 @@ pyObjectFinalize <- function(self){
     pyExec(sprintf("del(%s)", self$py.variableName))
 }
 
-##callFun <- '
-##function(...){
-##  if (missing(...)){
-##    pyCall("%s.%s")
-##  }else{
-##    x <- as.list(...)
-##    if (is.null(names(x))){
-##      pyCall("%s.%s", args=x)
-##    }else{
-##      pyCall("%s.%s", kwargs=x)
-##    }
-##  }
-##}
-##'
-##callFun2 <- '
-##function(...){
-##  if (missing(...)){
-##    pyCall("%s")
-##  }else{
-##    x <- as.list(...)
-##    if (is.null(names(x))){
-##      pyCall("%s", args=x)
-##    }else{
-##      pyCall("%s", kwargs=x)
-##    }
-##  }
-##}
-##'
-
-## TODO: Needs more testing but works fine for now.
-##callFun2 <- '
-##function(...){
-##  x <- list(...)
-##  i <- if ( !is.null(names(x)) ) (nchar(names(x)) > 0) else rep(FALSE, length(x))
-##  xargs <- if ( sum(!i) > 0 ) x[!i] else NULL
-##  xkwargs <- if ( sum(i) > 0 ) x[i] else NULL
-##  pyCall("%s", args=xargs, kwargs=xkwargs)
-##}
-##'
-
 callFun <- '
 function(...){
   x <- list(...)

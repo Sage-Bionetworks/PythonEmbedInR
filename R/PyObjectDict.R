@@ -83,7 +83,7 @@ PythonInR_DictNoFinalizer <-
 
 `[<-.PythonInR_Dict` <- function(x, i, value){
     txt <- "" # TODO:
-    checkType(environment(), txt, i='character', value='list')
+    checkType(environment(), txt, i='character')
     if (length(i) != length(value)) stop("len differs") #TODO
     x$update(setNames(value, i))
     x
@@ -105,12 +105,12 @@ PythonInR_DictNoFinalizer <-
 #' pyExec('myPyDict = {"a":1, "b":2, "c":3}')
 #' # create a virtual Python dictionary for an existing dictionary
 #' myDict <- pyDict("myPyDict")
-#' myDict[""]
-#' myDict[1] <- "should give an error since tuple are not mutable"
+#' myDict["a"]
+#' myDict["a"] <- "set the key"
 #' myDict
-#' # create a new Python list and virtual list
-#' newTuple <- pyTuple('myNewTuple', list(1:3, 'Hello Python'))
-#' newTuple[1]
+#' # create a new Python dict and virtual dict
+#' myNewDict <- pyDict('myNewDict', list(p=2, y=9, r=1))
+#' myNewDict
 #  ---------------------------------------------------------
 pyDict <- function(key, value, regFinalizer = TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))
@@ -118,7 +118,11 @@ pyDict <- function(key, value, regFinalizer = TRUE){
 
     if (!missing(value)){
         ## create a new object
-        pySetSimple(key, value)
+        if (is.null(value)){
+          pyExec(sprintf("%s = dict()", key))
+        }else{
+          pySetSimple(key, value)
+        }
     }
 
     if (!pyVariableExists(key))
@@ -126,7 +130,7 @@ pyDict <- function(key, value, regFinalizer = TRUE){
              key))
     vIsDict <- pyGet(sprintf("isinstance(%s, dict)", key))
     if (!vIsDict)
-        stop(sprintf("'%s' is not an instance of dict"), key)
+        stop(sprintf("'%s' is not an instance of dict", key))
 
     if (regFinalizer){
       py_dict <- PythonInR_Dict$new(key, NULL, "dict")

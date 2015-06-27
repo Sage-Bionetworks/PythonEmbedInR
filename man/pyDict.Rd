@@ -25,11 +25,11 @@ TODO
 pyExec('myPyDict = {"a":1, "b":2, "c":3}')
 # create a virtual Python dictionary for an existing dictionary
 myDict <- pyDict("myPyDict")
-myDict[""]
-myDict[1] <- "should give an error since tuple are not mutable"
+myDict["a"]
+myDict["a"] <- "set the key"
 myDict
-# create a new Python list and virtual list
-newTuple <- pyTuple('myNewTuple', list(1:3, 'Hello Python'))
-newTuple[1]
+# create a new Python dict and virtual dict
+myNewDict <- pyDict('myNewDict', list(p=2, y=9, r=1))
+myNewDict
 }
 

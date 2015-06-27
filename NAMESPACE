@@ -42,4 +42,5 @@ export(autodetectPython,
        pyList,
        pyTuple,
        pySource,
+       pyOptions,
        BEGIN.Python)
