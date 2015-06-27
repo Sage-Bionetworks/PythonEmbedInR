@@ -82,9 +82,9 @@ PythonInR_ListNoFinalizer <-
 #' @title create a virtual Python list
 #'
 #' @description The function pyList 
-#' @param key 
-#' @param value
-#' @param regFinalizer
+#' @param key TODO
+#' @param value TODO
+#' @param regFinalizer TODO
 #' @details TODO
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
@@ -95,8 +95,8 @@ PythonInR_ListNoFinalizer <-
 #' myList[1] <- "changed"
 #' myList
 #' # create a new Python list and virtual list
-#' pyList('myNewList', list(1:3, 'Hello Python'))
-#' pyList[1]
+#' myNewList <- pyList('myNewList', list(1:3, 'Hello Python'))
+#' myNewList[1]
 #  ---------------------------------------------------------
 pyList <- function(key, value, regFinalizer = TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))

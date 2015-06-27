@@ -51,9 +51,9 @@ PythonInR_TupleNoFinalizer <-
 #' @title create a virtual Python tuple
 #'
 #' @description The function pyTuple
-#' @param key 
-#' @param value 
-#' @param regFinalizer
+#' @param key TODO
+#' @param value TODO
+#' @param regFinalizer TODO
 #' @details TODO
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
@@ -61,7 +61,8 @@ PythonInR_TupleNoFinalizer <-
 #' # create a virtual Python tuple for an existing tuple
 #' myTuple <- pyTuple("myPyTuple")
 #' myTuple[0]
-#' myTuple[1] <- "should give an error since tuple are not mutable"
+#' tryCatch({myTuple[1] <- "should give an error since tuple are not mutable"},
+#'          error = function(e) print(e))
 #' myTuple
 #' # create a new Python list and virtual list
 #' newTuple <- pyTuple('myNewTuple', list(1:3, 'Hello Python'))
@@ -74,7 +75,7 @@ pyTuple <- function(key, value, regFinalizer = FALSE){
     if (!missing(value)){
         if ( !is.vector(value) ) stop("'value' has to be a vector or list")
         if (length(value) < 1) value <- as.list(value)
-        class(value) <- "pyTuple"
+        class(value) <- "tuple"
         pySetSimple(key, value)       
     }
     
@@ -83,7 +84,7 @@ pyTuple <- function(key, value, regFinalizer = FALSE){
              key))
     vIsTuple <- pyGet(sprintf("isinstance(%s, tuple)", key))
     if (!vIsTuple)
-        stop(sprintf("'%s' is not an instance of tuple"), key)
+        stop(sprintf("'%s' is not an instance of tuple", key))
 
     if (regFinalizer){
         py_tuple <- PythonInR_Tuple$new(key, NULL, "tuple")
@@ -94,3 +95,4 @@ pyTuple <- function(key, value, regFinalizer = FALSE){
     return(py_tuple)
 }
 
+    

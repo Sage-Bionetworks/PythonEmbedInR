@@ -1,3 +1,12 @@
+#  -----------------------------------------------------------------------------
+#  pyOptions
+#  =========
+#' @title a options object
+#' @description Set options.
+#' @param option TODO
+#' @param value TODO
+#' @details Hash options.
+#  -----------------------------------------------------------------------------   
 pyOptions <-
 local({
     options <- list(quote = TRUE, hash = TRUE, openbounds = "()")

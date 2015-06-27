@@ -7,10 +7,9 @@
 #'              \bold{import} and creating virtual Python objects for
 #'              the imported objects in R.
 #' @param import a character vector  
-#' @param from
+#' @param from TODO
 #' @param as an optional string defining a alias for the module name.
-#' @param pos 
-#' @param env
+#' @param env TODO
 #' @details The function pyImport has a special behavior for the packages numpy 
 #'          and pandas. For these two packages pyImport does not only import 
 #'          numpy but also register their alias in the options. To be found when

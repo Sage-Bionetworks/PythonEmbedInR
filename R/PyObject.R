@@ -49,6 +49,19 @@ except:
 ', x))[['x']]
 }
 
+#  ---------------------------------------------------------
+#  pyObject
+#  ========
+#' @title create a virtual Python dictionary
+#'
+#' @description The function pyDict creates a virtual Python object 
+#'              of type PythonInR_Dict.
+#' @param key a character string giving the name of the Python object.
+#' @param regFinalizer a logical
+#' @details TODO
+#' @examples
+#' \dontshow{PythonInR:::pyCranConnect()}
+#  ---------------------------------------------------------
 pyObject <- function(key, regFinalizer = TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))
     check_string(key)
@@ -63,12 +76,9 @@ pyObject <- function(key, regFinalizer = TRUE){
     for (o in pydir){
         po <- paste(c(key, o), collapse=".")
         if (pyIsCallable(po)){
-            ##cat("function:", o , "\n")
-            cfun <- sprintf(callFun, paste(key, o, collapse="."))
-            ##pyobject$set("public", o, eval(parse(text=fun)))
+            cfun <- sprintf(callFun, po)
             pyMethods[[o]] <- eval(parse(text=cfun))
         }else{
-            ##cat("active:", o , "\n")
             afun <- sprintf(activeFun, key, o, o, key)
             pyActive[[o]] <- eval(parse(text=afun))
         }
@@ -145,8 +155,20 @@ PythonInR_ObjectNoFinalizer <-
                 }
             ))
 
-pyFunction <- function(variableName){
-    cfun <- sprintf(callFun, variableName)
+#  ---------------------------------------------------------
+#  pyFunction
+#  ==========
+#' @title create a virtual Python dictionary
+#'
+#' @description The function pyDict creates a virtual Python object 
+#'              of type PythonInR_Dict.
+#' @param key a string specifying the name of a Python method/function.
+#' @details TODO
+#' @examples
+#' \dontshow{PythonInR:::pyCranConnect()}
+#  ---------------------------------------------------------
+pyFunction <- function(key){
+    cfun <- sprintf(callFun, key)
     fun <- eval(parse(text=cfun))
     class(fun) <- "pyFunction"
     attr(fun, "name") <- key

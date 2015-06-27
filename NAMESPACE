@@ -2,7 +2,7 @@ useDynLib(PythonInR)
 importFrom("pack", unpack)
 import(methods)
 import(R6)
-#import(namespace)
+##import(namespace)
 
 S3method("print", "pyFunction")
 

@@ -209,8 +209,7 @@ pyExecgIntern <- function(code, autoTypecast=TRUE, mergeNamespaces=FALSE,
                           override=TRUE, simplify=TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))
     ret_val <- try(.Call("PythonInR_Run_String", code, 257L, autoTypecast,
-                         mergeNamespaces, override, returnToR, 
-                         simplify), silent = TRUE)
+                         mergeNamespaces, override, TRUE, simplify), silent = TRUE)
     return(ret_val)
 }
 

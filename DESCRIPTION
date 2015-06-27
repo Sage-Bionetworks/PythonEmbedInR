@@ -5,7 +5,7 @@ Author: Florian Schwendinger [aut, cre]
 Maintainer: Florian Schwendinger <FlorianSchwendinger@gmx.at>
 Description: Interact with Python from within R.
 Depends: R (>= 2.15)
-Imports: pack, methods, R6, namespace
+Imports: pack, methods, R6
 SystemRequirements: Python (>= 2.7.0) with header files and shared library (UNIX) / static library (Windows)
 Note: More information about the system requirements can be found in the README file.
 URL: http://pythoninr.bitbucket.org/

@@ -60,6 +60,8 @@ pyGet0 <- function(key){
 #' @description The function pyGet gets Python objects by name and transforms 
 #'              them into R objects. 
 #' @param key a string specifying the name of a Python object.
+#' @param autoTypecast a an optional logical value, default it TRUE, specifying
+#'        if the return values should be automatically typecasted if possible.
 #' @param simplify an optional logical value, if TRUE R converts Python lists 
 #'        into R vectors whenever possible, else it translates Python lists 
 #'        always into R lists.
@@ -68,8 +70,7 @@ pyGet0 <- function(key){
 #'          about the type conversion can be found in the README file or at
 #'          \url{http://pythoninr.bitbucket.org/}. \cr
 #' @note pyGet always returns a new object, if you want to create a R representation
-#'       of an existing Python object please use pyGet0.
-#'       PyObject, PyTuple, PyList, PyDict, PyFunction
+#'       of an existing Python object use pyGet0 instead.
 #' @return Returns the specified Python object converted into an R object if
 #'         possible, else a warning is issued and the string representation
 #'         of the object is returned.
