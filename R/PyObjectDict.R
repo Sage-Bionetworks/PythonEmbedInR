@@ -89,26 +89,49 @@ PythonInR_DictNoFinalizer <-
     x
 }
 
-pyDict <- function(variableName, value, regFinalizer = TRUE){
+#  ---------------------------------------------------------
+#  pyDict
+#  ======
+#' @title create a virtual Python dictionary
+#'
+#' @description The function pyDict creates a virtual Python object 
+#'              of type PythonInR_Dict.
+#' @param key a character string giving the name of the Python object.
+#' @param value an optional value.
+#' @param regFinalizer a logical
+#' @details TODO
+#' @examples
+#' \dontshow{PythonInR:::pyCranConnect()}
+#' pyExec('myPyDict = {"a":1, "b":2, "c":3}')
+#' # create a virtual Python dictionary for an existing dictionary
+#' myDict <- pyDict("myPyDict")
+#' myDict[""]
+#' myDict[1] <- "should give an error since tuple are not mutable"
+#' myDict
+#' # create a new Python list and virtual list
+#' newTuple <- pyTuple('myNewTuple', list(1:3, 'Hello Python'))
+#' newTuple[1]
+#  ---------------------------------------------------------
+pyDict <- function(key, value, regFinalizer = TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))
-    check_string(variableName)
+    check_string(key)
 
     if (!missing(value)){
         ## create a new object
-        pySetSimple(variableName, value)
+        pySetSimple(key, value)
     }
 
-    if (!pyVariableExists(variableName))
+    if (!pyVariableExists(key))
         stop(sprintf("'%s' does not exist in the global namespace",
-             variableName))
-    vIsDict <- pyGet(sprintf("isinstance(%s, dict)", variableName))
+             key))
+    vIsDict <- pyGet(sprintf("isinstance(%s, dict)", key))
     if (!vIsDict)
-        stop(sprintf("'%s' is not an instance of dict"), variableName)
+        stop(sprintf("'%s' is not an instance of dict"), key)
 
     if (regFinalizer){
-      py_dict <- PythonInR_Dict$new(variableName, NULL, "dict")
+      py_dict <- PythonInR_Dict$new(key, NULL, "dict")
     }else{
-      py_dict <- PythonInR_DictNoFinalizer$new(variableName, NULL, "dict")
+      py_dict <- PythonInR_DictNoFinalizer$new(key, NULL, "dict")
     }
     return(py_dict)
 }

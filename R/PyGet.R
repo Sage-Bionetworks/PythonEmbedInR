@@ -12,14 +12,19 @@
 #  ======
 #' @title creates an R representation of an Python object
 #'
-#' @description The function pyLend  
-#' @param key 
-#' @details
-#' @return Returns the specified Python object converted into an R object if
-#'         possible, else a warning is issued and the string representation
-#'         of the object is returned.
+#' @description The function pyGet0 gets Python objects by name.
+#' @param key a string specifying the name of a Python object.
+#' @details Primitive data types like bool, int, long, float, str, 
+#'          bytes and unicode are 
+#' @return Returns a virtual python object. 
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
+#' pyExec("import os")
+#' os <- pyGet0("os")
+#' os$getcwd()
+#' os$sep
+#' os$sep <- "Hello Python!"
+#' pyExecp("os.sep")
 # -----------------------------------------------------------
 pyGet0 <- function(key){
     if ( pyConnectionCheck() ) return(invisible(NULL))
@@ -34,10 +39,7 @@ pyGet0 <- function(key){
     if ( pyClass %in% c("bool", "int", "long", "float", "str", "bytes", "unicode")){
         return(pyGet(key))
     }else if (pyIsCallable(key)){
-        fun <- pyFunction(key)
-        class(fun) <- "pyFunction"
-        attr(fun, "name") <- key
-        return(fun)
+        return(pyFunction(key))
     }else if ( pyClass == "tuple" ){
         return(pyTuple(key, regFinalizer = FALSE))
     }else if ( pyClass == "list" ){
@@ -66,7 +68,7 @@ pyGet0 <- function(key){
 #'          about the type conversion can be found in the README file or at
 #'          \url{http://pythoninr.bitbucket.org/}. \cr
 #' @note pyGet always returns a new object, if you want to create a R representation
-#'       of an existing Python object please use pyLend.
+#'       of an existing Python object please use pyGet0.
 #'       PyObject, PyTuple, PyList, PyDict, PyFunction
 #' @return Returns the specified Python object converted into an R object if
 #'         possible, else a warning is issued and the string representation

@@ -62,7 +62,7 @@ function(...){
 activeFun <- '
 function(value){
     if (missing(value)){
-        return(pyLend("%s.%s"))
+        return(pyGet0("%s.%s"))
     }else{
         pySet("%s", value, "%s")
     } 
@@ -72,7 +72,7 @@ function(value){
 activeFun0 <- '
 function(value){
     if (missing(value)){
-        return(pyLend("%s"))
+        return(pyGet0("%s"))
     }else{
         pySet("%s", value)
     } 
@@ -89,27 +89,27 @@ except:
 ', x))[['x']]
 }
 
-pyObject <- function(variableName, regFinalizer = TRUE){
+pyObject <- function(key, regFinalizer = TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))
-    check_string(variableName)
+    check_string(key)
 
-    objectName <- pyGetName(variableName)
-    type <- pyType(variableName)
+    objectName <- pyGetName(key)
+    type <- pyType(key)
 
     pyMethods <- list()
     pyActive <- list()
     
-    pydir <- pyDir(variableName)
+    pydir <- pyDir(key)
     for (o in pydir){
-        po <- paste(c(variableName, o), collapse=".")
+        po <- paste(c(key, o), collapse=".")
         if (pyIsCallable(po)){
             ##cat("function:", o , "\n")
-            cfun <- sprintf(callFun, paste(variableName, o, collapse="."))
+            cfun <- sprintf(callFun, paste(key, o, collapse="."))
             ##pyobject$set("public", o, eval(parse(text=fun)))
             pyMethods[[o]] <- eval(parse(text=cfun))
         }else{
             ##cat("active:", o , "\n")
-            afun <- sprintf(activeFun, variableName, o, o, variableName)
+            afun <- sprintf(activeFun, key, o, o, key)
             pyActive[[o]] <- eval(parse(text=afun))
         }
     }
@@ -149,7 +149,7 @@ pyObject <- function(variableName, regFinalizer = TRUE){
         class(pyobject) <- class(pyobject)[-2]
     }
 
-    pyobject$new(variableName, objectName, type)
+    pyobject$new(key, objectName, type)
 }
 
 PythonInR_Object <- R6Class(
@@ -187,7 +187,10 @@ PythonInR_ObjectNoFinalizer <-
 
 pyFunction <- function(variableName){
     cfun <- sprintf(callFun, variableName)
-    eval(parse(text=cfun))
+    fun <- eval(parse(text=cfun))
+    class(fun) <- "pyFunction"
+    attr(fun, "name") <- key
+    fun
 }
 
 print.pyFunction <- function(x, ...) pyExecp(attr(x, "name"))

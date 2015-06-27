@@ -41,28 +41,28 @@ pyImport <- function(import, from=NULL, as=NULL, env = parent.frame()){
 
   if (mode == 0){
       pyExec(sprintf("import %s", import))
-      assign(import, pyLend(import), envir = env)
+      assign(import, pyGet0(import), envir = env)
   }else if(mode == 1){
       pyExec(sprintf("import %s as %s", import, as))
       if (import=="numpy") options(numpyAlias=as)
       if (import=="pandas") options(pandasAlias=as)
-      assign(as, pyLend(as), envir = env)
+      assign(as, pyGet0(as), envir = env)
   }else if(mode == 2){
       if (length(import) > 1){
           imp <- paste(import, collapse=", ")
           pyExec(sprintf("from %s import %s", from, imp))
           for (imp in import){
-              assign(imp, pyLend(imp), envir = env)  
+              assign(imp, pyGet0(imp), envir = env)  
           }
       }else if(import == "*"){
         stop("'from foo import *' is not allowed in pyImport")
       }else{
           pyExec(sprintf("from %s import %s", from, import))
-          assign(import, pyLend(import), envir = env)
+          assign(import, pyGet0(import), envir = env)
       }
   }else if(mode == 3){
       pyExec(sprintf("from %s import %s as %s", from, import, as))
-      assign(as, pyLend(as), envir = env)
+      assign(as, pyGet0(as), envir = env)
   }else{stop(pi)}
   
   invisible(NULL)

@@ -83,8 +83,9 @@ PythonInR_ListNoFinalizer <-
 #'
 #' @description The function pyList 
 #' @param key 
-#' @param ...
-#' @details 
+#' @param value
+#' @param regFinalizer
+#' @details TODO
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
 #' pyExec('myPyList = [1, 2, 5, "Hello R!"]')
@@ -97,27 +98,27 @@ PythonInR_ListNoFinalizer <-
 #' pyList('myNewList', list(1:3, 'Hello Python'))
 #' pyList[1]
 #  ---------------------------------------------------------
-pyList <- function(variableName, value, regFinalizer = TRUE){
+pyList <- function(key, value, regFinalizer = TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))
-    check_string(variableName)
+    check_string(key)
 
     if (!missing(value)){
         if ( !is.vector(value) ) stop("'value' has to be a vector or list")
         if (length(value) < 1) value <- as.list(value)
-        pySetSimple(variableName, unname(value))
+        pySetSimple(key, unname(value))
     }
     
-    if (!pyVariableExists(variableName))
+    if (!pyVariableExists(key))
         stop(sprintf("'%s' does not exist in the global namespace",
-             variableName))
-    vIsList <- pyGet(sprintf("isinstance(%s, list)", variableName))
+             key))
+    vIsList <- pyGet(sprintf("isinstance(%s, list)", key))
     if (!vIsList)
-        stop(sprintf("'%s' is not an instance of list"), variableName)
+        stop(sprintf("'%s' is not an instance of list"), key)
 
     if (regFinalizer){
-        py_list <- PythonInR_List$new(variableName, NULL, "list")
+        py_list <- PythonInR_List$new(key, NULL, "list")
     }else{
-        py_list <- PythonInR_ListNoFinalizer$new(variableName, NULL, "list")
+        py_list <- PythonInR_ListNoFinalizer$new(key, NULL, "list")
         class(py_list) <- class(py_list)[-2]
     }
     return(py_list)

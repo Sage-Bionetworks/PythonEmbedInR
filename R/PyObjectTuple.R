@@ -48,12 +48,13 @@ PythonInR_TupleNoFinalizer <-
 #  ---------------------------------------------------------
 #  pyTuple
 #  ======
-#' @title create a virtual Python list
+#' @title create a virtual Python tuple
 #'
-#' @description The function pyList 
+#' @description The function pyTuple
 #' @param key 
-#' @param ...
-#' @details 
+#' @param value 
+#' @param regFinalizer
+#' @details TODO
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
 #' pyExec('myPyTuple = (1, 2, 5, "Hello R!")')
@@ -66,28 +67,28 @@ PythonInR_TupleNoFinalizer <-
 #' newTuple <- pyTuple('myNewTuple', list(1:3, 'Hello Python'))
 #' newTuple[1]
 #  ---------------------------------------------------------
-pyTuple <- function(variableName, value, regFinalizer = FALSE){
+pyTuple <- function(key, value, regFinalizer = FALSE){
     if ( pyConnectionCheck() ) return(invisible(NULL))
-    check_string(variableName)
+    check_string(key)
 
     if (!missing(value)){
         if ( !is.vector(value) ) stop("'value' has to be a vector or list")
         if (length(value) < 1) value <- as.list(value)
         class(value) <- "pyTuple"
-        pySetSimple(variableName, value)       
+        pySetSimple(key, value)       
     }
     
-    if (!pyVariableExists(variableName))
+    if (!pyVariableExists(key))
         stop(sprintf("'%s' does not exist in the global namespace",
-             variableName))
-    vIsTuple <- pyGet(sprintf("isinstance(%s, tuple)", variableName))
+             key))
+    vIsTuple <- pyGet(sprintf("isinstance(%s, tuple)", key))
     if (!vIsTuple)
-        stop(sprintf("'%s' is not an instance of tuple"), variableName)
+        stop(sprintf("'%s' is not an instance of tuple"), key)
 
     if (regFinalizer){
-        py_tuple <- PythonInR_Tuple$new(variableName, NULL, "tuple")
+        py_tuple <- PythonInR_Tuple$new(key, NULL, "tuple")
     }else{
-        py_tuple <- PythonInR_TupleNoFinalizer$new(variableName, NULL, "tuple")
+        py_tuple <- PythonInR_TupleNoFinalizer$new(key, NULL, "tuple")
         class(py_tuple) <- class(py_tuple)[-2]
     }
     return(py_tuple)

@@ -4,6 +4,10 @@ import(methods)
 import(R6)
 #import(namespace)
 
+S3method("print", "pyFunction")
+
+##S3method("as.simple_triplet_matrix", "matrix.csc")
+
 S3method("[", "PythonInR_Tuple")
 S3method("[<-", "PythonInR_Tuple")
 
@@ -25,8 +29,8 @@ export(autodetectPython,
        pyExecfile,
        pyPrint,
        pyCall,
+       pyGet0,
        pyGet,
-       pyLend,
        pySet,
        pyType,
        pyImport,
