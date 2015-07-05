@@ -33,12 +33,13 @@ os.name = "Hello Python from R!"
 pyExecp("os.name")
 os.name
 ## Please note if you don't pyAttach to globalenv you have to use
-## the global assignment operator to set the Python values
+## the global assignment operator to set the values of the Python objects
 os <- new.env()
 attach(os, name="python:os")
 pyAttach(paste("os", pyDir("os"), sep="."), as.environment("python:os"))
 os.sep
-os.sep = "this doesn't changes the value in Python but only assigns the new variable os.sep to globalenv"
+os.sep = "new sep" ## this doesn't changes the value in Python but only
+                   ## assigns the new variable os.sep to globalenv
 os.sep
 .GlobalEnv$`os.sep`
 as.environment("python:os")$`os.sep`

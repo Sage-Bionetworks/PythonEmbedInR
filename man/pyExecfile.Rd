@@ -11,8 +11,8 @@ pyExecfile(filename)
 be executed.}
 }
 \description{
-The function pyExecfile calls the Python function execfile. which
-             is the Python equivalent to the source function provided in R.
+The function pyExecfile calls the Python function \code{execfile}. which
+             is the Python equivalent to the function \code{source} provided in R.
 }
 \details{
 The function execfile is kind of the source of Python. Since it got omitted

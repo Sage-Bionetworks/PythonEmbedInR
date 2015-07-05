@@ -57,8 +57,7 @@ pySource <- function(file, local = FALSE, echo = verbose, print.eval = echo,
 #  ============
 #' @title Execute Python interactively from within R
 #'
-#' @description The function BEGIN.Python starts an interactive
-#'              execute, print loop.
+#' @description The function BEGIN.Python starts an Python Read–eval–print loop.
 #' @details BEGIN.Python emulates the behavior of the Python terminal
 #'          and therefore allows interactive Python code development
 #'          from within R.
@@ -74,6 +73,8 @@ pySource <- function(file, local = FALSE, echo = verbose, print.eval = echo,
 #' dir(os)
 #' x = 3**3
 #' END.Python
+#' ## NOTE: BEGIN.Python returns the successfully executed code as string.
+#' cat(code)
 #' pyGet0("x")
 #' }
 #  -----------------------------------------------------------
@@ -95,4 +96,5 @@ BEGIN.Python <- function(){
     }
     return(invisible(pyCode))
 }
+
 

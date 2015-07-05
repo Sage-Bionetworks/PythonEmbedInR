@@ -53,7 +53,7 @@ pyExecp <- function(code){
 #' @description The function pyExec allows to execute multiple lines of python 
 #'              code from within R. 
 #' @param code a string of Python code to be executed in Python.
-#' @details Since pyExec can execute multiple lines, it is the obvious for defining
+#' @details Since pyExec can execute multiple lines, it is the obvious choice for defining
 #'          Python functions or running small scripts where no return value is needed.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
@@ -225,8 +225,8 @@ pyExecgIntern <- function(code, autoTypecast=TRUE, mergeNamespaces=FALSE,
 #  ==========
 #' @title Executes Python source file from within R
 #'
-#' @description The function pyExecfile calls the Python function execfile. which 
-#'              is the Python equivalent to the source function provided in R.
+#' @description The function pyExecfile calls the Python function \code{execfile}. which 
+#'              is the Python equivalent to the function \code{source} provided in R.
 #' @param filename a character string giving the name or full path of the file to
 #'                 be executed.
 #' @details The function execfile is kind of the source of Python. Since it got omitted 

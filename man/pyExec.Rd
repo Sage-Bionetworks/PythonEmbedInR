@@ -14,7 +14,7 @@ The function pyExec allows to execute multiple lines of python
              code from within R.
 }
 \details{
-Since pyExec can execute multiple lines, it is the obvious for defining
+Since pyExec can execute multiple lines, it is the obvious choice for defining
          Python functions or running small scripts where no return value is needed.
 }
 \examples{

@@ -17,7 +17,7 @@ Returns a list containing the information necessary to
 }
 \description{
 Autodetect the settings needed to connect to
-             the dll file.
+             the dll file. \strong{only Windows}
 }
 \examples{
 \dontrun{

@@ -11,8 +11,7 @@ Returns the entered code back to R, code lines which throw an
         exception are obmitted.
 }
 \description{
-The function BEGIN.Python starts an interactive
-             execute, print loop.
+The function BEGIN.Python starts an Python Read–eval–print loop.
 }
 \details{
 BEGIN.Python emulates the behavior of the Python terminal
@@ -29,6 +28,8 @@ os.getcwd()
 dir(os)
 x = 3**3
 END.Python
+## NOTE: BEGIN.Python returns the successfully executed code as string.
+cat(code)
 pyGet0("x")
 }
 }
