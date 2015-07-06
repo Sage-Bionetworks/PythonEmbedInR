@@ -1,11 +1,11 @@
-# ------------------------------------------------------------------------------ 
-#
-#   PyGet always creates a new Python Object if it can't be
-#         to R. The new Python Object is stored in the dict __R__.
-#
-#   PyGet0 creates 0 new Python objects.
-#
-# ------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------- 
+##
+##   PyGet always creates a new Python Object if it can't be
+##         to R. The new Python Object is stored in the dict __R__.
+##
+##   PyGet0 creates 0 new Python objects.
+##
+## -----------------------------------------------------------------------------
 
 #  -----------------------------------------------------------
 #  pyGet0
@@ -18,7 +18,9 @@
 #'          bytes and unicode are returned as R objects. Python tuple, lists,
 #'          dictionaries and other Python objects are returned as virtual
 #'          Python objects.
-#' @return Returns a virtual Python object. 
+#' @note pyGet0 never creates a new Python object.
+#' @return Returns the specified Python object converted into an R object if
+#'         possible, else a virtual Python object.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
 #' pyExec("import os")
@@ -74,19 +76,35 @@ pyGet0 <- function(key){
 #' @note pyGet always returns a new object, if you want to create a R representation
 #'       of an existing Python object use pyGet0 instead.
 #' @return Returns the specified Python object converted into an R object if
-#'         possible, else a warning is issued and the string representation
-#'         of the object is returned.
+#'         possible, else a virtual Python object.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
+#' ## get a character of length 1
 #' pyGet("__name__")
+#' ## get a character of length 1 > 1
 #' pyGet("sys.path")
-#' pyExec("
-#' from datetime import date
-#' today = date.today()
-#' ")
-#' pyExecp("today")
-#' pyPrint("today")
-#' pyGet("today")
+#' ## get a list
+#' pyGet("sys.path", simplify = FALSE)
+#' ## get a PythonInR_List
+#' x <- pyGet("sys.path", autoTypecast = FALSE)
+#' x
+#' class(x)
+#'
+#' ## get an object where no specific transformation to R is defined
+#' ## this example also shows the differnces between pyGet and pyGet0
+#' pyExec("import datetime")
+#' ## pyGet creates a new Python variable where the return value of pyGet is
+#' ## stored the name of the new reference is stored in x$py.variableName.
+#' x <- pyGet("datetime.datetime.now().time()")
+#' x
+#' class(x)
+#' x$py.variableName
+#' ## pyGet0 never creates a new Python object, objects which can be transformed 
+#' ## to R objects are transformed. For all other objects an PythonInR_Object is created.
+#' y <- pyGet0("datetime.datetime.now().time()")
+#' y
+#' ## An important difference is that the evaluation of x always will return the same
+#' ## time, the evaluation of y always will give the new time.
 # -----------------------------------------------------------
 pyGet <- function(key, autoTypecast=TRUE, simplify=TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))

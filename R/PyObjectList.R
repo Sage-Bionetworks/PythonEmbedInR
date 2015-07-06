@@ -60,7 +60,7 @@ PythonInR_ListNoFinalizer <-
             ))
 
 `[.PythonInR_List` <- function(x, i){
-    slice <- if (is.character(i)) i else deparse(i)
+    slice <- if (is.character(i)) i else deparse(substitute(i))
     pyGet(sprintf("%s[%s]", x$py.variableName, slice))
 }
 
@@ -105,6 +105,9 @@ PythonInR_ListNoFinalizer <-
 #' myNewList[1]
 #' myNewList$append(4L)
 #' ls(myNewList)
+#' ## NOTE: Indexing which can not be interpreted as correct R
+#' ##       syntax should be provided as a character string.
+#' myNewList['::2'] 
 #  ---------------------------------------------------------
 pyList <- function(key, value, regFinalizer = TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))

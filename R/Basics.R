@@ -68,5 +68,11 @@ pyHelp <- function(topic){
 pyType <- function(objName){
     check_string(objName)
     cmd <- 'try:\n\tx = type(%s).__name__\nexcept:\n\tx = None'
-    pyExecg(sprintf(cmd, objName))[['x']]
+    tryCatch({capture.output(retVal <- pyExecg(sprintf(cmd, objName))[['x']])},
+        error=function(e){
+            errorMsg <- sprintf('pyType("%s")\n  >>> type(%s)\n  SyntaxError: invalid syntax', 
+                objName, objName)
+            stop(errorMsg, call.=FALSE)
+        })
+    return(retVal)
 }

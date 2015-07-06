@@ -118,13 +118,15 @@ pyCranConnect <- function(){
 #'          \url{http://pythoninr.bitbucket.org/}.
 #' @examples
 #' \dontrun{
-#' # Linux examples
+#' ## Linux examples
 #' pyConnect() # is done by default when the package is loaded
-#' # Windows examples
-#' pyConnect() # will try to detect a suitable python version 
-#'             # from the PATH given in the environment variables
-#' pyConnect("C:\\Python27\\python.exe") # 
-#' # One can also explicitly set the parameters for the connection.
+#'
+#' ## Windows examples
+#' pyConnect() ## will try to detect a suitable python version 
+#'             ## from the PATH given in the environment variables
+#' pyConnect("C:\\Python27\\python.exe")
+#'
+#' ## One can also explicitly set the parameters for the connection.
 #' PythonInR:::pyConnectWinDll(dllName="python27.dll", dllDir=NULL,
 #'                             majorVersion=2, pythonHome="C:\\Python27", 
 #'                             pyArch="32bit")

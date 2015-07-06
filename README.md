@@ -30,7 +30,8 @@ Linux-based** distributions, use the following:
 ```
 
 ### Windows
-There are no additional dependencies on Windows.
+There are no additional dependencies on Windows. 
+(One obviously needs to have R and Python installed.)
 
 ## Installation
 ```r
@@ -53,8 +54,8 @@ def execfile(filename):
 ### R to Python (pySet)
 To allow a nearly one to one conversion from R to Python, PythonInR provides
 Python classes for vectors, matrices and data.frames which allow 
-an easy conversion from R to Python and back. The names of the classes are prVector,
-prMatrix and prDataFrame.
+an easy conversion from R to Python and back. The names of the classes are PrVector,
+PrMatrix and PrDataFrame.
 
 #### Default Conversion
 | R                  | length (n) | Python      |
@@ -64,14 +65,14 @@ prMatrix and prDataFrame.
 | integer            |          1 | integer     |
 | numeric            |          1 | double      |
 | character          |          1 | unicode     |
-| logical            |      n > 1 | prVector    |
-| integer            |      n > 1 | prVector    |
-| numeric            |      n > 1 | prVector    |
-| character          |      n > 1 | prVector    |
+| logical            |      n > 1 | PrVector    |
+| integer            |      n > 1 | PrVector    |
+| numeric            |      n > 1 | PrVector    |
+| character          |      n > 1 | PrVector    |
 | list without names |      n > 0 | list        |
 | list with names    |      n > 0 | dict        |
-| matrix             |      n > 0 | prMatrix    |
-| data.frame         |      n > 0 | prDataFrame |
+| matrix             |      n > 0 | PrMatrix    |
+| data.frame         |      n > 0 | PrDataFrame |
 
 
 #### Change the predefined conversion of pySet
@@ -112,7 +113,7 @@ pyType("x")
 **NOTE PythonInR:::pySetSimple**   
 The functions **pySetSimple** and **pySetPoly** shouldn't be used **outside** the function 
 **pySet** since they do not check if R is connected to Python. If R is not connected 
-to Python this will **yield** to **segfault** !
+to Python this can **yield** to **segfault** !
 
 
 **NOTE (named lists):**   
@@ -121,12 +122,12 @@ of the elements in x will change. This is not a special behavior of **PythonInR*
 but the default behavior of Python for dictionaries.
 
 **NOTE (matrix):**   
-Matrices are either transformed to an object of the class prMatrix or 
+Matrices are either transformed to an object of the class PrMatrix or 
 to an numpy array (if the option useNumpy is set to TRUE).
 
 
 **NOTE (data.frame):**   
-Data frames are either transformed to an object of the class prDataFrame   
+Data frames are either transformed to an object of the class PrDataFrame   
 or to a pandas DataFrame (if the option usePandas is set to TRUE).
 
 
@@ -146,40 +147,39 @@ or to a pandas DataFrame (if the option usePandas is set to TRUE).
 | list        | list or vector       | TRUE         |
 | dict        | named list           | FALSE        |
 | dict        | named list or vector | TRUE         |
-| prVetor     | vector               | TRUE / FALSE |
-| prMatrix    | matrix               | TRUE         |
-| prDataFrame | data.frame           | TRUE         |
+| PrVetor     | vector               | TRUE / FALSE |
+| PrMatrix    | matrix               | TRUE         |
+| PrDataFrame | data.frame           | TRUE         |
 
 #### Change the predefined conversion of pyGet
 Similar to pySet the behavior of pyGet can be changed by utilizing pyGetPoly.
-The predefined version of pyGetPoly for an object of class prMatrix looks like the following:
+The predefined version of pyGetPoly for an object of class PrMatrix looks like the following:
 ```r
-setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass = "prMatrix"),
-          function(key, simplify, pyClass){
-    x <- pyExecg(sprintf("x = %s.toDict()", key), simplify = simplify)[['x']]
+setMethod("pyGetPoly", signature(key="character", autoTypecast = "logical", simplify = "logical", pyClass = "PrMatrix"),
+          function(key, autoTypecast, simplify, pyClass){
+    x <- pyExecg(sprintf("x = %s.toDict()", key), autoTypecast = autoTypecast, simplify = simplify)[['x']]
     M <- do.call(rbind, x[['matrix']])
     rownames(M) <- x[['rownames']]
     colnames(M) <- x[['colnames']]
     return(M)
 })
 ```
-For objects of type "type" no conversion is defined.  Therefore, when executing the
-following two lines a warning is issued and only the string representation is returned.
+For objects of type "type" no conversion is defined. Therefore, PythonInR doesn't know how
+to transform it into an R object so it will return a PythonInR_Object. This is kind of a
+nice example since the return value of type(x) is a function therefore PythonInR will
+return an object of type pyFunction.
 ```r
-pyExecp("ty = type(list())")
-pyGet("ty")
+pyGet("type(list())")
 ```
 One can define a new function to get elements of type "type" as follows.
 ```r
 pyGetPoly <- PythonInR:::pyGetPoly
-setMethod("pyGetPoly", signature(key="character", simplify = "logical", pyClass = "type"),
-          function(key, simplify, pyClass){
+setClass("type")
+setMethod("pyGetPoly", signature(key="character", autoTypecast = "logical", simplify = "logical", pyClass = "type"),
+          function(key, autoTypecast, simplify, pyClass){
     pyExecg(sprintf("x = %s.__name__", key))[['x']]
 })
-
-pyGet("ty")
-pyExecp("myListType = type(list())")
-pyGet("myListType")
+pyGet("type(list())")
 ```
 
 **NOTE pyGetPoly**   
@@ -196,20 +196,30 @@ More information can be found [here](http://www.diveintopython3.net/strings.html
 ## Cheat Sheet
 
 | Command          | Short Description                                  | Example Usage                                                        |
-| ---------------- | ----------------------------------------------     | -------------------------------------------------------------------- |
+| ---------------- | -------------------------------------------------- | -------------------------------------------------------------------- |
+| BEGIN.Python     | Start a Python read-eval-print loop                | `BEGIN.Python() print("Hello" + " " + "R!") END.Python`              |
+| pyAttach         | Attach a Python object to an R environment         | `pyAttach("os.getcwd", .GlobalEnv)                                   |
 | pyCall           | Call a callable Python object                      | `pyCall("pow", list(2,3), namespace="math")`                         |
 | pyConnect        | Connect R to Python                                | `pyConnect()`                                                        |
+| pyDict           | Create a representation of a Python dict in R      | `myNewDict <- pyDict('myNewDict', list(p=2, y=9, r=1))`              |
 | pyDir            | The Python function dir (similar to ls)            | `pyDir()`                                                            |
 | pyExec           | Execute Python code                                | `pyExec('some_python_code = "executed"')`                            |
 | pyExecfile       | Execute a file (like source)                       | `pyExecfile("myPythonFile.py")`                                      |
 | pyExecg          | Execute Python code and get all assigned variables | `pyExecg('some_python_code = "executed"')`                           |
 | pyExecp          | Execute and print Python Code                      | `pyExecp('"Hello" + " " + "R!"')`                                    |
 | pyExit           | Close Python                                       | `pyExit()`                                                           |
+| pyFunction       | Create a representation of a Python function in R  | `pyFunction(key)`                                                    |
 | pyGet            | Get a Python variable                              | `pyGet('myPythonVariable')`                                          |
+| pyGet0           | Get a Python variable                              | `pyGet('myPythonVariable')`                                          |
 | pyHelp           | Python help                                        | `pyHelp("help")`                                                     |
 | pyImport         | Import a Python module                             | `pyImport("numpy", "np")`                                            |
 | pyIsConnected    | Check if R is connected to Python                  | `pyIsConnected()`                                                    |
+| pyList           | Create a representation of a Python list in R      | `pyList(key)`                                                        |
+| pyObject         | Create a representation of a Python object in R    | `pyObject(key)`                                                      |
+| pyOptions        | A function to get and set some package options     | `pyOptions("numpyAlias", "np")`                                      |
 | pyPrint          | Print a Python variable from within R              | `pyPrint("somePythonVariable")`                                      |
 | pySet            | Set a R variable in Python                         | `pySet("pi", pi)`                                                    |
+| pySource         | A modified BEGIN.Python aware version of source    | `pySource("myFile.R")`                                               |
+| pyTuple          | Create a representation of a Python tuple in R     | `pyTuple(key)`                                                       |
 | pyType           | Get the type of a Python variable                  | `pyType("sys")`                                                      |
 | pyVersion        | Returns the version of Python                      | `pyVersion()`                                                        |

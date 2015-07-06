@@ -15,9 +15,13 @@
 #' @param value an R object which is assigned to Python. 
 #' @param namespace a string specifying where the key should be located.
 #'                   If the namespace is set to "__main__" the key will be
-#'                   set to the global namespace. But it is also posible to
+#'                   set to the global namespace. But it is also possible to
 #'                   set attributes of objects e.g. the attribute name of
 #'                   the object 'os'.
+#' @param useSetPoly an optional logical, giving if pySetPoly should be used 
+#'                   to transform R objects into Python objects. For example if 
+#'                   useSetPoly is TRUE unnamed vectors are transformed to 
+#'                   Python objects of type PrVector else to lists.
 #' @param useNumpy an optional logical, default is FALSE, to control if numpy 
 #'                 should be used for the type conversion of matrices.
 #' @param usePandas an optional logical, default is FALSE, to control if pandas 
@@ -32,6 +36,7 @@
 #' pySet("name", "Hello os!", namespace="os")
 #  ---------------------------------------------------------
 pySet <- function(key, value, namespace = "__main__",
+                  useSetPoly = TRUE,
                   useNumpy=pyOptions("useNumpy"),
                   usePandas=pyOptions("usePandas")){
     
@@ -44,7 +49,7 @@ pySet <- function(key, value, namespace = "__main__",
         class(value) <- "DataFrame"
     }
     
-    if (isBasic(value)){
+    if ( isBasic(value) | (!useSetPoly) ){
         returnValue <- pySetSimple(key, value, namespace)
     }else{
         returnValue <- pySetPoly(key, value, namespace)

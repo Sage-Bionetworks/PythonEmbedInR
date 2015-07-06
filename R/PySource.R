@@ -4,8 +4,10 @@
 #' @title Read mixed R and Python code from a file
 #'
 #' @description The function BEGIN.Python allows interactive development
-#'              but doesn't work 
-#' @param file see documentation of source
+#'              but doesn't work in combination with the function source.
+#'              Therefore pySource provides an alternative to the function source
+#'              which also can handle BEGIN.Python statements.
+#' @param file a character string giving the pathname of the file.
 #' @param local see documentation of source
 #' @param echo see documentation of source
 #' @param print.eval see documentation of source
@@ -17,8 +19,8 @@
 #' @param continue.echo see documentation of source
 #' @param skip.echo see documentation of source
 #' @param keep.source see documentation of source
-#' @details The function pySource workes exactly like source but code 
-#'          which is in closed between BEGIN.Python and END.Python is
+#' @details The function pySource works similar to source but code 
+#'          which is enclosed between BEGIN.Python and END.Python is
 #'          replaced by pyExec and the quoted version of the code.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
@@ -57,11 +59,11 @@ pySource <- function(file, local = FALSE, echo = verbose, print.eval = echo,
 #  ============
 #' @title Execute Python interactively from within R
 #'
-#' @description The function BEGIN.Python starts an Python Read–eval–print loop.
+#' @description The function BEGIN.Python starts an Python read-eval-print loop.
 #' @details BEGIN.Python emulates the behavior of the Python terminal
 #'          and therefore allows interactive Python code development
 #'          from within R.
-#' @return Returns the entered code back to R, code lines which throw an
+#' @return Returns the entered code as character, code lines which throw an
 #'         exception are obmitted.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
@@ -73,7 +75,7 @@ pySource <- function(file, local = FALSE, echo = verbose, print.eval = echo,
 #' dir(os)
 #' x = 3**3
 #' END.Python
-#' ## NOTE: BEGIN.Python returns the successfully executed code as string.
+#' ## NOTE: BEGIN.Python returns the successfully executed code as character.
 #' cat(code)
 #' pyGet0("x")
 #' }

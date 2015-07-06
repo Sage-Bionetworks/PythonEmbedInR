@@ -16,7 +16,7 @@
 #'   \item \strong{usePandas} a logical giving if numpy should be used
 #'         when getting and setting data.frames.
 #'   \item \strong{winPython364} a logical indicating if Python 3 64-bit
-#'         under windows is used, this option is set automaticly at startup
+#'         under windows is used, this option is set automatically at startup
 #'         and shouldn't be changed.
 #' }
 #' @examples

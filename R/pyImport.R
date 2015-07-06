@@ -15,8 +15,8 @@
 #'            
 #'          The function pyImport has a special behavior for the packages numpy 
 #'          and pandas. For these two packages pyImport does not only import 
-#'          numpy but also register their alias in the options. To be found when
-#'          pyGet and pySet is used with the option useNumpy set to TRUE.
+#'          numpy but also register their alias in pyOptions. To be found when
+#'          pySet is used with the option useNumpy set to TRUE.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
 #' pyImport("os")
@@ -25,8 +25,10 @@
 #' #      alias in the options under the name "numpyAlias". 
 #' #      The same is done for pandas, the default alias for pandas and numpy 
 #' #      are respectively "pandas" and "numpy". The numpyAlias is used 
-#' #      when calling pyGet or pySet with the option useNumpy set to TRUE.
+#' #      when calling pySet with the pyOption useNumpy set to TRUE.
+#' pyOptions(numpyAlias)
 #' pyImport("numpy", as="np")
+#' pyOptions(numpyAlias)
 #' pyImport("pandas", as="pd")
 #' pyImport(c("getcwd", "sep"), from="os")
 #' getcwd()
@@ -49,8 +51,8 @@ pyImport <- function(import, from=NULL, as=NULL, env = parent.frame()){
       pyAttach(import, env=env)
   }else if(mode == 1){
       pyExec(sprintf("import %s as %s", import, as))
-      if (import=="numpy") options(numpyAlias=as)
-      if (import=="pandas") options(pandasAlias=as)
+      if (import=="numpy") pyOptions("numpyAlias", as)
+      if (import=="pandas") pyOptions("pandasAlias", as)
       pyAttach(import, env=env)
   }else if(mode == 2){
       if (length(import) > 1){

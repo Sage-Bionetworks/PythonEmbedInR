@@ -25,15 +25,9 @@
 #'          be found in the vignette.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
-#' # due changes in Python 3 the namespace name of the builtins differs between
-#' # Python 3 and Python 2
-#' if (pyIsConnected()){
-#'     if (as.integer(pyExecg("x=sys.version[0]")[[1]]) == 2){
-#'         pyCall("sum", args=list(1:3))
-#'     }else{
-#'         pyCall("sum", args=list(1:3))
-#'     }
-#' }
+#' pyCall("sum", args=list(1:3))
+#' 
+#' ## define a new function with the name fun
 #' pyExec('
 #' def fun(**kwargs):
 #'     return([(key, value) for key, value in kwargs.items()])

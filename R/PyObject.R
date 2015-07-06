@@ -71,7 +71,7 @@ except:
 #' }
 #' 
 #' The other members of PythonInR_Object's are generated dynamically
-#' based on the provided Python object. The function ls can be used
+#' based on the provided Python object. The R function \strong{ls} can be used
 #' to view the members of an PythonInR_Object object.
 #'
 #' @examples
@@ -182,14 +182,17 @@ PythonInR_ObjectNoFinalizer <-
 #  ---------------------------------------------------------
 #  pyFunction
 #  ==========
-#' @title create a virtual Python dictionary
+#' @title create a virtual Python function
 #'
-#' @description The function pyDict creates a virtual Python object 
-#'              of type PythonInR_Dict.
+#' @description The function pyFunction creates a new object of type 
+#'              pyFunction based on a given key.
 #' @param key a string specifying the name of a Python method/function.
-#' @details TODO
+#' @details The function pyFunction makes it easy to create interfaces 
+#'          to Python functions.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
+#' pySum <- pyFunction("sum")
+#' pySum(1:3)
 #  ---------------------------------------------------------
 pyFunction <- function(key){
     cfun <- sprintf(callFun, key)

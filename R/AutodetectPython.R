@@ -4,7 +4,7 @@
 #' @title Autodetects the settings for Windows
 #' 
 #' @description Autodetect the settings needed to connect to
-#'              the dll file. \strong{only Windows}
+#'              the python dll file (\strong{only Windows}).
 #' @param pythonExePath a string giving the path to "python.exe"
 #'        (e.g. "C:\\Python34\\python.exe").
 #' @return Returns a list containing the information necessary to

@@ -4,7 +4,7 @@
 #' @title Attach Python objects to R
 #' @description A convenience function to attach Python objects to R.
 #'
-#' @param what a character vector the names of the Python objects 
+#' @param what a character vector giving the names of the Python objects 
 #'             which should be attached to R.
 #' @param env the environment where the virtual Python objects are 
 #'            assigned to.
@@ -12,6 +12,9 @@
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
 #' pyExec("import os")
+#' 
+#' ## attach to global
+#' ## ----------------
 #' ## attach the function getcwd from the module os to R.
 #' pyAttach("os.getcwd", .GlobalEnv)
 #' os.getcwd
@@ -27,6 +30,9 @@
 #' os.name
 #' ## Please note if you don't pyAttach to globalenv you have to use 
 #' ## the global assignment operator to set the values of the Python objects
+#'
+#' ## attach to a new environment
+#' ## ---------------------------
 #' os <- new.env()
 #' attach(os, name="python:os")
 #' pyAttach(paste("os", pyDir("os"), sep="."), as.environment("python:os"))
@@ -64,13 +70,13 @@ pyAttach <- function(what, env = parent.frame()){
       o <- spo[length(spo)] 
     }
     
-    if (pyIsCallable(po)){ # callable functions
+    if (pyIsCallable(po)){ ## callable functions
       cfun <- sprintf(callFun, po)
       cfun <- eval(parse(text=cfun))
       class(cfun) <- "pyFunction"
       attr(cfun, "name") <- po
       retVal <- assign(po, cfun, envir=env)
-    }else{ # active binding functions
+    }else{ ## active binding functions
       if (is.null(o)){
         afun <- sprintf(activeFun0, variableName, variableName)
       }else{
