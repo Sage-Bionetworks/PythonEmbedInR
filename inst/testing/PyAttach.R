@@ -1,9 +1,8 @@
-#' # Basics
+#' # pyAttach
 require(testthat)
 require(PythonInR)
 invisible(capture.output(pyConnect()))
 
-#' ## pyAttach
 expect_that(pyExec("import os"), equals(0))
 
 ## attach to global

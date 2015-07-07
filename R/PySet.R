@@ -114,7 +114,7 @@ setMethod("pySetPoly", signature(key="character", value = "matrix"),
     value <- apply(value, 1, function(x) as.list(x))
     value <- list(matrix=value, rownames=rnam, colnames=cnam, dim=xdim)
 
-    success <- pySetSimple(key, value)
+    success <- PythonInR:::pySetSimple(key, value)
 
     cmd <- sprintf("%s = __R__.PrMatrix(%s['matrix'], %s['rownames'], %s['colnames'], %s['dim'])", 
                    key, key, key, key, key)

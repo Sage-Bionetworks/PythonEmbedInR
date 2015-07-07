@@ -152,6 +152,7 @@ setMethod("pyGetPoly", signature(key="character", autoTypecast = "logical", simp
           function(key, autoTypecast, simplify, pyClass){
     x <- pyExecg(sprintf("x = %s.toDict()", key), autoTypecast = autoTypecast, simplify = simplify)[['x']]
     M <- do.call(rbind, x[['matrix']])
+    if ( is.null(M) ) M <- matrix()
     rownames(M) <- x[['rownames']]
     colnames(M) <- x[['colnames']]
     return(M)

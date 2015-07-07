@@ -265,12 +265,9 @@ pyExecfile <- function(filename){
 #' pyPrint("sys.version")
 #  ----------------------------------------------------------------------------- 
 pyPrint <- function(objName){
-    if ( pyConnectionCheck() ) return(invisible(NULL))
-    if ( is.character(objName) ){
-        x <- pyExec(sprintf("print(%s)", objName))
-    }else{
-        x <- pyExec(sprintf("print(%s)", as.character(substitute(objName))))
-    }
+    ##if ( pyConnectionCheck() ) return(invisible(NULL))
+    objName <- substitute(objName)
+    if ( !is.character(objName) ) objName <- deparse(objName)
+    x <- pyExec(sprintf("print(%s)", objName))
     return(invisible(x))
 }
-

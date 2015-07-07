@@ -13,6 +13,8 @@
 #define xstr(a) str(a)
 #define str(a) #a
 
+#define PY_NONE Py_BuildValue("")
+
 ////////////////////////////////////////////////////////////////////////
 // Define some makros to convert R primitives to C
 ////////////////////////////////////////////////////////////////////////
@@ -37,23 +39,27 @@
 ////////////////////////////////////////////////////////////////////////
 // Define some makros to convert R primitives to Python
 ////////////////////////////////////////////////////////////////////////
-#define R_TO_PY_BOOLEAN(b) PyBool_FromLong((long)R_TO_C_BOOLEAN(b))
+// NOTE: integer hat kein Inf und NaN as.integer(Inf) und as.integer(NaN)
+//       ergibt beides NA
+#define R_TO_PY_BOOLEAN(b) ( R_TO_C_BOOLEAN(b) == NA_LOGICAL ) ? PY_NONE : PyBool_FromLong((long)R_TO_C_BOOLEAN(b))
+#define R_TO_PY_LONG(n)    ( R_TO_C_INT(n)     == NA_INTEGER ) ? PY_NONE : PyLong_FromLong(R_TO_C_LONG(n))
+#define R_TO_PY_DOUBLE(n)  PyFloat_FromDouble(R_TO_C_DOUBLE(n))
+
+
 #if (PY_MAJOR_VERSION >= 3 || (!defined(PYTHON_IN_R_NO_EXPLICIT_LINKING)))
     #define R_TO_PY_STRING(s)  PyBytes_FromString(R_TO_C_STRING(s))
 #else
     #define R_TO_PY_STRING(s)  PyString_FromString(R_TO_C_STRING(s))
 #endif
-
 #define R_TO_PY_UNICODE(s) PyUnicode_FromString(R_TO_C_STRING(s))
-#define R_TO_PY_LONG(n)    PyLong_FromLong(R_TO_C_LONG(n))
-#define R_TO_PY_DOUBLE(n)  PyFloat_FromDouble(R_TO_C_DOUBLE(n))
 
-#define R_TO_PY_BOOLEAN_V(b,i) PyBool_FromLong((long)R_TO_C_BOOLEAN_V(b,i))
+#define R_TO_PY_BOOLEAN_V(b,i) ( R_TO_C_BOOLEAN_V(b, i) == NA_LOGICAL ) ? PY_NONE : PyBool_FromLong((long)R_TO_C_BOOLEAN_V(b,i))
+#define R_TO_PY_LONG_V(n,i)    ( R_TO_C_LONG_V(n,i)      == NA_INTEGER ) ? PY_NONE : PyLong_FromLong(R_TO_C_LONG_V(n,i))
+#define R_TO_PY_DOUBLE_V(n,i)  PyFloat_FromDouble(R_TO_C_DOUBLE_V(n,i))
+
 #define R_TO_PY_STRING_V(s,i)  PyBytes_FromString(R_TO_C_STRING_V(s,i))
 #define C_TO_PY_STRING_V(s,i)  PyBytes_FromString(s,i)
 #define R_TO_PY_UNICODE_V(s,i) PyUnicode_FromString(R_TO_C_STRING_V(s,i))
-#define R_TO_PY_LONG_V(n,i)    PyLong_FromLong(R_TO_C_LONG_V(n,i))
-#define R_TO_PY_DOUBLE_V(n,i)  PyFloat_FromDouble(R_TO_C_DOUBLE_V(n,i))
 
 ////////////////////////////////////////////////////////////////////////
 // Define some makros to convert Python primitives to C

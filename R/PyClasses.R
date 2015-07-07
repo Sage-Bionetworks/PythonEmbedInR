@@ -48,13 +48,11 @@ class PythonInR(object):
             self.matrix = matrix 
             self.rownames = rownames 
             self.colnames = colnames 
-            self.dim = tuple(dim)
+            self.dim = (0,0) if (dim is None) else tuple(dim)
 
         def __repr__(self):
              s = "prMatrix:" + "\\n\\t%i columns\\n\\t%i rows\\n" % self.dim
              return s + str(self.matrix)
-
-        __str__ = __repr__
 
         def toDict(self):
             return {"matrix": self.matrix, "rownames": self.rownames, "colnames": self.colnames, "dim": self.dim}

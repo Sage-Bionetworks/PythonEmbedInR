@@ -127,7 +127,7 @@ int Py_GetR_Type(PyObject *py_object){
 int PyList_AllSameType(PyObject *py_object){
     PyObject *item, *py_len, *py_i;
     long list_len, count;
-    int r_type = -1;
+    int r_type = -1, item_type;
 
     py_len = PyLong_FromSsize_t(PyList_GET_SIZE(py_object));
     list_len = PY_TO_C_LONG(py_len);
@@ -148,7 +148,8 @@ int PyList_AllSameType(PyObject *py_object){
         item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
         Py_XINCREF(item);
         Py_XDECREF(py_i);
-        count += (r_type != Py_GetR_Type(item));
+        item_type = Py_GetR_Type(item);
+        count += ( (r_type != item_type) && (0 != item_type) );
         Py_XDECREF(item);
         if (count > 0) break;
     }
@@ -164,7 +165,7 @@ int PyList_AllSameType(PyObject *py_object){
 int PyTuple_AllSameType(PyObject *py_object){
     PyObject *item, *py_len, *py_i;
     long list_len, count;
-    int r_type = -1;
+    int r_type = -1, item_type;
 
     py_len = PyLong_FromSsize_t(PyTuple_GET_SIZE(py_object));
     list_len = PY_TO_C_LONG(py_len);
@@ -185,7 +186,8 @@ int PyTuple_AllSameType(PyObject *py_object){
         item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
         Py_XINCREF(item);
         Py_XDECREF(py_i);
-        count += (r_type != Py_GetR_Type(item));
+        item_type = Py_GetR_Type(item);
+        count += ( (r_type != item_type) && (0 != item_type) );
         Py_XDECREF(item);
         if (count > 0) break;
     }
@@ -244,7 +246,12 @@ SEXP py_dict_to_r_vec(PyObject *py_object, int r_vector_type){
             item = PyList_GetItem(py_values, PyLong_AsSsize_t(py_i));
             Py_XDECREF(item);
             Py_XINCREF(item);
-            LOGICAL(r_vec)[i] = PY_TO_C_BOOLEAN(item);
+            // to handle NA variables of type None are transformed to NA
+            if ( Py_GetR_Type(item) == 0 ){
+				LOGICAL(r_vec)[i] = INT_MIN;
+			}else{
+				LOGICAL(r_vec)[i] = PY_TO_C_BOOLEAN(item);
+			}
             // Py_XDECREF(item); Booleans never follow the api in Python!
             Py_DECREF(py_i);
         }
@@ -252,12 +259,17 @@ SEXP py_dict_to_r_vec(PyObject *py_object, int r_vector_type){
         for (long i=0; i < vec_len; i++){
             py_i = PyLong_FromLong(i);
             item = PyList_GetItem(py_keys, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);
+            Py_XINCREF(item);         
             SET_VECTOR_ELT(r_vec_names, i, py_to_r(item, 0, 1));
             Py_XDECREF(item);
             item = PyList_GetItem(py_values, PyLong_AsSsize_t(py_i));
             Py_XINCREF(item);
-            INTEGER(r_vec)[i] = py_to_c_integer(item);
+            // to handle NA variables of type None are transformed to NA
+            if ( Py_GetR_Type(item) == 0 ){
+				INTEGER(r_vec)[i] = INT_MIN;
+			}else{
+				INTEGER(r_vec)[i] = py_to_c_integer(item);
+			}
             Py_XDECREF(item);
             Py_DECREF(py_i);
         }
@@ -372,7 +384,12 @@ SEXP py_list_to_r_vec(PyObject *py_object, int r_vector_type){
             py_i = PyLong_FromLong(i);
             item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
             Py_XINCREF(item);
-            LOGICAL(r_vec)[i] = PY_TO_C_BOOLEAN(item);
+            // to handle NA variables of type None are transformed to NA
+            if ( Py_GetR_Type(item) == 0 ){
+				LOGICAL(r_vec)[i] = INT_MIN;
+			}else{
+				LOGICAL(r_vec)[i] = PY_TO_C_BOOLEAN(item);
+			}
             // Py_XDECREF(item);
             Py_DECREF(py_i);
         }
@@ -381,7 +398,12 @@ SEXP py_list_to_r_vec(PyObject *py_object, int r_vector_type){
             py_i = PyLong_FromLong(i);
             item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
             Py_XINCREF(item);
-            INTEGER(r_vec)[i] = py_to_c_integer(item);
+            // to handle NA variables of type None are transformed to NA
+            if ( Py_GetR_Type(item) == 0 ){
+				INTEGER(r_vec)[i] = INT_MIN;
+			}else{
+				INTEGER(r_vec)[i] = py_to_c_integer(item);
+			}
             Py_XDECREF(item);
             Py_DECREF(py_i);
         }
@@ -437,7 +459,11 @@ SEXP py_tuple_to_r_vec(PyObject *py_object, int r_vector_type){
             py_i = PyLong_FromLong(i);
             item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
             Py_XINCREF(item);
-            LOGICAL(r_vec)[i] = PY_TO_C_BOOLEAN(item);
+            if ( Py_GetR_Type(item) == 0 ){
+				LOGICAL(r_vec)[i] = INT_MIN;
+			}else{
+				LOGICAL(r_vec)[i] = PY_TO_C_BOOLEAN(item);
+			}
             //Py_XDECREF(item);
             Py_DECREF(py_i);
         }
@@ -446,7 +472,11 @@ SEXP py_tuple_to_r_vec(PyObject *py_object, int r_vector_type){
             py_i = PyLong_FromLong(i);
             item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
             Py_XINCREF(item);
-            INTEGER(r_vec)[i] = py_to_c_integer(item);
+			if ( Py_GetR_Type(item) == 0 ){
+				INTEGER(r_vec)[i] = INT_MIN;
+			}else{
+				INTEGER(r_vec)[i] = py_to_c_integer(item);
+			}
             Py_XDECREF(item);
             Py_DECREF(py_i);
         }
