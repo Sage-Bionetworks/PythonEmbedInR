@@ -4,53 +4,19 @@ require(PythonInR)
 invisible(capture.output(pyConnect()))
 
 #' ## pyAttach
-
-pyExec("import os")
+expect_that(pyExec("import os"), equals(0))
 
 ## attach to global
 ## ----------------
 ## attach the function getcwd from the module os to R.
-pyAttach("os.getcwd", .GlobalEnv)
-os.getcwd
-os.getcwd()
+expect_that(pyAttach("os.getcwd", .GlobalEnv), is_a("environment"))
+expect_that(os.getcwd(), is_a("character"))
 ## attach the string object os.name to R
-pyAttach("os.name", .GlobalEnv)
-pyExecp("os.name")
-os.name
+expect_that(pyAttach("os.name", .GlobalEnv), is_a("environment"))
+expect_that(pyGet("os.name"), equals(os.name))
+
 ## Since os.name is attached to the globalenv it can be set without using
 ## the global assignment operator
 os.name = "Hello Python from R!"
-pyExecp("os.name")
-os.name
-## Please note if you don't pyAttach to globalenv you have to use 
-## the global assignment operator to set the values of the Python objects
+expect_that(pyGet("os.name"), equals(os.name))
 
-## attach to a new environment
-## ---------------------------
-os <- new.env()
-attach(os, name="python:os")
-pyAttach(paste("os", pyDir("os"), sep="."), as.environment("python:os"))
-os.sep
-os.sep = "new sep" ## this doesn't changes the value in Python but only 
-                   ## assigns the new variable os.sep to globalenv
-os.sep
-.GlobalEnv$`os.sep`
-as.environment("python:os")$`os.sep`
-pyExecp("os.sep")
-ls()
-ls("python:os")
-os.sep <<- "this changes the value in Python"
-.GlobalEnv$`os.sep`
-as.environment("python:os")$`os.sep`
-pyExecp("os.sep")
-
-
-#' ## pyDir
-expect_that(intersect(pyDir(), "__name__"), equals("__name__"))
-expect_that(intersect(pyDir("sys"), "version"), equals("version"))
-
-#' ## pyHelp
-expect_that(pyHelp("abs"), prints_text("built-in function"))
-
-#' ## pyType
-expect_that(pyType("dict()"), equals("dict"))
