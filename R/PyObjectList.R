@@ -94,6 +94,7 @@ PythonInR_ListNoFinalizer <-
 #'          object based on the vector or list is created.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
+#' if ( pyIsConnected() ){
 #' pyExec('myPyList = [1, 2, 5, "Hello R!"]')
 #' # create a virtual Python list for an existing list
 #' myList <- pyList("myPyList")
@@ -108,6 +109,7 @@ PythonInR_ListNoFinalizer <-
 #' ## NOTE: Indexing which can not be interpreted as correct R
 #' ##       syntax should be provided as a character string.
 #' myNewList['::2'] 
+#' }
 #  ---------------------------------------------------------
 pyList <- function(key, value, regFinalizer = TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))

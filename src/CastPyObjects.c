@@ -77,7 +77,8 @@ SEXP py_class(PyObject *py_object){
     // Py_TYPE(arg)->tp_name
     // since I only use it once I just use it directly since they also
     // use it in error messages it should never fail!
-    const char *c_type_name = (((PyObject*)(py_object))->ob_type)->tp_name;
+    // const char *c_type_name = (((PyObject*)(py_object))->ob_type)->tp_name;
+    const char *c_type_name = Py_TYPE(py_object)->tp_name;
 	SET_VECTOR_ELT(r_list_names, 2, c_to_r_string("type"));
     SET_VECTOR_ELT(r_list, 2, c_to_r_string(c_type_name));
     

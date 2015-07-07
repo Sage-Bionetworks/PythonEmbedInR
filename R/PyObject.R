@@ -76,6 +76,7 @@ except:
 #'
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
+#' if ( pyIsConnected() ){
 #' pyExec("import os")
 #' os <- pyObject("os", regFinalizer = FALSE)
 #' ls(os)
@@ -85,6 +86,7 @@ except:
 #' os$py.variableName
 #' os1$py.variableName
 #' os2$py.variableName
+#' }
 #  ---------------------------------------------------------
 pyObject <- function(key, regFinalizer = TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))

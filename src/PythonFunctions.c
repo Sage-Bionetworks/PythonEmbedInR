@@ -1,3 +1,4 @@
+#ifdef PYTHON_IN_R_NO_EXPLICIT_LINKING
 #include "PythonFunctions.h"
 
 /* --------------------------------------------------------------------------  \
@@ -110,3 +111,10 @@ static PyMethodDef PythonInRMethods[] = {
 PyMODINIT_FUNC python_in_r_init_methods(void){
     (void) Py_InitModule("PythonInR", PythonInRMethods);
 }
+
+#else
+#ifndef PYTHON_EXPLICIT_LINKING
+#define PYTHON_EXPLICIT_LINKING
+int ISO_C_forbids_an_empty_translation_unit;
+#endif
+#endif

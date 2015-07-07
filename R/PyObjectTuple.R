@@ -63,6 +63,7 @@ PythonInR_TupleNoFinalizer <-
 #'          object based on the vector or list is created.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
+#' if ( pyIsConnected() ){
 #' pyExec('myPyTuple = (1, 2, 5, "Hello R!")')
 #' # create a virtual Python tuple for an existing tuple
 #' myTuple <- pyTuple("myPyTuple")
@@ -73,6 +74,7 @@ PythonInR_TupleNoFinalizer <-
 #' # create a new Python tuple and virtual tuple
 #' newTuple <- pyTuple('myNewTuple', list(1:3, 'Hello Python'))
 #' newTuple[1]
+#' }
 #  ---------------------------------------------------------
 pyTuple <- function(key, value, regFinalizer = FALSE){
     if ( pyConnectionCheck() ) return(invisible(NULL))

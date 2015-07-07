@@ -129,6 +129,7 @@ pyExec <- function(code){
 #'          returned.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
+#' if ( pyIsConnected() ){
 #' # 1. assigns x to the global namespace
 #' pyExec("x=4")
 #' # 2. assigns y to the temp namespace
@@ -167,6 +168,7 @@ pyExec <- function(code){
 #' z <- pyExecg("x = os")
 #' os <- PythonInR:::pyTransformReturn(z[[1]])
 #' os$getcwd()
+#' }
 #  -----------------------------------------------------------------------------
 pyExecg <- function(code, returnValues=character(), autoTypecast=TRUE, returnToR=TRUE, 
                     mergeNamespaces=FALSE, override=FALSE, simplify=TRUE){

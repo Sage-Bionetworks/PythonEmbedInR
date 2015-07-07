@@ -23,12 +23,14 @@
 #'         possible, else a virtual Python object.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
+#' if ( pyIsConnected() ){
 #' pyExec("import os")
 #' os <- pyGet0("os")
 #' os$getcwd()
 #' os$sep
 #' os$sep <- "Hello Python!"
 #' pyExecp("os.sep")
+#' }
 # -----------------------------------------------------------
 pyGet0 <- function(key){
     if ( pyConnectionCheck() ) return(invisible(NULL))

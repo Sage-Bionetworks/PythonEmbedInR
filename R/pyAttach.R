@@ -11,6 +11,7 @@
 #'
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
+#' if ( pyIsConnected() ){
 #' pyExec("import os")
 #' 
 #' ## attach to global
@@ -49,6 +50,7 @@
 #' .GlobalEnv$`os.sep`
 #' as.environment("python:os")$`os.sep`
 #' pyExecp("os.sep")
+#' }
 # -----------------------------------------------------------
 pyAttach <- function(what, env = parent.frame()){
   if ( pyConnectionCheck() ) return(invisible(NULL))

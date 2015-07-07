@@ -23,7 +23,6 @@
 #'          which is enclosed between BEGIN.Python and END.Python is
 #'          replaced by pyExec and the quoted version of the code.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
 #' \dontrun{
 #' writeLines(c("x <- 3", "BEGIN.Python()", 
 #'              "x=3**3", "print(3*u'Hello R!\\n')", 

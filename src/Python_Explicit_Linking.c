@@ -106,7 +106,13 @@ int get_proc_addresses(HMODULE py_hdll){
     // PyObject
     PyObject_GetAttrString = (R_PyObject_GetAttrString)GetProcAddress(py_hdll, "PyObject_GetAttrString");
         if (PyObject_GetAttrString == NULL) Rprintf("GetProcAddress: Warning couldn't load PyObject_GetAttrString\n"); 
-    
+
+    PyObject_SetAttrString = (R_PyObject_SetAttrString)GetProcAddress(py_hdll, "PyObject_SetAttrString");
+        if (PyObject_SetAttrString == NULL) Rprintf("GetProcAddress: Warning couldn't load PyObject_SetAttrString\n"); 
+
+    PyObject_HasAttrString = (R_PyObject_HasAttrString)GetProcAddress(py_hdll, "PyObject_HasAttrString");
+        if (PyObject_HasAttrString == NULL) Rprintf("GetProcAddress: Warning couldn't load PyObject_HasAttrString\n"); 
+        
     // Py_Module
     PyModule_GetDict = (R_PyModule_GetDict)GetProcAddress(py_hdll, "PyModule_GetDict");
         if (PyModule_GetDict == NULL) Rprintf("GetProcAddress: Warning couldn't load PyModule_GetDict\n");

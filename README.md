@@ -1,7 +1,5 @@
 # PythonInR - Makes accessing Python from within R as easy as pie.
 
-The main page of the documentation is located at [http://pythoninr.bitbucket.org/](http://pythoninr.bitbucket.org/).
-
 ## Dependencies
 
 **Python** >= 2.7.0

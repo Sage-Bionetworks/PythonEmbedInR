@@ -108,6 +108,7 @@ PythonInR_DictNoFinalizer <-
 #'          object based on the vector or list is created.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
+#' if ( pyIsConnected() ){
 #' pyExec('myPyDict = {"a":1, "b":2, "c":3}')
 #' # create a virtual Python dictionary for an existing dictionary
 #' myDict <- pyDict("myPyDict")
@@ -117,6 +118,7 @@ PythonInR_DictNoFinalizer <-
 #' # create a new Python dict and virtual dict
 #' myNewDict <- pyDict('myNewDict', list(p=2, y=9, r=1))
 #' myNewDict
+#' }
 #  ---------------------------------------------------------
 pyDict <- function(key, value, regFinalizer = TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))

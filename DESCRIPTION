@@ -8,7 +8,7 @@ Depends: R (>= 2.15)
 Imports: pack, methods, R6
 SystemRequirements: Python (>= 2.7.0) with header files and shared library (UNIX) / static library (Windows)
 Note: More information about the system requirements can be found in the README file.
-URL: http://pythoninr.bitbucket.org/
+URL: https://bitbucket.org/Floooo/pythoninr/
 BugReports: https://bitbucket.org/Floooo/pythoninr/issues
 License: GPL-3
 NeedsCompilation: yes

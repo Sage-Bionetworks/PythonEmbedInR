@@ -33,6 +33,13 @@ typedef Py_intptr_t     Py_ssize_t;
     PyObject_HEAD                       \
     Py_ssize_t ob_size; /* Number of items in variable part */
 
+typedef struct _typeobject {
+    PyObject_VAR_HEAD
+    const char *tp_name; /* For printing, in format "<module>.<name>" */
+    Py_ssize_t tp_basicsize, tp_itemsize; /* For allocation */
+
+} PyTypeObject;
+    
 typedef struct _object {
     PyObject_HEAD
 } PyObject;
@@ -239,6 +246,12 @@ typedef int (__cdecl *R_PySys_SetObject) (char *, PyObject *);
 typedef PyObject * (__cdecl *R_PyObject_GetAttrString) (PyObject *, const char *); 
     R_PyObject_GetAttrString PyObject_GetAttrString;   
 
+typedef int (__cdecl *R_PyObject_SetAttrString) (PyObject *, const char *, PyObject *);
+    R_PyObject_SetAttrString PyObject_SetAttrString; 
+    
+typedef int (__cdecl *R_PyObject_HasAttrString) (PyObject *, const char *);
+    R_PyObject_HasAttrString PyObject_HasAttrString; 
+    
 // Py_Module
 typedef PyObject * (__cdecl *R_PyModule_GetDict) (PyObject *);
     R_PyModule_GetDict PyModule_GetDict;
