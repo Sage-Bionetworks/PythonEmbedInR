@@ -20,6 +20,7 @@
 #' pyDir("sys")
 #  -----------------------------------------------------------
 pyDir <- function(objName=NULL){
+    if ( pyConnectionCheck() ) return(invisible(NULL))
     if ( is.null(objName) ){
         cmd <- '__tmp__=dir()'
     }else{
@@ -48,6 +49,7 @@ pyDir <- function(objName=NULL){
 #' pyHelp("abs")
 #  -----------------------------------------------------------
 pyHelp <- function(topic){
+    if ( pyConnectionCheck() ) return(invisible(NULL))
     check_string(topic)
     pyExecp(sprintf("help('%s')", topic))
 }
@@ -66,13 +68,16 @@ pyHelp <- function(topic){
 #' pyType("x")
 #  -----------------------------------------------------------
 pyType <- function(objName){
+    if ( pyConnectionCheck() ) return(invisible(NULL))
     check_string(objName)
     cmd <- 'try:\n\tx = type(%s).__name__\nexcept:\n\tx = None'
-    tryCatch({capture.output(retVal <- pyExecg(sprintf(cmd, objName))[['x']])},
+    retVal <- tryCatch({pyExecg(sprintf(cmd, objName))[['x']]},
         error=function(e){
-            errorMsg <- sprintf('pyType("%s")\n  >>> type(%s)\n  SyntaxError: invalid syntax', 
-                objName, objName)
-            stop(errorMsg, call.=FALSE)
+            errMsg <- sprintf('pyType("%s")\n  >>> type(%s)\n  SyntaxError: invalid syntax',
+                                objName, objName)
+            class(errMsg) <- "errorMessage"
+            return(errMsg)
         })
+    if (class(retVal) == "errorMessage") stop(retVal, call.=FALSE)
     return(retVal)
 }

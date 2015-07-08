@@ -40,6 +40,7 @@
 ## NOTE: fun <- function(env=parent.env(environment())) would 
 ##       have a different, in this case not desired behavior!
 pyImport <- function(import, from=NULL, as=NULL, env = parent.frame()){
+  if ( pyConnectionCheck() ) return(invisible(NULL))
   if (!is.character(import)) stop('"import" has to be of type character')
   if (!is.null(from)) check_string(from)
   if (!is.null(as)) if (!is.character(as)) stop('"as" has to be of type character')

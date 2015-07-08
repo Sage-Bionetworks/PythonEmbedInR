@@ -1,4 +1,5 @@
 useDynLib(PythonInR)
+importFrom(stats, setNames)
 importFrom("pack", unpack)
 import(methods)
 import(R6)

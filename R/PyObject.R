@@ -197,6 +197,7 @@ PythonInR_ObjectNoFinalizer <-
 #' pySum(1:3)
 #  ---------------------------------------------------------
 pyFunction <- function(key){
+    if ( pyConnectionCheck() ) return(invisible(NULL))
     cfun <- sprintf(callFun, key)
     fun <- eval(parse(text=cfun))
     class(fun) <- "pyFunction"

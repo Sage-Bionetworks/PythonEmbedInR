@@ -313,6 +313,7 @@ SEXP test_r_flags(SEXP x){
   ----------------------------------------------------------------------------*/
 int isPyInR_PyObject(SEXP x){
     int is_py_in_r_obj = 0;
+    if ( isS4(x) ) return(is_py_in_r_obj);
     SEXP cls = getAttrib(x, R_ClassSymbol);
     if (IS_CHARACTER(cls)){
 		int i = GET_LENGTH(cls) - 2; // -2 da letztes element R6 und von 0 weg
@@ -350,44 +351,6 @@ const char *r_get_py_object_location(SEXP x){
 	return NULL;
 }
 
-/*
-SEXP r_to_r(SEXP r_object){
-  
-	SEXP s_dotData = install(".Data");
-	SEXP s_xData = install(".xData");
-	//SEXP value = getAttrib(r_object, s_dotData);
-	SEXP value = getAttrib(r_object, s_xData);
-	// installTrChar(STRING_ELT(CAR(subs), 0))
-	//SEXP ans = findVarInFrame(value, c_to_r_string("py.variableName"));
-	SEXP ans = findVarInFrame(x, installTrChar(STRING_ELT(CAR(c_to_r_string("py.variableName")), 0)));
-	return ans;
-	//return c_to_r_string(r_get_py_object_location(value));
-	
-    Rprintf("debug1\n");
-    if ( isS4(r_object) ){
-		// py.variableName
-		if ( inherits(r_object, "PythonInR_Dict") ){
-			Rprintf("PythonInR_Dict\n");
-			
-			r_object = CAR(r_object);
-			SEXP names = GET_NAMES(r_object);
-			int len = GET_LENGTH(r_object);
-			
-			Rprintf("len: %i\n", len);
-			test_r_flags(names);
-			test_r_flags(r_object);
-	
-			for(int i = 0; i < len; i++) {
-				if ( strcmp(R_TO_C_STRING_V(names, i), "py.variableName") == 0 ){
-					return VECTOR_ELT(r_object, i);
-				}
-			}
-		}
-	}
-	return R_NilValue;
-}
-*/
-
 /*  ----------------------------------------------------------------------------
 
     r_to_py
@@ -399,25 +362,20 @@ PyObject *r_to_py(SEXP r_object){
     PyObject *py_object;
     long len=-1; 
     SEXP names;
-    
-    //Rprintf("debug1\n");
-    if ( !isS4(r_object) ){
-		if ( isPyInR_PyObject(r_object) ){
-			const char *py_obj_name = r_get_py_object_location(r_object);
-			if ( py_obj_name == NULL) error("PythonInR object is not valid!");
-			py_object = py_get_py_obj( py_obj_name );
-			return py_object;
-		} else if ( compare_r_class(r_object, "tuple") ) {
-			py_object = r_to_py_tuple(r_object);
-			return py_object;
-		}
+      
+	if ( isPyInR_PyObject(r_object) ){
+		const char *py_obj_name = r_get_py_object_location(r_object);
+		if ( py_obj_name == NULL) error("PythonInR object is not valid!");
+		py_object = py_get_py_obj( py_obj_name );
+		return py_object;
+	} else if ( compare_r_class(r_object, "tuple") ) {
+		py_object = r_to_py_tuple(r_object);
+		return py_object;
 	}
     
-    //Rprintf("debug2\n");
     len = GET_LENGTH(r_object);
     names = GET_NAMES(r_object);
     
-    //Rprintf("debug3\n");
     if(GET_LENGTH(names) > 0){                                                  // Case 1: R object has names!        
         py_object = r_to_py_dict(names, r_object);
     }else if ( len == 1 && ( IS_LOGICAL(r_object) || IS_INTEGER(r_object) || 

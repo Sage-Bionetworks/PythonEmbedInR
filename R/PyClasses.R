@@ -1,9 +1,4 @@
 # 
-# TODO:
-#   1) Change the names to get a unified interface:
-#      The element with the data I just call x, the rest stays the same 
-#          to be consistent with R.
-#       2) Put in nicer print classes those I use now are really bad :)
 #       
 pyImportPythonInR <- function(){
 cmd <-
@@ -27,52 +22,52 @@ class PythonInR(object):
         def __init__(self, vector, names, rClass): 
             if (not (rClass in ("logical", "integer", "numeric", "character"))):
                 raise ValueError("rclass is no valid class name in R")
-            self.vector = vector
+            self.x = vector
             self.names = names
             self.rClass = rClass
 
         def __repr__(self):
             s = "prVector"
             s += "\\nnames:  " + str(self.names)
-            s += "\\nvalues: " + str(self.vector)
+            s += "\\nvalues: " + str(self.x)
             return s
 
         __str__ = __repr__
 
         def toDict(self):
-            return {"vector": self.vector, "names": self.names, "rClass": self.rClass}
+            return {"vector": self.x, "names": self.names, "rClass": self.rClass}
 
     class PrMatrix(object): 
         """A pretty rudimentary Matrix class!"""
         def __init__(self, matrix, rownames, colnames, dim): 
-            self.matrix = matrix 
+            self.x = matrix 
             self.rownames = rownames 
             self.colnames = colnames 
             self.dim = (0,0) if (dim is None) else tuple(dim)
 
         def __repr__(self):
              s = "prMatrix:" + "\\n\\t%i columns\\n\\t%i rows\\n" % self.dim
-             return s + str(self.matrix)
+             return s + str(self.x)
 
         def toDict(self):
-            return {"matrix": self.matrix, "rownames": self.rownames, "colnames": self.colnames, "dim": self.dim}
+            return {"matrix": self.x, "rownames": self.rownames, "colnames": self.colnames, "dim": self.dim}
 
     class PrDataFrame(object): 
         """A pretty rudimentary DataFrame class!"""
         def __init__(self, dataFrame, rownames, colnames, dim): 
-            self.dataFrame = dataFrame
+            self.x = dataFrame
             self.rownames = rownames
             self.colnames = colnames 
             self.dim = tuple(dim)
 
         def __repr__(self):
              s = "prDataFrame:" + "\\n\\t%i columns\\n\\t%i rows\\n" % self.dim
-             return s + str(self.dataFrame)
+             return s + str(self.x)
         
         __str__ = __repr__
 
         def toDict(self):
-            return {"data.frame": self.dataFrame, "rownames": self.rownames, "colnames": self.colnames, "dim": self.dim}
+            return {"data.frame": self.x, "rownames": self.rownames, "colnames": self.colnames, "dim": self.dim}
 '
 pyExec(cmd)
 # Define a R object

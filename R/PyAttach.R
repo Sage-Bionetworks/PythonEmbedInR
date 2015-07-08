@@ -134,7 +134,8 @@ pyAttach <- function(what, env = parent.frame()){
 ##         }
 ##     }
 
-##     ## (TODO is commented out): add error checks
+##     ## (TODO (DONE) is commented out): 
+##     ##       add error checks
 ##     py2 <- new.env()
 ##     attach( py2, pos = 2L , name=sprintf("python:%s", variableName))
 ##     .Internal(importIntoEnv( as.environment(2L), ls(py), py, ls(py) ))

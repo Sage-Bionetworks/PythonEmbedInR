@@ -62,3 +62,38 @@ int py_set_py(const char *obj_name, const char *c_key, PyObject *value){
 	Py_XDECREF(py_object);
 	return success;
 }
+
+/* --------------------------------------------------------------------------  \
+
+    SetPyDict
+
+    Set Elemements from a Python Dictonary
+
+	int PyDict_SetItem(PyObject *p, PyObject *key, PyObject *val)
+	    ==============
+    Insert value into the dictionary p with a key of key. key must be hashable; 
+    if it isn’t, TypeError will be raised. Return 0 on success or -1 on failure.
+
+\  -------------------------------------------------------------------------- */
+SEXP r_set_py_dict(SEXP dict_name, SEXP key, SEXP value){
+	SEXP success;
+	PyObject *py_dict, *py_key, *py_value;
+	const char *c_dict_name = R_TO_C_STRING(dict_name);
+	
+	// the key is more complex than before since allowed values are
+	// int, long, float, unicode, str and tuple
+	py_key = r_to_py(key);
+	py_value = r_to_py(value);
+	
+	py_dict = py_get_py_obj(c_dict_name);
+
+	if (PyDict_Check(py_dict)){
+		// PyDict_SetItem returns 0 on success or -1 on failure. 
+		success = c_to_r_integer(PyDict_SetItem(py_dict, py_key, py_value));
+	}else{
+		success = c_to_r_integer(-2);
+	}
+	
+	Py_XDECREF(py_dict);
+	return success;
+}

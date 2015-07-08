@@ -80,6 +80,7 @@ pySource <- function(file, local = FALSE, echo = verbose, print.eval = echo,
 #' }
 #  -----------------------------------------------------------
 BEGIN.Python <- function(){
+    if ( pyConnectionCheck() ) return(invisible(NULL))
     f <- file("stdin")
     open(f)
     cat("py> ")

@@ -116,11 +116,17 @@ pyGet <- function(key, autoTypecast=TRUE, simplify=TRUE){
     class(pyClass) <- pyClass
 
     if (pyOptions("winPython364")){
-        # TODO: Test this!
         x <- tryCatch(pyGetPoly(key, autoTypecast, simplify, pyClass), 
-                      error = function(e) e, 
-                      finally = {msg <- makeErrorMsg()
-                                 if (!is.null(msg)) stop(msg)})
+              error = function(e){
+                  err <- e$message
+                  class(err) <- "errorMessage"
+                  return(err)})
+        cat(pyGetSimple("__getStdout()")) ## print stdout
+        if (class(x) == "errorMessage"){
+            msg <- makeErrorMsg()
+            if (!is.null(msg)) stop(msg)
+            cat(x)
+        }
     }else{
         x <- pyGetPoly(key, autoTypecast, simplify, pyClass)
     }

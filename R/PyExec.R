@@ -87,14 +87,15 @@ pyExec <- function(code){
     return( invisible( ret ) )
 }
 
-# TODO: Was ich eigentlich haben moechte ist ein zusaetzlicher
-#       parameter conversionErrors der wie bei Python Unicode entweder
-#       die Werte "strict", "replace" und "ignore" annehmen kann.
-#       "strict" raises an error
-#       "replace" replaces the object by the string representation 
-#                 and raises a warning
-#       "ignore" replaces the object by the string representation no
-#                warning or error gets
+## TODO: (not important)
+## Was ich eigentlich haben moechte ist ein zusaetzlicher
+##       parameter conversionErrors der wie bei Python Unicode entweder
+##       die Werte "strict", "replace" und "ignore" annehmen kann.
+##       "strict" raises an error
+##       "replace" replaces the object by the string representation 
+##                 and raises a warning
+##       "ignore" replaces the object by the string representation no
+##                warning or error gets
 #  -----------------------------------------------------------------------------
 #  pyExecg
 #  =======

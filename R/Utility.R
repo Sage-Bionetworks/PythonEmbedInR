@@ -5,7 +5,7 @@
 # ------------------------------------------------------------------------------
 
 pyIsCallable <- function(x){
-    ## TODO: add an alternative for 3 <= python < 3.2
+    ## TODO: Test for 3 <= python < 3.2
     ## NOTE: I don't use try execpt since I wan't to see
     ##       the error if one occurs
     pyGet(sprintf('callable(%s)', x))
@@ -60,8 +60,8 @@ checkType <- function(penv, parentInfo, ...){
 
 # check_string 
 #    checks the provided
-## TODO: this function is broken now since I never get to the
-##       secound if
+## TODO: (change this to something nicer)
+##       the function is not conistent any more
 check_string <- function(x, minlen=1){
     vname <- deparse(substitute(x))
     errMes <- sprintf('argument "%s" must be a character vector of length 1', vname)

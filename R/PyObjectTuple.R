@@ -1,9 +1,6 @@
 ##  
 ##  pyTuple
 ##
-##
-##  [TODO] methods like reverse should return a new object
-##         or save reversed self!
 
 ##
 ##  PythonInR_Tuple
