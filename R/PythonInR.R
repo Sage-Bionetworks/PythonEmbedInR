@@ -86,21 +86,29 @@ pyConnectStatic <- function(){
 }
 
 pyCranConnect <- function(){
-    if ( Sys.info()['sysname'] == "Windows" ){
-        if (grepl("i386", R.version$arch)){
-            pyConnect()
-        }else{
-            # NOTE: Python 64bit is not available on the windows version of cran.
-            #       I just never connect to Python therefore the tests can run 
-            #       on the 32bit version as planed and I have not much to change 
-            #       if Python 64bit gets available.
-            #pyConnect()
-        }
-    }else{
-        # Since under Linux the default is static linkage which needs
-        # which needs no parameters.
-        pyConnect()
-    }
+    silent <- tryCatch({pyConnect()}, 
+        error=function(e){
+            cat(e$message)
+            ## add some additional debug printing
+            cat("print path:\n")
+            print(Sys.getenv("PATH"))
+        })
+##    if ( Sys.info()['sysname'] == "Windows" ){
+##        if (grepl("i386", R.version$arch)){
+##            pyConnect()
+##        }else{
+##            # NOTE: Python 64bit is not available on the windows version of cran.
+##            #       I just never connect to Python therefore the tests can run 
+##            #       on the 32bit version as planed and I have not much to change 
+##            #       if Python 64bit gets available.
+##            #pyConnect()
+##        }
+##    }else{
+##        # Since under Linux the default is static linkage which needs
+##        # which needs no parameters.
+##        pyConnect()
+##    }
+    invisible(NULL)
 }
 
 #  -----------------------------------------------------------------------------
