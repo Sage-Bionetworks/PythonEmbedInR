@@ -19,7 +19,9 @@ The function pyFunction makes it easy to create interfaces
 }
 \examples{
 \dontshow{PythonInR:::pyCranConnect()}
+if ( pyIsConnected() ){
 pySum <- pyFunction("sum")
 pySum(1:3)
+}
 }
 

@@ -193,8 +193,10 @@ PythonInR_ObjectNoFinalizer <-
 #'          to Python functions.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
+#' if ( pyIsConnected() ){
 #' pySum <- pyFunction("sum")
 #' pySum(1:3)
+#' }
 #  ---------------------------------------------------------
 pyFunction <- function(key){
     if ( pyConnectionCheck() ) return(invisible(NULL))
