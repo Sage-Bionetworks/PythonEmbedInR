@@ -22,15 +22,15 @@ expect_that(pyImport(from="datetime", import="*"), equals(NULL))
 expect_that(all(c("date", "time") %in% pyDir()), equals(TRUE))
 expect_that(all(c("date", "time") %in% ls()), equals(TRUE))
 
-expect_that(pyImport(from="popen2", import=c("popen2", "popen3")), equals(NULL))
-expect_that(all(c("popen2", "popen3") %in% pyDir()), equals(TRUE))
-expect_that(all(c("popen2", "popen3") %in% ls()), equals(TRUE))
+expect_that(pyImport(from="logging", import=c("debug", "info")), equals(NULL))
+expect_that(all(c("debug", "info") %in% pyDir()), equals(TRUE))
+expect_that(all(c("debug", "info") %in% ls()), equals(TRUE))
 
 ## import + as + from 3
-expect_that(pyImport(from="difflib", import=c('ndiff', 'reduce', 'restore'),
-                     as=c('x_ndiff', 'y_reduce', 'z_restore')), equals(NULL))
-expect_that(all(c('x_ndiff', 'y_reduce', 'z_restore') %in% pyDir()), equals(TRUE))
-expect_that(all(c('x_ndiff', 'y_reduce', 'z_restore') %in% ls()), equals(TRUE))
+expect_that(pyImport(from="difflib", import=c('ndiff', 'restore'),
+                     as=c('x_ndiff', 'z_restore')), equals(NULL))
+expect_that(all(c('x_ndiff', 'z_restore') %in% pyDir()), equals(TRUE))
+expect_that(all(c('x_ndiff', 'z_restore') %in% ls()), equals(TRUE))
 
 expect_that(pyImport(from="zlib", import=c("compress", "compressobj", "crc32", "decompress"), as="zl"), equals(NULL))
 expect_that(all(c("compress", "compressobj", "crc32", "decompress") %in% pyDir("zl")), equals(TRUE))

@@ -1,34 +1,34 @@
 #  -----------------------------------------------------------
 #  pySource
 #  ========
-#' @title Reads mixed R and Python code from a file
-#'
-#' @description The function BEGIN.Python allows interactive development
-#'              but doesn't work in combination with the function source.
-#'              Therefore pySource provides an alternative to the function source
-#'              which also can handle BEGIN.Python statements.
-#' @param file a character string giving the pathname of the file.
-#' @param local see documentation of source
-#' @param echo see documentation of source
-#' @param print.eval see documentation of source
-#' @param verbose see documentation of source
-#' @param prompt.echo see documentation of source
-#' @param max.deparse.length see documentation of source
-#' @param chdir see documentation of source
-#' @param encoding see documentation of source
-#' @param continue.echo see documentation of source
-#' @param skip.echo see documentation of source
-#' @param keep.source see documentation of source
-#' @details The function pySource works similar to source, but code 
-#'          which is enclosed between BEGIN.Python and END.Python is
-#'          replaced by pyExec and the quoted version of the code.
-#' @examples
-#' \dontrun{
-#' writeLines(c("x <- 3", "BEGIN.Python()", 
-#'              "x=3**3", "print(3*u'Hello R!\\n')", 
-#'              "END.Python"), "myMixedCode.R")
-#' pySource("myMixedCode.R")
-#' }
+## @title Reads mixed R and Python code from a file
+##
+## @description The function BEGIN.Python allows interactive development
+##              but doesn't work in combination with the function source.
+##              Therefore pySource provides an alternative to the function source
+##              which also can handle BEGIN.Python statements.
+## @param file a character string giving the pathname of the file.
+## @param local see documentation of source
+## @param echo see documentation of source
+## @param print.eval see documentation of source
+## @param verbose see documentation of source
+## @param prompt.echo see documentation of source
+## @param max.deparse.length see documentation of source
+## @param chdir see documentation of source
+## @param encoding see documentation of source
+## @param continue.echo see documentation of source
+## @param skip.echo see documentation of source
+## @param keep.source see documentation of source
+## @details The function pySource works similar to source, but code 
+##          which is enclosed between BEGIN.Python and END.Python is
+##          replaced by pyExec and the quoted version of the code.
+## @examples
+## \dontrun{
+## writeLines(c("x <- 3", "BEGIN.Python()", 
+##              "x=3**3", "print(3*u'Hello R!\\n')", 
+##              "END.Python"), "myMixedCode.R")
+## pySource("myMixedCode.R")
+## }
 #  -----------------------------------------------------------
 pySource <- function(file, local = FALSE, echo = verbose, print.eval = echo, 
     verbose = getOption("verbose"), prompt.echo = getOption("prompt"), 

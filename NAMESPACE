@@ -41,6 +41,5 @@ export(autodetectPython,
        pyDict,
        pyList,
        pyTuple,
-       pySource,
        pyOptions,
        BEGIN.Python)

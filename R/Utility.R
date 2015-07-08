@@ -73,11 +73,12 @@ check_string <- function(x, minlen=1){
 # printStoutErr
 #     Is a small work around wich fixes the issue with Python 3 64-bit and MinGW
 makeErrorMsg <- function(){
-    std = pyExecgIntern('out=__getStdout();err=__getStderr()')
-    cat(std['out'])
-    if (nchar(std['err']) > 0){
-        # compile a error message and raise an error
-        return(paste(c("", sprintf("   %s", unlist(strsplit(std['err'], '\n')))), collapse="\n"))
+    err = pyGetSimple('__getStderr()')
+    if ( !is.null(err) ){
+        if (nchar(err) > 0){
+            # compile a error message and raise an error
+            return(paste(c("", sprintf("   %s", unlist(strsplit(err, '\n')))), collapse="\n"))
+        }
     }
     return(NULL)
 }

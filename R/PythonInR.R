@@ -6,27 +6,33 @@
 registerLogCatcher <- function(){
 code <- '
 import io
-logCatcher = [io.StringIO(), io.StringIO(), io.StringIO()]
-sys.stdout, sys.stderr, sys.stdin = logCatcher
+sys_stdout = io.StringIO()
+sys_stderr = io.StringIO()
+sys_stdin = io.StringIO()
+sys.stdout = sys_stdout
+sys.stderr = sys_stderr
+sys.stdin = sys_stdin
 
 def __getStdout():
-    x = logCatcher[0].getvalue()
-    logCatcher[0].truncate(0)
-    logCatcher[0].seek(0)
+    x = sys.stdout.getvalue()
+    sys_stdout.truncate(0)
+    sys_stdout.seek(0)
     return(x)
 
 def __getStderr():
-    x = logCatcher[1].getvalue()
-    logCatcher[1].truncate(0)
-    logCatcher[1].seek(0)
+    x = sys.stderr.getvalue()
+    sys_stderr.truncate(0)
+    sys_stderr.seek(0)
     return(x)
 
 '
-return( invisible( .Call( "py_run_simple_string",  code) ) )
+ret <- .Call( "py_run_simple_string",  code)
+if ( ret == -1 ) warning("stdout redirection was not successful")
+return( invisible( ret ) )
 }
 
 pyConnectWinDll <- function(dllName, dllDir, majorVersion, 
-                            pythonHome, pyArch){
+                            pythonHome, pyArch, useCstdout=NULL){
     if(pyIsConnected()){
         cat("R is already connected to Python!\n")
         return(NULL)
@@ -45,7 +51,9 @@ pyConnectWinDll <- function(dllName, dllDir, majorVersion,
     if (is.null(majorVersion)){
         majorVersion = as.integer(regmatches(dllName, regexpr("[0-9]", dllName)))
     }
-    useCstdout <- if ( (majorVersion==3) & (pyArch=='64bit') ) FALSE else TRUE
+    if ( is.null(useCstdout) ){
+        useCstdout <- if ( (majorVersion==3) & (pyArch=='64bit') ) FALSE else TRUE
+    }
     #cat("useCstdout: ", useCstdout, "\n")
     if (!is.null(pythonHome)){
         Sys.setenv(PYTHONHOME=pythonHome)

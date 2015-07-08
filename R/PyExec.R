@@ -32,6 +32,7 @@ pyExecp <- function(code){
         if ( pyConnectionCheck() ) return(invisible(NULL))
         if (pyOptions("winPython364")){
             ret <- try(.Call("py_run_string_single_input", code), silent = TRUE)
+            cat(pyGetSimple("__getStdout()")) ## print stdout
             if (ret == -1){
                 msg <- makeErrorMsg()
                 if (!is.null(msg)) stop(msg)
@@ -72,6 +73,7 @@ pyExec <- function(code){
         if ( pyConnectionCheck() ) return(invisible(NULL))
         if (pyOptions("winPython364")){
             ret <- try(.Call("py_run_simple_string", code), silent = TRUE)
+            cat(pyGetSimple("__getStdout()")) ## print stdout
             if (ret == -1){
                 msg <- makeErrorMsg()
                 if (!is.null(msg)) stop(msg)
@@ -200,6 +202,7 @@ except:
         ret_val <- try(.Call("PythonInR_Run_String", code, 257L, autoTypecast,
                              mergeNamespaces, override, returnToR, 
                              simplify), silent = TRUE)
+        cat(pyGetSimple("__getStdout()")) ## print stdout
         msg <- makeErrorMsg()
         if (!is.null(msg)) stop(msg)
     }else{
@@ -218,7 +221,7 @@ pyExecgIntern <- function(code, autoTypecast=TRUE, mergeNamespaces=FALSE,
                           override=TRUE, simplify=TRUE){
     if ( pyConnectionCheck() ) return(invisible(NULL))
     ret_val <- try(.Call("PythonInR_Run_String", code, 257L, autoTypecast,
-                         mergeNamespaces, override, TRUE, simplify), silent = TRUE)
+                     mergeNamespaces, override, 2L, simplify), silent = TRUE)
     return(ret_val)
 }
 
