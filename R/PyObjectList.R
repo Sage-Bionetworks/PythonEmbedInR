@@ -79,7 +79,7 @@ PythonInR_ListNoFinalizer <-
 #  ---------------------------------------------------------
 #  pyList
 #  ======
-#' @title Create a virtual Python list
+#' @title Creates a virtual Python list
 #'
 #' @description The function pyList creates a virtual Python object 
 #'              of type PythonInR_List. 
@@ -90,7 +90,7 @@ PythonInR_ListNoFinalizer <-
 #' @details If no value is provided a virtual Python list for an existing
 #'          Python object is created. If the value is NULL an empty 
 #'          virtual Python object for an empty list is created.
-#'          If the value is a vector or list a new Python
+#'          If the value is a vector or a list, a new Python
 #'          object based on the vector or list is created.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}

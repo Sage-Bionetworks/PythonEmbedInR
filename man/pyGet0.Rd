@@ -18,7 +18,7 @@ The function pyGet0 gets Python objects by name.
 }
 \details{
 Primitive data types like bool, int, long, float, str,
-         bytes and unicode are returned as R objects. Python tuple, lists,
+         bytes and unicode are returned as R objects. Python tuples, lists,
          dictionaries and other Python objects are returned as virtual
          Python objects.
 }
@@ -27,11 +27,13 @@ pyGet0 never creates a new Python object.
 }
 \examples{
 \dontshow{PythonInR:::pyCranConnect()}
+if ( pyIsConnected() ){
 pyExec("import os")
 os <- pyGet0("os")
 os$getcwd()
 os$sep
 os$sep <- "Hello Python!"
 pyExecp("os.sep")
+}
 }
 

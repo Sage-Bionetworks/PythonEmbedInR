@@ -2,7 +2,7 @@
 % Please edit documentation in R/PyObjectTuple.R
 \name{pyTuple}
 \alias{pyTuple}
-\title{Create a virtual Python tuple}
+\title{Creates a virtual Python tuple}
 \usage{
 pyTuple(key, value, regFinalizer = FALSE)
 }
@@ -27,6 +27,7 @@ If no value is provided a virtual Python tuple for an existing
 }
 \examples{
 \dontshow{PythonInR:::pyCranConnect()}
+if ( pyIsConnected() ){
 pyExec('myPyTuple = (1, 2, 5, "Hello R!")')
 # create a virtual Python tuple for an existing tuple
 myTuple <- pyTuple("myPyTuple")
@@ -37,5 +38,6 @@ myTuple
 # create a new Python tuple and virtual tuple
 newTuple <- pyTuple('myNewTuple', list(1:3, 'Hello Python'))
 newTuple[1]
+}
 }
 

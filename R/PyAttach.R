@@ -4,7 +4,7 @@
 #' @title Attach Python objects to R
 #' @description A convenience function to attach Python objects to R.
 #'
-#' @param what a character vector giving the names of the Python objects 
+#' @param what a character vector giving the names of the Python objects, 
 #'             which should be attached to R.
 #' @param env the environment where the virtual Python objects are 
 #'            assigned to.
@@ -57,7 +57,7 @@ pyAttach <- function(what, env = parent.frame()){
   checkType(environment(), "pyAttach", what="character", env="environment")
   
   for (w in what){
-    if (!pyVariableExists(w)) stop(w, "doesn't exist")
+    if (!pyVariableExists(w)) stop(w, " doesn't exist")
   }
 
   for (o in what){

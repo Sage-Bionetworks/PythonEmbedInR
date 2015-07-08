@@ -8,7 +8,7 @@ BEGIN.Python()
 }
 \value{
 Returns the entered code as character, code lines which throw an
-        exception are obmitted.
+        exception are omitted.
 }
 \description{
 The function BEGIN.Python starts an Python read-eval-print loop.

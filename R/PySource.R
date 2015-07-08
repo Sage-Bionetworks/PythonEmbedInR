@@ -1,7 +1,7 @@
 #  -----------------------------------------------------------
 #  pySource
 #  ========
-#' @title Read mixed R and Python code from a file
+#' @title Reads mixed R and Python code from a file
 #'
 #' @description The function BEGIN.Python allows interactive development
 #'              but doesn't work in combination with the function source.
@@ -19,7 +19,7 @@
 #' @param continue.echo see documentation of source
 #' @param skip.echo see documentation of source
 #' @param keep.source see documentation of source
-#' @details The function pySource works similar to source but code 
+#' @details The function pySource works similar to source, but code 
 #'          which is enclosed between BEGIN.Python and END.Python is
 #'          replaced by pyExec and the quoted version of the code.
 #' @examples
@@ -63,7 +63,7 @@ pySource <- function(file, local = FALSE, echo = verbose, print.eval = echo,
 #'          and therefore allows interactive Python code development
 #'          from within R.
 #' @return Returns the entered code as character, code lines which throw an
-#'         exception are obmitted.
+#'         exception are omitted.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
 #' \dontrun{

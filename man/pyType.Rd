@@ -10,7 +10,7 @@ pyType(objName)
 \item{objName}{a string specifying the name of the Python object.}
 }
 \value{
-The type of the specified object as character on success NULL otherwise.
+The type of the specified object as character on success, NULL otherwise.
 }
 \description{
 Convenience function to call the Python function \strong{type}.

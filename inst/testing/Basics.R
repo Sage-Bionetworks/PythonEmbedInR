@@ -12,4 +12,3 @@ expect_that(pyHelp("abs"), prints_text("built-in function"))
 
 #' ## pyType
 expect_that(pyType("dict()"), equals("dict"))
-

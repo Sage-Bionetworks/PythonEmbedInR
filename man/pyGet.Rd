@@ -9,7 +9,7 @@ pyGet(key, autoTypecast = TRUE, simplify = TRUE)
 \arguments{
 \item{key}{a string specifying the name of a Python object.}
 
-\item{autoTypecast}{a an optional logical value, default it TRUE, specifying
+\item{autoTypecast}{an optional logical value, default is TRUE, specifying
 if the return values should be automatically typecasted if possible.}
 
 \item{simplify}{an optional logical value, if TRUE R converts Python lists

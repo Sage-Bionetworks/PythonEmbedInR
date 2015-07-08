@@ -16,6 +16,5 @@ expect_that(pyGet("os.name"), equals(os.name))
 
 ## Since os.name is attached to the globalenv it can be set without using
 ## the global assignment operator
-os.name = "Hello Python from R!"
+os.name <<- "Hello Python from R!"
 expect_that(pyGet("os.name"), equals(os.name))
-

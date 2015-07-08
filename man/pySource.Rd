@@ -2,7 +2,7 @@
 % Please edit documentation in R/PySource.R
 \name{pySource}
 \alias{pySource}
-\title{Read mixed R and Python code from a file}
+\title{Reads mixed R and Python code from a file}
 \usage{
 pySource(file, local = FALSE, echo = verbose, print.eval = echo,
   verbose = getOption("verbose"), prompt.echo = getOption("prompt"),
@@ -42,12 +42,11 @@ The function BEGIN.Python allows interactive development
              which also can handle BEGIN.Python statements.
 }
 \details{
-The function pySource works similar to source but code
+The function pySource works similar to source, but code
          which is enclosed between BEGIN.Python and END.Python is
          replaced by pyExec and the quoted version of the code.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
 \dontrun{
 writeLines(c("x <- 3", "BEGIN.Python()",
              "x=3**3", "print(3*u'Hello R!\\\\n')",

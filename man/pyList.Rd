@@ -2,7 +2,7 @@
 % Please edit documentation in R/PyObjectList.R
 \name{pyList}
 \alias{pyList}
-\title{Create a virtual Python list}
+\title{Creates a virtual Python list}
 \usage{
 pyList(key, value, regFinalizer = TRUE)
 }
@@ -22,11 +22,12 @@ The function pyList creates a virtual Python object
 If no value is provided a virtual Python list for an existing
          Python object is created. If the value is NULL an empty
          virtual Python object for an empty list is created.
-         If the value is a vector or list a new Python
+         If the value is a vector or a list, a new Python
          object based on the vector or list is created.
 }
 \examples{
 \dontshow{PythonInR:::pyCranConnect()}
+if ( pyIsConnected() ){
 pyExec('myPyList = [1, 2, 5, "Hello R!"]')
 # create a virtual Python list for an existing list
 myList <- pyList("myPyList")
@@ -41,5 +42,6 @@ ls(myNewList)
 ## NOTE: Indexing which can not be interpreted as correct R
 ##       syntax should be provided as a character string.
 myNewList['::2']
+}
 }
 

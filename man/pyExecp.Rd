@@ -19,8 +19,8 @@ The name pyExecp is short for python execute and print.
          As the name is indicating the most visual difference between pyExec
          and pyExecp lies in the printing behavior. For example, executing
          \code{pyExecp('"Hello " + "R!"')} would show \code{'Hello R!'} in the
-         R terminal, executing \code{pyExec('"Hello " + "R!"')} would show
-         nothing. Internally pyExec uses PyRun_SimpleString and pyExecp uses
+         R terminal, executing \code{pyExec('"Hello " + "R!"')} wouldn't show
+         anything. Internally pyExec uses PyRun_SimpleString and pyExecp uses
          PyRun_String with the flag Py_single_input, therefore pyExecp
          can be used to simulate an interactive Python interpreter behavior.
 }

@@ -16,8 +16,8 @@
 #'          As the name is indicating the most visual difference between pyExec 
 #'          and pyExecp lies in the printing behavior. For example, executing 
 #'          \code{pyExecp('"Hello " + "R!"')} would show \code{'Hello R!'} in the
-#'          R terminal, executing \code{pyExec('"Hello " + "R!"')} would show 
-#'          nothing. Internally pyExec uses PyRun_SimpleString and pyExecp uses 
+#'          R terminal, executing \code{pyExec('"Hello " + "R!"')} wouldn't show 
+#'          anything. Internally pyExec uses PyRun_SimpleString and pyExecp uses 
 #'          PyRun_String with the flag Py_single_input, therefore pyExecp 
 #'          can be used to simulate an interactive Python interpreter behavior.
 #'
@@ -96,14 +96,14 @@ pyExec <- function(code){
 #  -----------------------------------------------------------------------------
 #  pyExecg
 #  =======
-#' @title Executes multiple lines of python code and get the output
+#' @title Executes multiple lines of python code and gets the output
 #'
 #' @description The function pyExecg is designed to execute multiple lines of 
-#'              Python code and return the thereby generated variables to R.
+#'              Python code and returns the thereby generated variables to R.
 #' @param code a string of Python code to be executed in Python.
-#' @param returnValues a character vector containing the names of the variables
+#' @param returnValues a character vector containing the names of the variables,
 #'        which should be returned to R.
-#' @param autoTypecast a an optional logical value, default it TRUE, specifying
+#' @param autoTypecast a an optional logical value, default is TRUE, specifying
 #'        if the return values should be automatically typecasted if possible.
 #' @param returnToR an optional logical, default is TRUE, specifying if the 
 #'        generated variables should be returned to R.
@@ -119,8 +119,8 @@ pyExec <- function(code){
 #' @details The function pyExecg executes the code in a temporary namespace, 
 #'          after the execution every variable from the namespace is returned 
 #'          to R. If the mergeNamespaces is set to TRUE the temporary namespace
-#'          get's merged with the (global) namespace __main__.
-#'          The logical variable override is used to control if already
+#'          gets merged with the (global) namespace __main__.
+#'          The logical variable override is used to control, if already
 #'          existing variables in the namespace __main__ should be overridden,
 #'          when a variable with the same name get's assigned to the
 #'          temporary namespace. If a python object can't be converted to an
@@ -265,9 +265,7 @@ pyExecfile <- function(filename){
 #' pyPrint("sys.version")
 #  ----------------------------------------------------------------------------- 
 pyPrint <- function(objName){
-    ##if ( pyConnectionCheck() ) return(invisible(NULL))
-    objName <- substitute(objName)
-    if ( !is.character(objName) ) objName <- deparse(objName)
-    x <- pyExec(sprintf("print(%s)", objName))
-    return(invisible(x))
+    if ( pyConnectionCheck() ) return(invisible(NULL))
+    cmd <- sprintf("print(%s)", objName)
+    return(invisible(pyExec(cmd)))
 }

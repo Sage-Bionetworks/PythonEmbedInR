@@ -70,13 +70,13 @@ expect_that(pyPrint("some_new_variable"), prints_text("4"))
 #' #### override
 expect_that(pyExecg("some_new_variable=1", mergeNamespaces=TRUE, override=FALSE)[[1]], equals(1))
 # should be still 4 since override is FALSE
-expect_that(pyPrint(some_new_variable), prints_text("4"))
+expect_that(pyPrint("some_new_variable"), prints_text("4"))
 expect_that(pyExecg("some_new_variable2=5", mergeNamespaces=TRUE, override=FALSE)[[1]], equals(5))
 # show that the variable get's assigned when it doesn't already exits
-expect_that(pyPrint(some_new_variable2), prints_text("5"))
+expect_that(pyPrint("some_new_variable2"), prints_text("5"))
 expect_that(pyExecg("some_new_variable=1", mergeNamespaces=TRUE, override=TRUE)[[1]], equals(1))
 # should be 1 since override is TRUE
-expect_that(pyPrint(some_new_variable), prints_text("1"))
+expect_that(pyPrint("some_new_variable"), prints_text("1"))
 
 #' ### Test error handling
 cmd <- '

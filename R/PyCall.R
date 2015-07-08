@@ -14,9 +14,9 @@
 #'                    Python object.
 #' @param args an optional list of arguments passed to the callable. 
 #' @param kwargs an optional list of named arguments passed to the callable.
-#' @param autoTypecast a an optional logical value, default it TRUE, specifying
+#' @param autoTypecast an optional logical value, default is TRUE, specifying
 #'        if the return values should be automatically typecasted if possible.
-#' @param simplify an optional logical value, if TRUE R converts Python lists 
+#' @param simplify an optional logical value, if TRUE, R converts Python lists 
 #'                 into R vectors whenever possible, else it translates Python 
 #'                 lists always to R lists.
 #' @return Returns the result of the function call, converted into an R object.

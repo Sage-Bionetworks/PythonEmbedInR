@@ -2,7 +2,7 @@
 % Please edit documentation in R/PySet.R
 \name{pySet}
 \alias{pySet}
-\title{assign R objects to Python}
+\title{assigns R objects to Python}
 \usage{
 pySet(key, value, namespace = "__main__", useSetPoly = TRUE,
   useNumpy = pyOptions("useNumpy"), usePandas = pyOptions("usePandas"))
@@ -10,7 +10,7 @@ pySet(key, value, namespace = "__main__", useSetPoly = TRUE,
 \arguments{
 \item{key}{a string specifying the name of the Python object.}
 
-\item{value}{an R object which is assigned to Python.}
+\item{value}{a R object which is assigned to Python.}
 
 \item{namespace}{a string specifying where the key should be located.
 If the namespace is set to "__main__" the key will be

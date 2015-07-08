@@ -52,7 +52,7 @@ except:
 #  ---------------------------------------------------------
 #  pyObject
 #  ========
-#' @title Create a virtual Python object
+#' @title Creates a virtual Python object
 #'
 #' @description The function pyObject creates a virtual Python object 
 #'              of type PythonInR_Object.
@@ -72,7 +72,7 @@ except:
 #' 
 #' The other members of PythonInR_Object's are generated dynamically
 #' based on the provided Python object. The R function \strong{ls} can be used
-#' to view the members of an PythonInR_Object object.
+#' to view the members of a PythonInR_Object object.
 #'
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
@@ -184,7 +184,7 @@ PythonInR_ObjectNoFinalizer <-
 #  ---------------------------------------------------------
 #  pyFunction
 #  ==========
-#' @title create a virtual Python function
+#' @title creates a virtual Python function
 #'
 #' @description The function pyFunction creates a new object of type 
 #'              pyFunction based on a given key.

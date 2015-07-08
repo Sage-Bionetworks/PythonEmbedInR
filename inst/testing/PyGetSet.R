@@ -1,5 +1,4 @@
-#' # Test the set/get functions
-
+#' # pyGet
 require(testthat)
 require(PythonInR)
 invisible(capture.output(pyConnect()))
@@ -64,17 +63,20 @@ genNamedList <- function(difficult=TRUE){
 
 #' ## Empty Elements
 x <- list(logical(), numeric(), integer(), character(), list(), data.frame(), matrix())
+y <- list(NULL, NULL, NULL, NULL, NULL, data.frame(), matrix())
+z <- list()
 for (i in 1:length(x)){
     pySet(sprintf("r%i", i), x[[i]])
-    print(pyGet(sprintf("r%i", i)))
+    z[[i]] <- pyGet(sprintf("r%i", i))
 }
+expect_that(z, equals(y))
 
 #' ## One dimensional elements
 x <- list(logical=TRUE, integer=1, double=pi,
           ascii = paste(LETTERS, collapse=" "),
           utf8 = "Some text with some Utf8 characters at the end! äöüß")
 for (i in 1:length(x)){
-    print(sprintf("%s", names(x)[i]))
+    ##print(sprintf("%s", names(x)[i]))
     pySet(sprintf("r%i", i), x[[i]])
     expect_that(pyGet(sprintf("r%i", i)), equals(x[[i]]))
 }
@@ -87,7 +89,7 @@ x <- list(logical=as.logical(sample(c(0,1), 1000, replace=TRUE)),
           utf8=sapply(1:1000, function(x) intToUtf8(sample(1:1000, 1000, replace=TRUE)))
           )
 for (i in 1:length(x)){
-    print(names(x)[i])
+    ##print(names(x)[i])
     pySet(sprintf("r%i", i), x[[i]])
     expect_that(pyGet(sprintf("r%i", i)), equals(x[[i]]))
 }
@@ -143,4 +145,3 @@ rownames(cars) <- buildAscii(dim(cars)[1], 5)
 expect_that(pySet("r", cars) , equals(0L))
 # NOTE: since Python dict changes the order of the columns I can't translate it 1:1
 expect_that(pyGet("r")[,colnames(cars)], is_identical_to(cars))
-

@@ -20,11 +20,11 @@ The following options are available:
   \item \strong{numpyAlias} a character giving the numpy alias, the
         default value is "numpy".
   \item \strong{useNumpy} a logical giving if numpy should be used
-        when getting and setting matrices.
+        if getting and setting matrices.
   \item \strong{pandasAlias}  a character giving the pandas alias, the
         default value is "pandas".
-  \item \strong{usePandas} a logical giving if numpy should be used
-        when getting and setting data.frames.
+  \item \strong{usePandas} a logical giving if pandas should be used
+        if getting and setting data.frames.
   \item \strong{winPython364} a logical indicating if Python 3 64-bit
         under windows is used, this option is set automatically at startup
         and shouldn't be changed.

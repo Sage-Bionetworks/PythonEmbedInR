@@ -11,7 +11,7 @@
 #'
 #' @description A convenience function to call the Python function \strong{dir}.
 #' @param objName an optional string specifying the name of the Python object.
-#' @return Returns the list of names in the global scope if no object name is 
+#' @return Returns the list of names in the global scope, if no object name is 
 #'         provided, otherwise a list of valid attributes for the specified object.
 #' @details The Python function dir is similar to the R function ls.
 #' @examples
@@ -59,7 +59,7 @@ pyHelp <- function(topic){
 #'
 #' @description Convenience function to call the Python function \strong{type}.
 #' @param objName a string specifying the name of the Python object.
-#' @return The type of the specified object as character on success NULL otherwise.
+#' @return The type of the specified object as character on success, NULL otherwise.
 #' @examples
 #' \dontshow{PythonInR:::pyCranConnect()}
 #' pyExec("x = dict()")

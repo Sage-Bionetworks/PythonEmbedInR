@@ -10,11 +10,11 @@ pyConnect(pythonExePath = NULL, dllDir = NULL, pythonHome = NULL)
 \item{pythonExePath}{a character containing the path to "python.exe"
 (e.g. "C:\\Python27\\python.exe")}
 
-\item{dllDir}{a optional character giving the path to the dll file.
+\item{dllDir}{an optional character giving the path to the dll file.
 Since the dll file is normally in a system folder or in the same
 location as python.exe, this parameter is \bold{almost never needed}!}
 
-\item{pythonHome}{a optional character giving the path to PYTHONHOME.
+\item{pythonHome}{an optional character giving the path to PYTHONHOME.
 On Windows by default PYTHONHOME is the folder where python.exe
 is located, therefore this parameter is \bold{normally not needed}.}
 }

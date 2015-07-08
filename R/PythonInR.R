@@ -104,10 +104,10 @@ pyCranConnect <- function(){
 #'              \strong{(The parameters are only needed for the Windows version!)}
 #' @param pythonExePath a character containing the path to "python.exe" 
 #'                      (e.g. "C:\\Python27\\python.exe")
-#' @param dllDir a optional character giving the path to the dll file. 
+#' @param dllDir an optional character giving the path to the dll file. 
 #'               Since the dll file is normally in a system folder or in the same 
 #'               location as python.exe, this parameter is \bold{almost never needed}!
-#' @param pythonHome a optional character giving the path to PYTHONHOME.
+#' @param pythonHome an optional character giving the path to PYTHONHOME.
 #'                   On Windows by default PYTHONHOME is the folder where python.exe 
 #'                   is located, therefore this parameter is \bold{normally not needed}.
 #' @details There is a different behavior for the static (Linux default)
@@ -167,7 +167,7 @@ pyConnect <- function(pythonExePath=NULL, dllDir=NULL, pythonHome=NULL){
 #' @title checks if R is connected to Python
 #'
 #' @description Checks if R is connected to Python.
-#' @return Returns TRUE if R is connected to Python FALSE otherwise.
+#' @return Returns TRUE if R is connected to Python, FALSE otherwise.
 #' @examples
 #' pyIsConnected()
 #  -----------------------------------------------------------------------------

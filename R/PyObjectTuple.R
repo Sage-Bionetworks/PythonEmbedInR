@@ -48,7 +48,7 @@ PythonInR_TupleNoFinalizer <-
 #  ---------------------------------------------------------
 #  pyTuple
 #  =======
-#' @title Create a virtual Python tuple
+#' @title Creates a virtual Python tuple
 #'
 #' @description The function pyTuple creates a virtual Python object 
 #'              of type PythonInR_Tuple. 

@@ -10,7 +10,7 @@ pyDir(objName = NULL)
 \item{objName}{an optional string specifying the name of the Python object.}
 }
 \value{
-Returns the list of names in the global scope if no object name is
+Returns the list of names in the global scope, if no object name is
         provided, otherwise a list of valid attributes for the specified object.
 }
 \description{

@@ -7,7 +7,7 @@
 pyIsConnected()
 }
 \value{
-Returns TRUE if R is connected to Python FALSE otherwise.
+Returns TRUE if R is connected to Python, FALSE otherwise.
 }
 \description{
 Checks if R is connected to Python.

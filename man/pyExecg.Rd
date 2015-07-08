@@ -2,7 +2,7 @@
 % Please edit documentation in R/PyExec.R
 \name{pyExecg}
 \alias{pyExecg}
-\title{Executes multiple lines of python code and get the output}
+\title{Executes multiple lines of python code and gets the output}
 \usage{
 pyExecg(code, returnValues = character(), autoTypecast = TRUE,
   returnToR = TRUE, mergeNamespaces = FALSE, override = FALSE,
@@ -11,10 +11,10 @@ pyExecg(code, returnValues = character(), autoTypecast = TRUE,
 \arguments{
 \item{code}{a string of Python code to be executed in Python.}
 
-\item{returnValues}{a character vector containing the names of the variables
+\item{returnValues}{a character vector containing the names of the variables,
 which should be returned to R.}
 
-\item{autoTypecast}{a an optional logical value, default it TRUE, specifying
+\item{autoTypecast}{a an optional logical value, default is TRUE, specifying
 if the return values should be automatically typecasted if possible.}
 
 \item{returnToR}{an optional logical, default is TRUE, specifying if the
@@ -36,14 +36,14 @@ Returns a list containing all the variables of the __main__ namespace.
 }
 \description{
 The function pyExecg is designed to execute multiple lines of
-             Python code and return the thereby generated variables to R.
+             Python code and returns the thereby generated variables to R.
 }
 \details{
 The function pyExecg executes the code in a temporary namespace,
          after the execution every variable from the namespace is returned
          to R. If the mergeNamespaces is set to TRUE the temporary namespace
-         get's merged with the (global) namespace __main__.
-         The logical variable override is used to control if already
+         gets merged with the (global) namespace __main__.
+         The logical variable override is used to control, if already
          existing variables in the namespace __main__ should be overridden,
          when a variable with the same name get's assigned to the
          temporary namespace. If a python object can't be converted to an
@@ -53,6 +53,7 @@ The function pyExecg executes the code in a temporary namespace,
 }
 \examples{
 \dontshow{PythonInR:::pyCranConnect()}
+if ( pyIsConnected() ){
 # 1. assigns x to the global namespace
 pyExec("x=4")
 # 2. assigns y to the temp namespace
@@ -91,5 +92,6 @@ pyExec("import os")
 z <- pyExecg("x = os")
 os <- PythonInR:::pyTransformReturn(z[[1]])
 os$getcwd()
+}
 }
 

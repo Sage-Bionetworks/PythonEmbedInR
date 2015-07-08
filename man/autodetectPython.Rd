@@ -7,16 +7,16 @@
 autodetectPython(pythonExePath = NULL)
 }
 \arguments{
-\item{pythonExePath}{a string giving the path to "python.exe"
+\item{pythonExePath}{a string containing the path to "python.exe"
 (e.g. "C:\\Python34\\python.exe").}
 }
 \value{
 Returns a list containing the information necessary to
-        connect to Python if a compatible Python version was found,
+        connect to Python if a compatible Python, version was found,
         raises an error otherwise.
 }
 \description{
-Autodetect the settings needed to connect to
+Autodetects the settings needed to connect to
              the python dll file (\strong{only Windows}).
 }
 \examples{

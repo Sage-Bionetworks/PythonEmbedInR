@@ -2,7 +2,7 @@
 % Please edit documentation in R/PyObject.R
 \name{pyFunction}
 \alias{pyFunction}
-\title{create a virtual Python function}
+\title{creates a virtual Python function}
 \usage{
 pyFunction(key)
 }

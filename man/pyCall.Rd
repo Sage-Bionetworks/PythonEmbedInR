@@ -15,10 +15,10 @@ Python object.}
 
 \item{kwargs}{an optional list of named arguments passed to the callable.}
 
-\item{autoTypecast}{a an optional logical value, default it TRUE, specifying
+\item{autoTypecast}{an optional logical value, default is TRUE, specifying
 if the return values should be automatically typecasted if possible.}
 
-\item{simplify}{an optional logical value, if TRUE R converts Python lists
+\item{simplify}{an optional logical value, if TRUE, R converts Python lists
 into R vectors whenever possible, else it translates Python
 lists always to R lists.}
 }

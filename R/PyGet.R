@@ -15,7 +15,7 @@
 #' @description The function pyGet0 gets Python objects by name.
 #' @param key a string specifying the name of a Python object.
 #' @details Primitive data types like bool, int, long, float, str, 
-#'          bytes and unicode are returned as R objects. Python tuple, lists,
+#'          bytes and unicode are returned as R objects. Python tuples, lists,
 #'          dictionaries and other Python objects are returned as virtual
 #'          Python objects.
 #' @note pyGet0 never creates a new Python object.
@@ -66,7 +66,7 @@ pyGet0 <- function(key){
 #' @description The function pyGet gets Python objects by name and transforms 
 #'              them into R objects. 
 #' @param key a string specifying the name of a Python object.
-#' @param autoTypecast a an optional logical value, default it TRUE, specifying
+#' @param autoTypecast an optional logical value, default is TRUE, specifying
 #'        if the return values should be automatically typecasted if possible.
 #' @param simplify an optional logical value, if TRUE R converts Python lists 
 #'        into R vectors whenever possible, else it translates Python lists 

@@ -7,12 +7,12 @@
 #  ---------------------------------------------------------
 #  pySet
 #  =====
-#' @title assign R objects to Python
+#' @title assigns R objects to Python
 #'
 #' @description The function pySet allows to assign R objects to the Python 
 #'              namespace, the conversion from R to Python is done automatically.
 #' @param key a string specifying the name of the Python object.
-#' @param value an R object which is assigned to Python. 
+#' @param value a R object which is assigned to Python. 
 #' @param namespace a string specifying where the key should be located.
 #'                   If the namespace is set to "__main__" the key will be
 #'                   set to the global namespace. But it is also possible to

@@ -2,7 +2,7 @@
 % Please edit documentation in R/PyObject.R
 \name{pyObject}
 \alias{pyObject}
-\title{Create a virtual Python object}
+\title{Creates a virtual Python object}
 \usage{
 pyObject(key, regFinalizer = TRUE)
 }
@@ -30,10 +30,11 @@ Every PythonInR_Object has the following members:
 
 The other members of PythonInR_Object's are generated dynamically
 based on the provided Python object. The R function \strong{ls} can be used
-to view the members of an PythonInR_Object object.
+to view the members of a PythonInR_Object object.
 }
 \examples{
 \dontshow{PythonInR:::pyCranConnect()}
+if ( pyIsConnected() ){
 pyExec("import os")
 os <- pyObject("os", regFinalizer = FALSE)
 ls(os)
@@ -43,5 +44,6 @@ os2 <- pyGet("os")  ## has a finalizer
 os$py.variableName
 os1$py.variableName
 os2$py.variableName
+}
 }
 
