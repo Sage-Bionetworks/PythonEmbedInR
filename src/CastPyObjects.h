@@ -37,8 +37,6 @@ long py_to_c_integer(PyObject *py_object);
 
 const char *py_to_c_string(PyObject *py_object);
 
-SEXP py_to_r_simple(PyObject *py_object);
-
 SEXP py_to_r(PyObject *py_object, int simplify, int autotype);
 
 #endif
