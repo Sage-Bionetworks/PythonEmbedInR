@@ -33,7 +33,7 @@ SEXP py_tuple_to_r_list(PyObject *py_object, int simplify);
 
 SEXP py_dict_to_r_list(PyObject *py_object, int simplify);
 
-long py_to_c_integer(PyObject *py_object);
+int py_to_c_integer(PyObject *py_object);
 
 const char *py_to_c_string(PyObject *py_object);
 
