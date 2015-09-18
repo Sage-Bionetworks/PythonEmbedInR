@@ -1,6 +1,5 @@
 # PythonInR - Makes accessing Python from within R as easy as pie.
 
-## Links
 More documenation can be found at [http://pythoninr.bitbucket.org/](http://pythoninr.bitbucket.org/).
 
 ## Dependencies
