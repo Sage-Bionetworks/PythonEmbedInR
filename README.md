@@ -1,5 +1,8 @@
 # PythonInR - Makes accessing Python from within R as easy as pie.
 
+## Links
+More documenation can be found at [http://pythoninr.bitbucket.org/](http://pythoninr.bitbucket.org/).
+
 ## Dependencies
 
 **Python** >= 2.7.0
@@ -34,7 +37,8 @@ There are no additional dependencies on Windows.
 ## Installation
 ```r
     install.packages("PythonInR")
-#   or
+#   or via devtools
+    require(devtools)
     install_bitbucket("Floooo/PythonInR")
 ```
 
