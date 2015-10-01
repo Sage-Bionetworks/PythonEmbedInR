@@ -8,7 +8,7 @@
 #ifndef PY_INSIDE_R_H
 #define PY_INSIDE_R_H
 
-long pyrNamespaceCounter;
+extern long pyrNamespaceCounter;
 
 #ifdef PYTHON_IN_R_NO_EXPLICIT_LINKING
 #include <Python.h> // If you are a Linux user, did you realy install the Python headers? Try "sudo apt-get install python-dev" to fix this! :)
