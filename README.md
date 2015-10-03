@@ -41,6 +41,18 @@ There are no additional dependencies on Windows.
     install_bitbucket("Floooo/PythonInR")
 ```
 
+## Windows Setup
+Since the Windows version of PythonInR uses explicit linkage one can switch
+between different Python versions without recompiling the package. This flexibility
+comes at the price of additional configuration at the startup. Which results in a different 
+behavior for the static (Linux default) and the explicit linked (Windows default) version. 
+Where as the static linked version automatically connects, when the package get’s loaded, 
+the explicitly linked version needs to be connected manually.     
+     
+To enable automatic connection for the explicitly linked version the environment variable
+**PYTHON_EXE** has to be set. You can put your Python path into your ```.Renviron``` or
+```.Rprofile``` file ([Setting up a .Renviron file](https://bitbucket.org/Floooo/pythoninr/wiki/Initialization%20at%20Start%20of%20an%20R%20Session%20on%20Windows)). 
+
 ## NOTES
 ### Python 3
 Due to api changes in Python 3 the function `execfile` is no longer available.
