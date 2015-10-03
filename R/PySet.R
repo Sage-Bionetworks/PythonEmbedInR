@@ -29,7 +29,7 @@
 #' @details More information about the type conversion can be found in the README 
 #'          file or at \url{http://pythoninr.bitbucket.org/}.
 #' @examples
-#' \dontshow{pyCranConnect()}
+#' \dontshow{PythonInR:::pyCranConnect()}
 #' pySet("x", 3)
 #' pySet("M", diag(1,3))
 #' pyImport("os")
