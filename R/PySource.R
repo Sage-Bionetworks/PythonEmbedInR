@@ -80,19 +80,34 @@ pySource <- function(file, local = FALSE, echo = verbose, print.eval = echo,
 #' }
 #  -----------------------------------------------------------
 BEGIN.Python <- function(){
-  pyCode <- character()
-  while(TRUE) {
-    line <- readline(prompt="py> ")
-    if (grepl("END.Python", line, fixed=TRUE)){
-      break
-    } 
-    tryCatch({pyExecp(line)
-      pyCode <- c(pyCode, line)
-    },
-    warning=function(w){ print(w) },
-    error=function(e){ print(e) }
-    )
-  }
-  return(invisible(pyCode))
+    if ( pyConnectionCheck() ) return(invisible(NULL))
+    f <- file("stdin")
+    open(f)
+    cat("py> ")
+    pyCode <- character()
+    execBuffer <- ""
+    while(TRUE) {
+        line <- readLines(f,n=1)
+        if (grepl("END.Python", line, fixed=TRUE)) {
+            if ( nchar(execBuffer) > 0 ) pyExec(execBuffer)
+            break
+        }
+        if (grepl("(^\\s|:\\s*$)", line)) {
+            execBuffer <- paste(c(execBuffer, line), collapse="\n")
+        } else {
+            if ( nchar(execBuffer) > 0 ) {
+                pyExec(execBuffer)
+                cat("py> ")
+            }
+            tryCatch({pyExecp(line)
+                      pyCode <- c(pyCode, line)
+                  },
+                     warning=function(w){ print(w) },
+                     error=function(e){ print(e) }
+                     )
+            cat("py> ")
+        }
+    }
+    return(invisible(pyCode))
 }
 
