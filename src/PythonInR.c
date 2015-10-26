@@ -7,7 +7,7 @@
 \  -------------------------------------------------------------------------- */
 #include "PythonInR.h"
 
-extern long pyrNamespaceCounter;
+long pyrNamespaceCounter = 0;
 // #TODO: ReThink if it would make sense to add Python like options!
 // const char *unicode_errors = "replace"; 
 
@@ -66,7 +66,6 @@ static PyObject* PyInit_logCatcher(void){
       py_connect creates a connection to Python
   ----------------------------------------------------------------------------*/
 SEXP py_connect(SEXP initsigs){
-	pyrNamespaceCounter = 0;
     #if PY_MAJOR_VERSION >= 3
         static wchar_t *argv[1] = {L""};
         PyImport_AppendInittab("logCatcher", &PyInit_logCatcher);
