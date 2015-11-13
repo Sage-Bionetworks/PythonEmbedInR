@@ -1,6 +1,6 @@
 Package: PythonInR
 Title: Use Python from Within R
-Version: 0.1-1
+Version: 0.1-2
 Author: Florian Schwendinger [aut, cre]
 Maintainer: Florian Schwendinger <FlorianSchwendinger@gmx.at>
 Description: Interact with Python from within R.

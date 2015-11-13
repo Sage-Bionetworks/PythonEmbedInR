@@ -236,3 +236,12 @@ More information can be found [here](http://www.diveintopython3.net/strings.html
 | pyTuple          | Create a representation of a Python tuple in R     | `pyTuple(key)`                                                       |
 | pyType           | Get the type of a Python variable                  | `pyType("sys")`                                                      |
 | pyVersion        | Returns the version of Python                      | `pyVersion()`                                                        |
+
+
+# Usage Examples
+## Dynamic Documents
+[PythonInR and KnitR](https://gist.github.com/kohske/3e438a7962cacfef9d32)
+## Data and Text Mining
+[word2vec](https://speakerdeck.com/yamano357/tokyor51-lt)
+[Glove](https://gist.github.com/yamano357/8a31b2dc0c7a20a30d36)
+[TensorFlow](http://qiita.com/yamano357/items/66272759fc29a5a2dd01)
