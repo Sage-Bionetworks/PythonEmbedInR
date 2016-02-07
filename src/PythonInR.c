@@ -10,6 +10,7 @@
 long pyrNamespaceCounter = 0;
 // #TODO: ReThink if it would make sense to add Python like options!
 // const char *unicode_errors = "replace"; 
+int r_int_to_py_long_flag = 1;
 
 #ifdef DEBUG_PYTHONINR
 static FILE * log_file=NULL;
@@ -163,7 +164,11 @@ SEXP py_connect(SEXP dllName, SEXP dllDir, SEXP alteredSearchPath){
         logging("WIN py_connect: Load library with altered search path: %s\n", dll_name);
         /* I use LoadLibraryEx so Windows looks for dependent DLLs
            in directory of pathname first. */
+#ifdef __unix__         
+        void* py_hdll = dlopen( dll_name, RTLD_NOW | RTLD_GLOBAL ); 
+#else
         py_hdll = LoadLibraryEx(dll_name, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+#endif        
     }
     if (py_hdll == NULL) error("Error couldn't load dll file!\n");
     return R_NilValue;
@@ -335,3 +340,13 @@ SEXP py_get_info(void){
     UNPROTECT(1);
     return info;
 }
+
+SEXP get_int_long_flag(void) {
+    return c_to_r_integer(r_int_to_py_long_flag);
+}
+
+SEXP set_int_long_flag(SEXP flag){
+	r_int_to_py_long_flag = R_TO_C_INT(flag);
+	return R_NilValue;
+}
+
