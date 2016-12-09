@@ -99,7 +99,8 @@ else
     PYCFLAGS="PKG_CFLAGS="`$PYBINPATH/python$PYVERSIONm-config --cflags`" -D $PYXY -D PYTHON_IN_R_NO_EXPLICIT_LINKING"
 fi
 
-./cleanup
+#clean up the old compile
+rm -f src/*.o src/*.so src/*.rds src/Makevars
 
 echo ""
 echo "Makevars:"
