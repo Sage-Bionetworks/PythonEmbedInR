@@ -1,5 +1,6 @@
 #!/bin/sh
 
 rm -f src/*.o src/*.so src/*.rds src/Makevars
-
-
+rm -r inst/bin inst/include inst/share inst/Python-3.5.1.tar inst/Python-3.5.1/
+rm -rf inst/lib
+	
