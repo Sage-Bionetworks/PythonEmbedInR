@@ -1,0 +1,156 @@
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# create the makevars for unix like systems (tested on debian and ubuntu)
+#
+# NOTES:
+# The system variable USESPECIALPYTHONVERSION can be used to link to a special
+# python version. 
+# export USESPECIALPYTHONVERSION="python3.4"
+# it can be very usefull especially for testing but one has to ensure  that
+# the file PYVERSION-config is present at the provided location else it will
+# fail.
+# But when using python3 also python3-dev has to be installed 
+# (apt-get install python3-dev)
+# 
+# gcc:
+# there seems to be a new option which doesn't allows me to compile
+# -fstack-protector-strong so I just remove it
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+AC_INIT(PythonInR, 0.1, asdf@idk.com)
+
+AC_CONFIG_SRCDIR([src])
+#AC_CONFIG_HEADER([src/config.h])
+
+# find R home and set CC/CFLAGS
+: ${R_HOME=`R RHOME`}
+if test -z "${R_HOME}"; then
+  echo "could not determine R_HOME"
+  exit 1
+fi
+RBIN="${R_HOME}/bin/R"
+CC=`"${RBIN}" CMD config CC`;
+CFLAGS=`"${RBIN}" CMD config CFLAGS`
+
+RLD=`"${RBIN}" CMD config --ldflags 2>/dev/null`
+has_R_shlib=no
+if test -n "$RLD"; then
+   has_R_shlib=yes
+fi
+
+
+
+#----- install the Python package -----
+RWITHPYTHON_PYTHON_VERSION=3.5
+RWITHPYTHON_PYTHON_VERSION_EXTENDED=3.5.1
+PYTHON_ARCHIVE_NAME=Python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}
+PYTHON_RUNTIME_BUNDLE=https://www.python.org/ftp/python/${RWITHPYTHON_PYTHON_VERSION_EXTENDED}/${PYTHON_ARCHIVE_NAME}.tgz
+# what follows, delimited by square brackets, is a script to be copied into the 'configure' output file
+
+cd inst
+wget -O ${PYTHON_ARCHIVE_NAME}.tgz ${PYTHON_RUNTIME_BUNDLE}
+if [ "$?" -ne "0" ]; then
+    curl -o ${PYTHON_ARCHIVE_NAME}.tgz ${PYTHON_RUNTIME_BUNDLE}
+fi
+if [ "$?" -ne "0" ]; then
+  echo "Failed to download ${PYTHON_RUNTIME_BUNDLE}"
+  exit 1
+fi
+gunzip ${PYTHON_ARCHIVE_NAME}.tgz
+# NOTE: 'gunzip' removes the .tgz file leaving just the .tar file
+tar -xf ${PYTHON_ARCHIVE_NAME}.tar
+rm ${PYTHON_ARCHIVE_NAME}.tar
+RWITHPYTHON_PYTHON_DIR=${PWD}
+cd ${PYTHON_ARCHIVE_NAME}
+# in the following line the '--prefix' parameter is the installation location
+./configure --enable-shared --prefix=${RWITHPYTHON_PYTHON_DIR}
+make
+make altinstall
+cd ..
+rm -R ${PYTHON_ARCHIVE_NAME}
+cd ..
+
+MYPYTHONCONFIG=${RWITHPYTHON_PYTHON_DIR}/bin/python${RWITHPYTHON_PYTHON_VERSION}m-config
+MYPYTHON=${RWITHPYTHON_PYTHON_DIR}/bin/python${RWITHPYTHON_PYTHON_VERSION}
+
+# Extract the linker and include flags for python
+: ${PYTHONCONFIG=`which ${MYPYTHONCONFIG}`}
+if test -z "${PYTHONCONFIG}"; then
+  echo "could not locate ${MYPYTHONCONFIG}"
+  exit 1
+fi
+
+# On Mac, after upgrading to 3.5 the following caused: "ld: -stack_size option can only be used when linking a main executable"
+# So we switch from ldflags to libs
+#PKG_LIBS=`$PYTHONCONFIG --ldflags`
+PKG_LIBS=`$PYTHONCONFIG --libs`
+
+# PUT the static (not shared) library on the library path
+PKG_LIBS="-L${RWITHPYTHON_PYTHON_DIR}/lib/python${RWITHPYTHON_PYTHON_VERSION}/config-${RWITHPYTHON_PYTHON_VERSION}m ${PKG_LIBS}"
+
+PKG_CFLAGS=`$PYTHONCONFIG --includes`
+
+USESPECIALPYTHONVERSION=./inst/bin/python$RWITHPYTHON_PYTHON_VERSION
+
+
+if ! [ -z "$USESPECIALPYTHONVERSION" ]; then
+    echo "use special version"
+    alias python="$USESPECIALPYTHONVERSION"
+fi 
+
+PYVERSION=`python -c "import sys;import distutils.sysconfig as sc;sys.stdout.write(sc.get_config_var('VERSION'))"`
+#PYINCLUDE=`python -c "import sys;import distutils.sysconfig as sc;sys.stdout.write(sc.get_config_var('INCLUDEPY'))"`
+PYBINPATH=`python -c "import sys;import os;sys.stdout.write(os.path.dirname(sys.executable))"`
+# sys.version_info.major would be a alternative to hexversion
+PY3FLAG=`python -c 'import sys; print("%i" % (sys.hexversion<0x03000000))'`
+
+echo $PYVERSION
+echo $PYBINPATH
+echo $PY3FLAG
+echo ""
+
+if [ $PY3FLAG -eq 0 ]; then
+    echo "python version is > 3"
+    PYXY="PYTHONLIBXY=libpython"$PYVERSION"m.so"
+    PYLIBS="PKG_LIBS=-L${RWITHPYTHON_PYTHON_DIR}/lib/python${RWITHPYTHON_PYTHON_VERSION}/config-${RWITHPYTHON_PYTHON_VERSION}m "`$PYTHONCONFIG --libs`
+    PYCFLAGS="PKG_CFLAGS="`$PYTHONCONFIG --includes`" -D $PYXY -D PYTHON_IN_R_NO_EXPLICIT_LINKING"
+else 
+    echo "python version is < 3"
+    PYXY="PYTHONLIBXY=libpython"$PYVERSION".so"
+    PYLIBS="PKG_LIBS="`$PYBINPATH/python$PYVERSIONm-config --ldflags`
+    PYCFLAGS="PKG_CFLAGS="`$PYBINPATH/python$PYVERSIONm-config --cflags`" -D $PYXY -D PYTHON_IN_R_NO_EXPLICIT_LINKING"
+fi
+
+echo ""
+echo "Makevars:"
+echo $PYLIBS
+echo $PYCFLAGS | sed 's/Wstrict-prototypes/pedantic/' | sed 's/ -fstack-protector-strong//'
+echo ""
+
+./cleanup
+
+# replacing Wstric-prototypes removes some unnecessary warnings
+echo $PYLIBS > src/Makevars
+echo $PYCFLAGS | sed 's/Wstrict-prototypes/pedantic/' | sed 's/ -fstack-protector-strong//' >> src/Makevars	
+
+
+AC_SUBST(PKG_LIBS)
+AC_SUBST(PKG_CFLAGS)
+
+AC_PREREQ
+
+# Checks for programs.
+AC_PROG_CC
+
+# Checks for libraries.
+
+# Checks for header files.
+#AC_HEADER_STDC
+#AC_HEADER_SYS_WAIT
+#AC_CHECK_HEADERS([string.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+#AC_C_CONST
+#AC_HEADER_TIME
+
+AC_CONFIG_FILES([src/Makevars])
+AC_OUTPUT
