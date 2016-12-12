@@ -98,7 +98,6 @@ SEXP py_connect(SEXP initsigs){
                            "import sys");
     #else
         PyImport_ImportModule("logCatcher");
-        PyImport_ImportModule("struct");
         // import define a alternative to execfile as sugested at various sources
         // http://www.diveintopython3.net/porting-code-to-python-3-with-2to3.html
         PyRun_SimpleString("import sys");

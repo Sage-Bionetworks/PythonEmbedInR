@@ -4,6 +4,7 @@
   #TODO: handle Windows
   Sys.setenv(PYTHONHOME=system.file(package="PythonInR"))
   Sys.setenv(PYTHONPATH=system.file("lib", package="PythonInR"))
+  library.dynam.unload("PythonInR", "/Library/Frameworks/R.framework/Versions/3.3/Resources/library/PythonInR")
   library.dynam( "PythonInR", pkgname, libname, local=FALSE)
   
   if ( !.Call( "isDllVersion") ){
