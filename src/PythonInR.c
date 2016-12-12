@@ -98,6 +98,7 @@ SEXP py_connect(SEXP initsigs){
                            "import sys");
     #else
         PyImport_ImportModule("logCatcher");
+        PyImport_ImportModule("struct");
         // import define a alternative to execfile as sugested at various sources
         // http://www.diveintopython3.net/porting-code-to-python-3-with-2to3.html
         PyRun_SimpleString("import sys");
@@ -164,7 +165,7 @@ SEXP py_connect(SEXP dllName, SEXP dllDir, SEXP alteredSearchPath){
         logging("WIN py_connect: Load library with altered search path: %s\n", dll_name);
         /* I use LoadLibraryEx so Windows looks for dependent DLLs
            in directory of pathname first. */
-#ifdef __unix__         
+#ifdef __unix__
         void* py_hdll = dlopen( dll_name, RTLD_NOW | RTLD_GLOBAL ); 
 #else
         py_hdll = LoadLibraryEx(dll_name, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
