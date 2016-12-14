@@ -1,6 +1,6 @@
 #' # pyOptions
 require(testthat)
-require(PythonInR)
+require(PythonEmbedInR)
 invisible(capture.output(pyConnect()))
 
 ## PySource

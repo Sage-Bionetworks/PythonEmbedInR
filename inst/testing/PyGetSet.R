@@ -1,6 +1,6 @@
 #' # pyGet
 require(testthat)
-require(PythonInR)
+require(PythonEmbedInR)
 invisible(capture.output(pyConnect()))
 
 #' ## Define some auxilary functions
