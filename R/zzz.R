@@ -1,7 +1,21 @@
+
+pathToPythonLibraries<-function(libname, pkgname) {
+	# Note: 'pythonLibs' is defined in configure.win
+	pathToPythonLibraries<-file.path(libname, pkgname, "pythonLibs")
+	pathToPythonLibraries<-gsub("/", "\\", pathToPythonLibraries, fixed=T)
+	pathToPythonLibraries
+}
+
+# on Windows we need to add Python dll's to library search path
+addPythonLibrariesToWindowsPath<-function(libname, pkgname) {
+	if (Sys.info()['sysname']!="Windows") return
+	Sys.setenv(PATH=pathToPythonLibraries(libname, pkgname))
+}
+
 .onLoad <- function(libname, pkgname) {
   # at the compile time a flag is set which can
   # be accessed by using the function isDllVersion 
-  #TODO: handle Windows
+  addPythonLibrariesToWindowsPath(libname, pkgname)
   Sys.setenv(PYTHONHOME=system.file(package="PythonInR"))
   Sys.setenv(PYTHONPATH=system.file("lib", package="PythonInR"))
 
@@ -15,12 +29,7 @@
   # Reference: http://r.789695.n4.nabble.com/question-re-error-message-package-error-quot-functionName-quot-not-resolved-from-current-namespace-td4663892.html
   library.dynam.unload("PythonInR", system.file(package="PythonInR"))
   library.dynam( "PythonInR", pkgname, libname, local=FALSE)
-  
-  if ( !.Call( "isDllVersion") ){
-      pyConnect()
-  } else if ( nchar(Sys.getenv('PYTHON_EXE')) > 0 ) {
-  	  pyConnect(pythonExePath=Sys.getenv('PYTHON_EXE'))
-  }
+  pyConnect()
   
   invisible(NULL)
 }
