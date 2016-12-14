@@ -5,7 +5,7 @@ Author: Florian Schwendinger [aut, cre]
 Maintainer: Florian Schwendinger <FlorianSchwendinger@gmx.at>
 Description: Interact with Python from within R.
 Depends:
-    R (>= 2.15)
+    R (>= 2.15), pack, methods, R6, stats
 Imports:
     pack,
     methods,
