@@ -1,5 +1,5 @@
-Package: PythonInR
-Title: Use Python from Within R
+Package: PythonEmbedInR
+Title: Use an embedded Python from Within R
 Version: 0.1-3
 Author: Florian Schwendinger [aut, cre]
 Maintainer: Florian Schwendinger <FlorianSchwendinger@gmx.at>

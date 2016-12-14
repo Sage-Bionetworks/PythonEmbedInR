@@ -61,7 +61,7 @@ pyConnectWinDll <- function(dllName, dllDir, majorVersion,
     .Call( "py_set_major_version", majorVersion)
     .Call( "py_connect", dllName, dllDir, as.integer(useAlteredSearchPath) )
     .Call( "py_get_process_addresses" )
-    .Call( "py_set_program_name", "PythonInR" )
+    .Call( "py_set_program_name", "PythonEmbedInR" )
     if(useCstdout){
         .Call( "py_import_append_logCatcher" ) # has to be before py_initialize
     }

@@ -1,6 +1,6 @@
 #' # pyImport
 require(testthat)
-require(PythonInR)
+require(PythonEmbedInR)
 invisible(capture.output(pyConnect()))
 
 ## import 0 

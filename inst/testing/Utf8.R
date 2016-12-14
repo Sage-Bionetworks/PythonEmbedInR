@@ -1,7 +1,7 @@
 #' # Test utf-8
 #' This test is mainly interesting for windows
 require(testthat)
-require(PythonInR)
+require(PythonEmbedInR)
 invisible(capture.output(pyConnect()))
 
 rAscii <- "abcABC"

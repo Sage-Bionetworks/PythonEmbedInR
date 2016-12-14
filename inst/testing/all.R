@@ -2,7 +2,7 @@ q("no")
 R
 
 library(testthat)
-require(PythonInR)
+require(PythonEmbedInR)
 
 pyConnect()
 #pyConnect("C:\\Python34_64bit\\python.exe")

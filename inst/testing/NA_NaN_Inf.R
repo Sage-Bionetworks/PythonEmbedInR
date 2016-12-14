@@ -3,7 +3,7 @@ R
 
 #' # pyGet
 require(testthat)
-require(PythonInR)
+require(PythonEmbedInR)
 invisible(capture.output(pyConnect()))
 
 #' ## Logical (only NA)

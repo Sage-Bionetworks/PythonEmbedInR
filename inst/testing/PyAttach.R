@@ -1,6 +1,6 @@
 #' # pyAttach
 require(testthat)
-require(PythonInR)
+require(PythonEmbedInR)
 invisible(capture.output(pyConnect()))
 
 expect_that(pyExec("import os"), equals(0))
