@@ -13,9 +13,9 @@ addPythonLibrariesToWindowsPath<-function(libname, pkgname) {
 }
 
 .onLoad <- function(libname, pkgname) {
-  if (Sys.info()['sysname']=="Linux"){
-    dyn.load(system.file("lib/libpython3.5m.so.1.0", package="PythonEmbedInR"), local=FALSE)
-  }
+  #if (Sys.info()['sysname']=="Linux"){
+   # dyn.load(system.file("lib/libpython3.5m.so.1.0", package="PythonEmbedInR"), local=FALSE)
+  #}
   
   # at the compile time a flag is set which can
   # be accessed by using the function isDllVersion 
