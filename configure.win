@@ -1,0 +1,51 @@
+#!/bin/sh
+
+RWITHPYTHON_PYTHON_VERSION=3.5
+RWITHPYTHON_PYTHON_VERSION_EXTENDED=3.5.2
+
+if [ $R_ARCH = "/x64" ]
+then
+	EMBEDDED_ZIP=https://www.python.org/ftp/python/${RWITHPYTHON_PYTHON_VERSION_EXTENDED}/python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed-amd64.zip
+else
+	EMBEDDED_ZIP=https://www.python.org/ftp/python/${RWITHPYTHON_PYTHON_VERSION_EXTENDED}/python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed-win32.zip
+fi
+
+# This creates a folder /pythonLibs in the installed package.
+# Note:  You can't create /libs which is reserved for the R package installer
+PYTHON_LIB_PATH=inst/pythonLibs
+mkdir -p ${PYTHON_LIB_PATH}
+cd ${PYTHON_LIB_PATH}
+wget -O python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip $EMBEDDED_ZIP
+if [ "$?" -ne "0" ]; then
+  echo "Failed to download $EMBEDDED_ZIP"
+  exit 1
+fi
+unzip python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip
+
+PIP_INSTALL_SCRIPT=get-pip.py
+wget -O $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/get-pip.py
+./python.exe PIP_INSTALL_SCRIPT
+cd ../..
+
+# Now get the include files
+# Note, we don't put them into 'inst' because they aren't needed in the installed package
+PYTHON_ARCHIVE_NAME=Python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}
+PYTHON_RUNTIME_BUNDLE=https://www.python.org/ftp/python/${RWITHPYTHON_PYTHON_VERSION_EXTENDED}/${PYTHON_ARCHIVE_NAME}.tgz
+
+wget -O ${PYTHON_ARCHIVE_NAME}.tgz ${PYTHON_RUNTIME_BUNDLE}
+if [ "$?" -ne "0" ]; then
+  echo "Failed to download ${PYTHON_RUNTIME_BUNDLE}"
+  exit 1
+fi
+
+tar -xzf ${PYTHON_ARCHIVE_NAME}.tgz
+rm ${PYTHON_ARCHIVE_NAME}.tgz
+
+
+PYTHON_SRC_PATH=${PYTHON_ARCHIVE_NAME}
+
+# Confirmed that compilation is done under the 'src' directory, so ".." is needed before any
+# relative paths established during this script.  
+echo 'PKG_CFLAGS=-I"'../${PYTHON_SRC_PATH}/Include'" -I"'../${PYTHON_SRC_PATH}/PC'"' > src/Makevars.win
+
+echo 'PKG_LIBS=-L"'../${PYTHON_LIB_PATH}'" -lpython35'  >> src/Makevars.win

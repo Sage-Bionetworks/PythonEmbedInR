@@ -1,4 +1,4 @@
-useDynLib(PythonInR)
+useDynLib(PythonEmbedInR)
 importFrom(stats, setNames)
 importFrom("pack", unpack)
 import(methods)

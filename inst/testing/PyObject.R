@@ -1,6 +1,6 @@
 #' # pyObject
 require(testthat)
-require(PythonInR)
+require(PythonEmbedInR)
 invisible(capture.output(pyConnect()))
 
 ## Object
