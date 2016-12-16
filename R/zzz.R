@@ -13,16 +13,16 @@ addPythonLibrariesToWindowsPath<-function(libname, pkgname) {
 }
 
 .onLoad <- function(libname, pkgname) {
+  if (Sys.info()['sysname']=="Linux"){
+    dyn.load(system.file("lib/libpython3.5m.so.1.0", package="PythonEmbedInR"), local=FALSE)
+  }
+  
   # at the compile time a flag is set which can
   # be accessed by using the function isDllVersion 
   addPythonLibrariesToWindowsPath(libname, pkgname)
   Sys.setenv(PYTHONHOME=system.file(package="PythonEmbedInR"))
   Sys.setenv(PYTHONPATH=system.file("lib", package="PythonEmbedInR"))
   
-  if (Sys.info()['sysname']=="Linux"){
-    dyn.load(system.file("lib/libpython3.5m.so.1.0", package="PythonEmbedInR"), local=FALSE)
-  }
-
   # Unloading it and then reloading it is a hacky way of making less modifications to the original code:
   # In the NAMESPACE file, we load load PythonInR.so with "useDynLib(PythonInR)"
   # However, the symbols are not loaded globally(RTLD_GLOBAL) and will cause issues
