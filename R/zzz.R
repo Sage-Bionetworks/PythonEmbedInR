@@ -18,6 +18,7 @@ addPythonLibrariesToWindowsPath<-function(libname, pkgname) {
   addPythonLibrariesToWindowsPath(libname, pkgname)
   Sys.setenv(PYTHONHOME=system.file(package="PythonEmbedInR"))
   Sys.setenv(PYTHONPATH=system.file("lib", package="PythonEmbedInR"))
+  Sys.setenv(LD_LIBRARY_PATH=system.file("lib", package="PythonEmbedInR"))
 
   # Unloading it and then reloading it is a hacky way of making less modifications to the original code:
   # In the NAMESPACE file, we load load PythonInR.so with "useDynLib(PythonInR)"
