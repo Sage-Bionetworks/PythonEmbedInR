@@ -33,7 +33,7 @@ addPythonLibrariesToWindowsPath<-function(libname, pkgname) {
   
   
   if (Sys.info()['sysname']=="Linux"){
-   dyn.load(system.file("lib/libpython3.6m.so.1.0", package="PythonEmbedInR"), local=FALSE)
+   dyn.load(system.file("lib/libpython3.5m.so.1.0", package="PythonEmbedInR"), local=FALSE)
   }
   invisible(NULL)
 }
