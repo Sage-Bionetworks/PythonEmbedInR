@@ -1,57 +1,24 @@
-# PythonInR - Makes accessing Python from within R as easy as pie.
+## PythonEmbedInR - Access a private copy of Python embedded in this R package.
 
-More documenation can be found at [https://bitbucket.org/Floooo/pythoninr](https://bitbucket.org/Floooo/pythoninr) and [http://pythoninr.bitbucket.org/](http://pythoninr.bitbucket.org/).
+This package is a modification of [PythonInR](https://bitbucket.org/Floooo/pythoninr) which embeds a private copy of Python, isolated from any Python installation that might be on the host system.   The documentation of the original package follows. 
+
+
+## PythonInR - Makes accessing Python from within R as easy as pie.
+
+More documentation can be found at [https://bitbucket.org/Floooo/pythoninr](https://bitbucket.org/Floooo/pythoninr) and [http://pythoninr.bitbucket.org/](http://pythoninr.bitbucket.org/).
 
 ## Dependencies
 
-**Python** >= 2.7.0
 **R** >= 2.15.0
  
 **R-packages:**   
 - pack
 
 
-### Linux
-**Python headers** 
-
-On **Debian** and Debian-based Linux distributions (including **Ubuntu**
-and other derivatives) the *"Python Development Headers"* can be installed
-by typing the following into the terminal.
-
-```bash
-    apt-get install python-dev
-```    
-
-For installation on **Red Hat Enterprise Linux** , **Fedora**, and other **Red Hat
-Linux-based** distributions, use the following:
-
-```bash
-    yum install python-devel
-```
-
-### Windows
-There are no additional dependencies on Windows. 
-(One obviously needs to have R and Python installed.)
-
 ## Installation
 ```r
-    install.packages("PythonInR")
-#   or via devtools
-    require(devtools)
-    install_bitbucket("Floooo/PythonInR")
+    install.packages("PythonEmbedInR", repos="http://depot.sagebase.org/CRAN")
 ```
-
-## Windows Setup
-Since the Windows version of PythonInR uses explicit linkage one can switch
-between different Python versions without recompiling the package. This flexibility
-comes at the price of additional configuration at the startup. Which results in a different 
-behavior for the static (Linux default) and the explicit linked (Windows default) version. 
-Where as the static linked version automatically connects, when the package get’s loaded, 
-the explicitly linked version needs to be connected manually.     
-     
-To enable automatic connection for the explicitly linked version the environment variable
-**PYTHON_EXE** has to be set. You can put your Python path into your ```.Renviron``` or
-```.Rprofile``` file ([Setting up a .Renviron file](https://bitbucket.org/Floooo/pythoninr/wiki/Initialization%20at%20Start%20of%20an%20R%20Session%20on%20Windows)). 
 
 ## NOTES
 ### Python 3

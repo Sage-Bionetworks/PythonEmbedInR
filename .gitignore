@@ -1,2 +1,9 @@
 .project
 .DS_Store
+**/*.o
+inst/bin/
+inst/include/
+inst/lib/
+inst/share/
+**/*.so
+src/Makevars
