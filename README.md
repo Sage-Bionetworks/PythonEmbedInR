@@ -17,7 +17,8 @@ More documentation can be found at [https://bitbucket.org/Floooo/pythoninr](http
 
 ## Installation
 ```r
-    install.packages("PythonEmbedInR", repos="http://depot.sagebase.org/CRAN")
+install.packages(c("pack", "R6", "PythonEmbedInR"), repos=c("https://cran.cnr.berkeley.edu/", "https://sage-bionetworks.github.io/drat"))
+# (Use your favorite CRAN mirror above.  See https://cran.r-project.org/mirrors.html for a list of available mirrors.)
 ```
 
 ## NOTES
