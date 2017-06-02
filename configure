@@ -1,0 +1,80 @@
+#!/bin/sh
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# create the makevars for unix like systems (tested on debian and ubuntu)
+#
+# NOTES:
+# The system variable USESPECIALPYTHONVERSION can be used to link to a special
+# python version. 
+# export USESPECIALPYTHONVERSION="python3.4"
+# it can be very usefull especially for testing but one has to ensure  that
+# the file PYVERSION-config is present at the provided location else it will
+# fail.
+# But when using python3 also python3-dev has to be installed 
+# (apt-get install python3-dev)
+# 
+# gcc:
+# there seems to be a new option which doesn't allows me to compile
+# -fstack-protector-strong so I just remove it
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+echo "Check openssl version"
+openssl version
+
+# ----- install the Python package -----
+EMBED_PYTHON_VERSION=3.5
+EMBED_PYTHON_VERSION_EXTENDED=3.5.3
+PYTHON_ARCHIVE_NAME=Python-${EMBED_PYTHON_VERSION_EXTENDED}
+PYTHON_RUNTIME_BUNDLE=https://www.python.org/ftp/python/${EMBED_PYTHON_VERSION_EXTENDED}/${PYTHON_ARCHIVE_NAME}.tgz
+
+cd inst
+wget -O ${PYTHON_ARCHIVE_NAME}.tgz ${PYTHON_RUNTIME_BUNDLE}
+if [ "$?" -ne "0" ]; then
+    curl -o ${PYTHON_ARCHIVE_NAME}.tgz ${PYTHON_RUNTIME_BUNDLE}
+fi
+if [ "$?" -ne "0" ]; then
+  echo "Failed to download ${PYTHON_RUNTIME_BUNDLE}"
+  exit 1
+fi
+
+tar -xzf ${PYTHON_ARCHIVE_NAME}.tgz
+rm ${PYTHON_ARCHIVE_NAME}.tgz
+EMBED_PYTHON_DIR=${PWD}
+cd ${PYTHON_ARCHIVE_NAME}
+# in the following line the '--prefix' parameter is the installation location
+./configure --enable-shared --prefix=${EMBED_PYTHON_DIR}
+make
+make altinstall
+cd ..
+rm -R ${PYTHON_ARCHIVE_NAME}
+cd ..
+
+MYPYTHONCONFIG=${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}m-config
+MYPYTHON=${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}
+
+# Extract the linker and include flags for python
+: ${PYTHONCONFIG=`which ${MYPYTHONCONFIG}`}
+if test -z "${PYTHONCONFIG}"; then
+  echo "could not locate ${MYPYTHONCONFIG}"
+  exit 1
+fi
+
+echo "python version is ${EMBED_PYTHON_VERSION_EXTENDED}"
+PYXY="PYTHONLIBXY=libpython${EMBED_PYTHON_VERSION}m.so"
+PYLIBS="PKG_LIBS=-L${EMBED_PYTHON_DIR}/lib/python${EMBED_PYTHON_VERSION}/config-${EMBED_PYTHON_VERSION}m "`$PYTHONCONFIG --libs`
+PYCFLAGS="PKG_CFLAGS="`$PYTHONCONFIG --cflags`" -D $PYXY -D PYTHON_IN_R_NO_EXPLICIT_LINKING"
+
+#clean up the old compilation or else it wont recompile
+rm -f src/*.o src/*.so src/*.rds src/Makevars
+
+echo ""
+echo "Makevars:"
+echo $PYLIBS
+echo $PYCFLAGS | sed 's/Wstrict-prototypes/pedantic/' | sed 's/ -fstack-protector-strong//'
+echo ""
+
+# replacing Wstric-prototypes removes some unnecessary warnings
+echo $PYLIBS > src/Makevars
+echo $PYCFLAGS | sed 's/Wstrict-prototypes/pedantic/' | sed 's/ -fstack-protector-strong//' >> src/Makevars	
+
