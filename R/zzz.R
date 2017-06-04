@@ -32,13 +32,14 @@ addPythonLibrariesToWindowsPath<-function(libname, pkgname) {
   pyConnect()
   
   
-  if (Sys.info()['sysname']=="Linux"){
-		sharedObjectFile<-system.file("lib/libpython3.5m.so.1.0", package="PythonEmbedInR")
+  if (Sys.info()['sysname']=="Linux") {
+		# could be libpython3.5m.a or libpython3.5m.so.1.0 depending on build settings
+		sharedObjectFile<-system.file("lib/libpython3.5m.a", package="PythonEmbedInR")
 		if (file.exists(sharedObjectFile)) {
 			dyn.load(sharedObjectFile, local=FALSE)
 		} else {
-			message("Warning: lib/libpython3.5m.so.1.0 does not exist. Here are the available files:")
-			message(paste(list.files(system.file("lib", package="PythonEmbedInR")), collapse="\n"))
+			stop(paste("Warning: lib/libpython3.5m.a does not exist. Here are the available files:",
+							list.files(system.file("lib", package="PythonEmbedInR")), collapse="\n"))
 		}
   }
   invisible(NULL)
