@@ -18,10 +18,6 @@
 # -fstack-protector-strong so I just remove it
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-echo "Check openssl version"
-openssl version
-
 # ----- install the Python package -----
 EMBED_PYTHON_VERSION=3.5
 EMBED_PYTHON_VERSION_EXTENDED=3.5.3
@@ -42,6 +38,18 @@ tar -xzf ${PYTHON_ARCHIVE_NAME}.tgz
 rm ${PYTHON_ARCHIVE_NAME}.tgz
 EMBED_PYTHON_DIR=${PWD}
 cd ${PYTHON_ARCHIVE_NAME}
+
+# When installing openssl on Mac there is a message:
+# For compilers to find this software you may need to set:
+#     LDFLAGS:  -L/usr/local/opt/openssl/lib
+#     CPPFLAGS: -I/usr/local/opt/openssl/include
+echo LDFLAGS=$LDFLAGS
+echo CPPFLAGS=$CPPFLAGS
+ORIG_LDFLAGS=$LDFLAGS
+ORIG_CPPFLAGS=$CPPFLAGS
+LDFLAGS=-L/usr/local/opt/openssl/lib
+CPPFLAGS=-I/usr/local/opt/openssl/include
+
 # in the following line the '--prefix' parameter is the installation location
 ./configure --enable-shared --prefix=${EMBED_PYTHON_DIR}
 make
@@ -49,6 +57,10 @@ make altinstall
 cd ..
 rm -R ${PYTHON_ARCHIVE_NAME}
 cd ..
+
+# Just in case the values had been set previously:
+LDFLAGS=$ORIG_LDFLAGS
+CPPFLAGS=$ORIG_CPPFLAGS
 
 MYPYTHONCONFIG=${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}m-config
 MYPYTHON=${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}
