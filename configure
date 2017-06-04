@@ -47,7 +47,8 @@ export LDFLAGS=-L/usr/local/opt/openssl/lib
 export CPPFLAGS=-I/usr/local/opt/openssl/include
 
 # in the following line the '--prefix' parameter is the installation location
-./configure --enable-shared --prefix=${EMBED_PYTHON_DIR}
+# NOTE: removed --enable-sharedoption to try to get a static library
+./configure --prefix=${EMBED_PYTHON_DIR}
 make
 make altinstall
 cd ..
