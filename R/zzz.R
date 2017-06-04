@@ -33,7 +33,13 @@ addPythonLibrariesToWindowsPath<-function(libname, pkgname) {
   
   
   if (Sys.info()['sysname']=="Linux"){
-   dyn.load(system.file("lib/libpython3.5m.so.1.0", package="PythonEmbedInR"), local=FALSE)
+		sharedObjectFile<-system.file("lib/libpython3.5m.so.1.0", package="PythonEmbedInR")
+		if (file.exists(sharedObjectFile)) {
+			dyn.load(sharedObjectFile, local=FALSE)
+		} else {
+			message("Warning: ", sharedObjectFile, " does not exist. Here are the available files:")
+			list.files(system.file("lib", package="PythonEmbedInR"))
+		}
   }
   invisible(NULL)
 }
