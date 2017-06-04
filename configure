@@ -43,12 +43,8 @@ cd ${PYTHON_ARCHIVE_NAME}
 # For compilers to find this software you may need to set:
 #     LDFLAGS:  -L/usr/local/opt/openssl/lib
 #     CPPFLAGS: -I/usr/local/opt/openssl/include
-echo LDFLAGS=$LDFLAGS
-echo CPPFLAGS=$CPPFLAGS
-ORIG_LDFLAGS=$LDFLAGS
-ORIG_CPPFLAGS=$CPPFLAGS
-LDFLAGS=-L/usr/local/opt/openssl/lib
-CPPFLAGS=-I/usr/local/opt/openssl/include
+export LDFLAGS=-L/usr/local/opt/openssl/lib
+export CPPFLAGS=-I/usr/local/opt/openssl/include
 
 # in the following line the '--prefix' parameter is the installation location
 ./configure --enable-shared --prefix=${EMBED_PYTHON_DIR}
@@ -57,10 +53,6 @@ make altinstall
 cd ..
 rm -R ${PYTHON_ARCHIVE_NAME}
 cd ..
-
-# Just in case the values had been set previously:
-LDFLAGS=$ORIG_LDFLAGS
-CPPFLAGS=$ORIG_CPPFLAGS
 
 MYPYTHONCONFIG=${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}m-config
 MYPYTHON=${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}
