@@ -51,6 +51,7 @@ if [ $(uname) == "Darwin" ]; then
 	# https://wiki.python.org/moin/BuildStatically
 	# https://stackoverflow.com/questions/1150373/compile-the-python-interpreter-statically
 	# echo $'*static*\n_ssl _ssl.c -DUSE_SSL ${CPPFLAGS} ${LDFLAGS} -lssl -lcrypto' >> Modules/Setup.local
+	echo $'_ssl _ssl.c -DUSE_SSL ${CPPFLAGS} ${LDFLAGS} -lssl -lcrypto' >> Modules/Setup.local
 fi
 
 # in the following line the '--prefix' parameter is the installation location
