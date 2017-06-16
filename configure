@@ -52,7 +52,9 @@ if [ $(uname) == "Darwin" ]; then
 	# the package
 	mkdir -p ${EMBED_PYTHON_DIR}/lib
 	cp /usr/local/opt/openssl/lib/libcrypto.a ${EMBED_PYTHON_DIR}/lib/
+	cp /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib ${EMBED_PYTHON_DIR}/lib/
 	cp /usr/local/opt/openssl/lib/libssl.a ${EMBED_PYTHON_DIR}/lib/
+	cp /usr/local/opt/openssl/lib/libssl.1.0.0.dylib ${EMBED_PYTHON_DIR}/lib/
 
 	# https://wiki.python.org/moin/BuildStatically
 	# https://stackoverflow.com/questions/1150373/compile-the-python-interpreter-statically

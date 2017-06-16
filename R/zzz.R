@@ -32,9 +32,9 @@ addPythonLibrariesToWindowsPath<-function(libname, pkgname) {
 	
 	# On Mac load the ssl libraries
 	if (Sys.info()['sysname']=='Darwin') {
-		sharedObjectFile<-system.file("lib/libcrypto.a", package="PythonEmbedInR")
+		sharedObjectFile<-system.file("lib/libcrypto.1.0.0.dylib", package="PythonEmbedInR")
 		dyn.load(sharedObjectFile, local=FALSE)
-		sharedObjectFile<-system.file("lib/libssl.a", package="PythonEmbedInR")
+		sharedObjectFile<-system.file("lib/libssl.1.0.0.dylib", package="PythonEmbedInR")
 		dyn.load(sharedObjectFile, local=FALSE)
 	}
 	
