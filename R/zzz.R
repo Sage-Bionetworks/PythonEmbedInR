@@ -29,7 +29,14 @@ addPythonLibrariesToWindowsPath<-function(libname, pkgname) {
   # Reference: http://r.789695.n4.nabble.com/question-re-error-message-package-error-quot-functionName-quot-not-resolved-from-current-namespace-td4663892.html
   library.dynam.unload("PythonEmbedInR", system.file(package="PythonEmbedInR"))
   library.dynam( "PythonEmbedInR", pkgname, libname, local=FALSE)
-  pyConnect()
+	
+	# On Mac load the ssl libraries
+	if (Sys.info()['sysname']=='Darwin') {
+		library.dynam( "crypto", pkgname, libname, local=FALSE)
+		library.dynam( "ssl", pkgname, libname, local=FALSE)
+	}
+	
+	pyConnect()
   
   if (Sys.info()['sysname']=="Linux") {
 		# if we build a static library, libpython3.5m.a, instead of a dynamically linked one,

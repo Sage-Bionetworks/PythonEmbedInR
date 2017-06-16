@@ -45,13 +45,20 @@ if [ $(uname) == "Darwin" ]; then
 	# For compilers to find this software you may need to set:
 	#     LDFLAGS:  -L/usr/local/opt/openssl/lib
 	#     CPPFLAGS: -I/usr/local/opt/openssl/include
-	export LDFLAGS=-L/usr/local/opt/openssl/lib
+	# export LDFLAGS=-L/usr/local/opt/openssl/lib
 	export CPPFLAGS=-I/usr/local/opt/openssl/include
+	
+	# However the above isn't enough since the libraries have to be bundled into 
+	# the package
+	mkdir -p ${EMBED_PYTHON_DIR}/lib
+	cp /usr/local/opt/openssl/lib/libcrypto.a ${EMBED_PYTHON_DIR}/lib/
+	cp /usr/local/opt/openssl/lib/libssl.a ${EMBED_PYTHON_DIR}/lib/
 
 	# https://wiki.python.org/moin/BuildStatically
 	# https://stackoverflow.com/questions/1150373/compile-the-python-interpreter-statically
+	# errors occur when either of the following is enabled
 	# echo $'*static*\n_ssl _ssl.c -DUSE_SSL ${CPPFLAGS} ${LDFLAGS} -lssl -lcrypto' >> Modules/Setup.local
-	echo $'_ssl _ssl.c -DUSE_SSL ${CPPFLAGS} ${LDFLAGS} -lssl -lcrypto' >> Modules/Setup.local
+	# echo $'_ssl _ssl.c -DUSE_SSL ${CPPFLAGS} ${LDFLAGS} -lssl -lcrypto' >> Modules/Setup.local
 fi
 
 # in the following line the '--prefix' parameter is the installation location
@@ -87,7 +94,7 @@ echo $PYLIBS
 echo $PYCFLAGS | sed 's/Wstrict-prototypes/pedantic/' | sed 's/ -fstack-protector-strong//'
 echo ""
 
-# replacing Wstric-prototypes removes some unnecessary warnings
+# replacing Wstrict-prototypes removes some unnecessary warnings
 echo $PYLIBS > src/Makevars
 echo $PYCFLAGS | sed 's/Wstrict-prototypes/pedantic/' | sed 's/ -fstack-protector-strong//' >> src/Makevars	
 
