@@ -36,7 +36,7 @@ addPythonLibrariesToWindowsPath<-function(libname, pkgname) {
 		dyn.load(sharedObjectFile, local=FALSE)
 		sharedObjectFile<-system.file("lib/libssl.1.0.0.dylib", package="PythonEmbedInR")
 		dyn.load(sharedObjectFile, local=FALSE)
-		Sys.setenv(SSL_CERT_FILE=system.file("cert.pem", package="PythonEmbedInR"))
+		Sys.setenv(SSL_CERT_FILE=system.file("lib/python3.5/site-packages/pip/_vendor/requests/cacert.pem", package="PythonEmbedInR"))
 	}
 	
 	pyConnect()
