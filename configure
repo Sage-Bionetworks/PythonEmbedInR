@@ -55,6 +55,7 @@ if [ $(uname) == "Darwin" ]; then
 	cp /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib ${EMBED_PYTHON_DIR}/lib/
 	cp /usr/local/opt/openssl/lib/libssl.a ${EMBED_PYTHON_DIR}/lib/
 	cp /usr/local/opt/openssl/lib/libssl.1.0.0.dylib ${EMBED_PYTHON_DIR}/lib/
+	cp /etc/ssl/cert.pem ${EMBED_PYTHON_DIR}
 
 	# https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
 	install_name_tool -change \
