@@ -48,4 +48,4 @@ PYTHON_SRC_PATH=${PYTHON_ARCHIVE_NAME}
 # relative paths established during this script.  
 echo 'PKG_CFLAGS=-I"'../${PYTHON_SRC_PATH}/Include'" -I"'../${PYTHON_SRC_PATH}/PC'"' > src/Makevars.win
 
-echo 'PKG_LIBS=-L"'../${PYTHON_LIB_PATH}'" -lpython35'  >> src/Makevars.win
+echo 'PKG_LIBS=-L"'../${PYTHON_LIB_PATH}'" -lpython36'  >> src/Makevars.win
