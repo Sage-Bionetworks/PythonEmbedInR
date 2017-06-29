@@ -17,14 +17,18 @@
 # there seems to be a new option which doesn't allows me to compile
 # -fstack-protector-strong so I just remove it
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# exit immediately if any step fails
+set -e
 
 # ----- install the Python package -----
 EMBED_PYTHON_VERSION=3.5
-EMBED_PYTHON_VERSION_EXTENDED=3.5.3
+EMBED_PYTHON_VERSION_EXTENDED=${EMBED_PYTHON_VERSION}.3
 PYTHON_ARCHIVE_NAME=Python-${EMBED_PYTHON_VERSION_EXTENDED}
 PYTHON_RUNTIME_BUNDLE=https://www.python.org/ftp/python/${EMBED_PYTHON_VERSION_EXTENDED}/${PYTHON_ARCHIVE_NAME}.tgz
 
 cd inst
+# don't halt the script if wget is not found, just switch to curl
+set +e
 wget -O ${PYTHON_ARCHIVE_NAME}.tgz ${PYTHON_RUNTIME_BUNDLE}
 if [ "$?" -ne "0" ]; then
     curl -o ${PYTHON_ARCHIVE_NAME}.tgz ${PYTHON_RUNTIME_BUNDLE}
@@ -33,6 +37,8 @@ if [ "$?" -ne "0" ]; then
   echo "Failed to download ${PYTHON_RUNTIME_BUNDLE}"
   exit 1
 fi
+# back to the exit-immediately-mode
+set -e
 
 tar -xzf ${PYTHON_ARCHIVE_NAME}.tgz
 rm ${PYTHON_ARCHIVE_NAME}.tgz
