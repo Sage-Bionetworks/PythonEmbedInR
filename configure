@@ -18,6 +18,9 @@
 # -fstack-protector-strong so I just remove it
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# exit immediately if any step fails
+set -e
+
 # ----- install the Python package -----
 EMBED_PYTHON_VERSION=3.6
 EMBED_PYTHON_VERSION_EXTENDED=${EMBED_PYTHON_VERSION}.1
