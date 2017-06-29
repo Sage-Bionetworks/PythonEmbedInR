@@ -2,8 +2,8 @@
 # exit immediately if any step fails
 set -e
 
-RWITHPYTHON_PYTHON_VERSION=3.6
-RWITHPYTHON_PYTHON_VERSION_EXTENDED=${RWITHPYTHON_PYTHON_VERSION}.1
+RWITHPYTHON_PYTHON_VERSION=3.5
+RWITHPYTHON_PYTHON_VERSION_EXTENDED=${RWITHPYTHON_PYTHON_VERSION}.3
 
 if [ $R_ARCH = "/x64" ]
 then
@@ -26,7 +26,7 @@ unzip python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip
 
 PIP_INSTALL_SCRIPT=get-pip.py
 wget -O $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/get-pip.py
-./python.exe $PIP_INSTALL_SCRIPT  --no-setuptools --no-wheel
+./python.exe $PIP_INSTALL_SCRIPT
 cd ../..
 
 # Now get the include files
