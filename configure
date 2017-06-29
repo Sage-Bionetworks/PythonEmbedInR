@@ -19,8 +19,8 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # ----- install the Python package -----
-EMBED_PYTHON_VERSION=3.5
-EMBED_PYTHON_VERSION_EXTENDED=3.5.3
+EMBED_PYTHON_VERSION=3.6
+EMBED_PYTHON_VERSION_EXTENDED=${EMBED_PYTHON_VERSION}.1
 PYTHON_ARCHIVE_NAME=Python-${EMBED_PYTHON_VERSION_EXTENDED}
 PYTHON_RUNTIME_BUNDLE=https://www.python.org/ftp/python/${EMBED_PYTHON_VERSION_EXTENDED}/${PYTHON_ARCHIVE_NAME}.tgz
 

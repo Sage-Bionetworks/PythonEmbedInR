@@ -36,15 +36,15 @@ addPythonLibrariesToWindowsPath<-function(libname, pkgname) {
 		dyn.load(sharedObjectFile, local=FALSE)
 		sharedObjectFile<-system.file("lib/libssl.1.0.0.dylib", package="PythonEmbedInR")
 		dyn.load(sharedObjectFile, local=FALSE)
-		Sys.setenv(SSL_CERT_FILE=system.file("lib/python3.5/site-packages/pip/_vendor/requests/cacert.pem", package="PythonEmbedInR"))
+		Sys.setenv(SSL_CERT_FILE=system.file("lib/python3.6/site-packages/pip/_vendor/requests/cacert.pem", package="PythonEmbedInR"))
 	}
 	
 	pyConnect()
   
   if (Sys.info()['sysname']=="Linux") {
-		# if we build a static library, libpython3.5m.a, instead of a dynamically linked one,
-		# libpython3.5m.so.1.0, then don't do the following
-		sharedObjectFile<-system.file("lib/libpython3.5m.so.1.0", package="PythonEmbedInR")
+		# if we build a static library, libpython3.6m.a, instead of a dynamically linked one,
+		# libpython3.6m.so.1.0, then don't do the following
+		sharedObjectFile<-system.file("lib/libpython3.6m.so.1.0", package="PythonEmbedInR")
 		if (file.exists(sharedObjectFile)) {
 			dyn.load(sharedObjectFile, local=FALSE)
 		}
