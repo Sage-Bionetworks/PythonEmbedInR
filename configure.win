@@ -4,7 +4,7 @@ set -e
 
 RWITHPYTHON_PYTHON_VERSION=3.5
 RWITHPYTHON_PYTHON_VERSION_EXTENDED=${RWITHPYTHON_PYTHON_VERSION}.3
-
+VERSION_FILE_SUFFIX=35
 if [ $R_ARCH = "/x64" ]
 then
 	EMBEDDED_ZIP=https://www.python.org/ftp/python/${RWITHPYTHON_PYTHON_VERSION_EXTENDED}/python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed-amd64.zip
@@ -23,6 +23,17 @@ if [ "$?" -ne "0" ]; then
   exit 1
 fi
 unzip python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip
+
+# per https://bugs.python.org/issue24960 we unzip the file pythonLibs/python35.zip into a folder of the same name
+# our current directory is pythonLibs
+PYTHON_ZIP_FILE_NAME=python${VERSION_FILE_SUFFIX}.zip
+TEMP_ZIP_FILE=temp-python${VERSION_FILE_SUFFIX}.zip
+mv ${PYTHON_ZIP_FILE_NAME} ${TEMP_ZIP_FILE}
+mkdir -p ${PYTHON_ZIP_FILE_NAME}
+mv ${TEMP_ZIP_FILE} ${PYTHON_ZIP_FILE_NAME}/
+cd ${PYTHON_ZIP_FILE_NAME}
+unzip ${TEMP_ZIP_FILE}
+cd ..
 
 PIP_INSTALL_SCRIPT=get-pip.py
 wget -O $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/get-pip.py
@@ -50,4 +61,4 @@ PYTHON_SRC_PATH=${PYTHON_ARCHIVE_NAME}
 # relative paths established during this script.  
 echo 'PKG_CFLAGS=-I"'../${PYTHON_SRC_PATH}/Include'" -I"'../${PYTHON_SRC_PATH}/PC'"' > src/Makevars.win
 
-echo 'PKG_LIBS=-L"'../${PYTHON_LIB_PATH}'" -lpython35'  >> src/Makevars.win
+echo 'PKG_LIBS=-L"'../${PYTHON_LIB_PATH}'" -lpython${VERSION_FILE_SUFFIX}'  >> src/Makevars.win
