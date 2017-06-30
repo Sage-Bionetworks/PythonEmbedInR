@@ -25,8 +25,8 @@ if [ "$?" -ne "0" ]; then
 fi
 unzip python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip
 
-# per https://bugs.python.org/issue24960 we unzip the file pythonLibs/python35.zip into a folder of the same name
-# our current directory is pythonLibs
+# per https://bugs.python.org/issue24960 we unzip the file inst/pythonLibs/python35.zip into a folder of the same name
+# our current directory is inst/pythonLibs
 PYTHON_ZIP_FILE_NAME=python${VERSION_FILE_SUFFIX}.zip
 TEMP_ZIP_FILE=temp-python${VERSION_FILE_SUFFIX}.zip
 mv ${PYTHON_ZIP_FILE_NAME} ${TEMP_ZIP_FILE}

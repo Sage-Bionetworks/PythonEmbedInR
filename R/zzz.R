@@ -38,7 +38,7 @@ PYTHON_VERSION<-"3.5"
 		dyn.load(sharedObjectFile, local=FALSE)
 		sharedObjectFile<-system.file("lib/libssl.1.0.0.dylib", package="PythonEmbedInR")
 		dyn.load(sharedObjectFile, local=FALSE)
-		Sys.setenv(SSL_CERT_FILE=system.file(paste0("lib/python", PYTHON_VERSION, "/site-packages/pip/_vendor/requests/cacert.pem", package="PythonEmbedInR")))
+		Sys.setenv(SSL_CERT_FILE=system.file(paste0("lib/python", PYTHON_VERSION, "/site-packages/pip/_vendor/requests/cacert.pem"), package="PythonEmbedInR"))
 	}
 	
 	pyConnect()
