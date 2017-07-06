@@ -172,7 +172,7 @@ pyConnect <- function(pythonExePath=NULL, dllDir=NULL, pythonHome=NULL){
         }
         pyImportPythonInR()
 
-        packageStartupMessage(sprintf("\nInitialize Python Version %s\n", pyVersion()))            
+        # packageStartupMessage(sprintf("\nInitialize Python Version %s\n", pyVersion()))            
 
     }
     invisible(NULL)
