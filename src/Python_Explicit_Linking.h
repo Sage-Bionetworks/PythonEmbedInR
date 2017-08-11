@@ -467,6 +467,10 @@ typedef PyObject * (__cdecl *R_PyObject_CallFunction) (PyObject *, char *, ...);
 #define PyList_Check(o) (Py_TYPE(o) == Py_TYPE(R_PyList))
 #define PyDict_Check(o) (Py_TYPE(o) == Py_TYPE(R_PyDict))
 
+#define PyTuple_CheckExact(o) (PyTuple_Check(o))
+#define PyList_CheckExact(o) (PyList_Check(o))
+#define PyDict_CheckExact(o) (PyDict_Check(o))
+
 #define Py_REFCNT(ob)           (((PyObject*)(ob))->ob_refcnt)
 #define Py_TYPE(ob)             (((PyObject*)(ob))->ob_type)
 #define Py_SIZE(ob)             (((PyVarObject*)(ob))->ob_size)

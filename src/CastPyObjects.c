@@ -9,7 +9,6 @@
 #include "CastPyObjects.h"
 #include "PythonInR.h"
 #include "CToR.h"
-#include <Python.h>
 
 //#define     NILSXP       0 /* nil = NULL */
 //#define     SYMSXP       1 /* symbols */
