@@ -47,7 +47,7 @@ SEXP py_call_obj(SEXP r_obj_name, SEXP r_args, SEXP r_kw, SEXP simplify, SEXP au
     Py_XDECREF(py_kw);
     Py_XDECREF(py_object);
     
-    if (py_ret_val == NULL) error("error occured while calling '%s'", c_obj_name);
+    if (py_ret_val == NULL) error("error occurred while calling '%s'", c_obj_name);
     
     int c_simplify = R_TO_C_BOOLEAN(simplify);
     r_object = py_to_r(py_ret_val, c_simplify, autotype);
