@@ -9,6 +9,9 @@
 #include "CastPyObjects.h"
 #include "PythonInR.h"
 #include "CToR.h"
+#include <dictobject.h>
+#include <listobject.h>
+#include <tupleobject.h>
 
 //#define     NILSXP       0 /* nil = NULL */
 //#define     SYMSXP       1 /* symbols */
@@ -641,7 +644,7 @@ SEXP py_to_r(PyObject *py_object, int simplify, int autotype){
         c_string = PY_TO_C_UNICODE(py_object);
         r_val = c_to_r_unicode(c_string); 
 
-    }else if( (Py_TYPE(py_object) == &PyTuple_Type) & autotype ){                        // Tuple
+    }else if( PyTuple_CheckExact(py_object) & autotype ){                        // Tuple
         if (simplify){
 	       r_type = PyTuple_AllSameType(py_object);
 	       if ( r_type > -1 ){  
@@ -652,7 +655,7 @@ SEXP py_to_r(PyObject *py_object, int simplify, int autotype){
         }else{
 	    r_val = py_tuple_to_r_list(py_object, simplify);
 	    }
-    }else if( (Py_TYPE(py_object) == &PyList_Type) & autotype ){                         // List
+    }else if( PyList_CheckExact(py_object) & autotype ){                         // List
         if (simplify){
             r_type = PyList_AllSameType(py_object);
 	        if ( r_type > -1 ){
@@ -663,7 +666,7 @@ SEXP py_to_r(PyObject *py_object, int simplify, int autotype){
         }else{
 	        r_val = py_list_to_r_list(py_object, simplify);
 	    }
-    }else if( (Py_TYPE(py_object) == &PyDict_Type) & autotype ){                         // Dict
+    }else if( PyDict_CheckExact(py_object) & autotype ){                         // Dict
         if (simplify){
 	        r_type = PyDict_AllSameType(py_object);
 	        if ( r_type > -1 ){
