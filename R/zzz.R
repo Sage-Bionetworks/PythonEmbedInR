@@ -12,6 +12,7 @@ addPythonLibrariesToWindowsPath<-function(libname, pkgname) {
 	Sys.setenv(PATH=pathToPythonLibraries(libname, pkgname))
 }
 
+# NOTE:  This is one of several places the version is hard coded.  See also AutodetectPython.R, configure, configure.win 
 PYTHON_VERSION<-"3.5"
 
 .onLoad <- function(libname, pkgname) {

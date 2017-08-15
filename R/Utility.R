@@ -83,22 +83,24 @@ makeErrorMsg <- function(){
     return(NULL)
 }
 
-# sysCallPython("C:\\Python27\\python.exe", "str(sys.version_info.major)", "import win32api;")
-sysCallPython <- function(python, cmd, import=""){
-    pyArgs <- "-c" 
-    baseCmd <- "%simport sys;import os;sys.stdout.write(%s)"
-    cmd <- sprintf(baseCmd, import, cmd)
-    cmd <- paste(python, pyArgs, shQuote(cmd))
-    returnValue <-
-    tryCatch({
-        system(cmd, intern=TRUE, ignore.stderr = TRUE)       
-    }, warning = function(w) {
-        NULL
-    }, error = function(e) {
-        NULL
-    })
-    returnValue
-}
+# This was in the original PythonInR package, but in PythonEmbedInR 
+# we simply can't call to Python via a 'system' command!
+## sysCallPython("C:\\Python27\\python.exe", "str(sys.version_info.major)", "import win32api;")
+#sysCallPython <- function(python, cmd, import=""){
+#    pyArgs <- "-c" 
+#    baseCmd <- "%simport sys;import os;sys.stdout.write(%s)"
+#    cmd <- sprintf(baseCmd, import, cmd)
+#    cmd <- paste(python, pyArgs, shQuote(cmd))
+#    returnValue <-
+#    tryCatch({
+#        system(cmd, intern=TRUE, ignore.stderr = TRUE)       
+#    }, warning = function(w) {
+#        NULL
+#    }, error = function(e) {
+#        NULL
+#    })
+#    returnValue
+#}
 
 guessDllVersion <- function(dllPath){
     f <- file(dllPath, "rb")
@@ -127,20 +129,22 @@ filterCandidatesByArch <- function(pyCandidates, rArch){
     pyCandidates
 }
 
+# This was in the original PythonInR package, but in PythonEmbedInR 
+# we simply can't call to Python via a 'system' command!
 # Guess the path to python.exe utilizing the Windows batch 
 # function where
 # Returns: A character vector containing candidates, on success
 #          NULL otherwise.
-guessPythonExePathWhere <- function(){
-    tryCatch({
-        system("where python.exe", intern = TRUE, 
-               ignore.stdout = FALSE, ignore.stderr = TRUE)
-    }, warning = function(w) {
-        NULL
-    }, error = function(e) {
-        NULL
-    })
-}
+#guessPythonExePathWhere <- function(){
+#    tryCatch({
+#        system("where python.exe", intern = TRUE, 
+#               ignore.stdout = FALSE, ignore.stderr = TRUE)
+#    }, warning = function(w) {
+#        NULL
+#    }, error = function(e) {
+#        NULL
+#    })
+#}
 
 # Guess the path to python.exe utilizing the locations in 
 # the environment variable path.
@@ -163,20 +167,22 @@ guessPythonExePathEnvironmentVariables <- function(){
     pythonExePaths
 }
 
-askPythonForPythonExePath <- function(){
-    pythonPath <- 
-    tryCatch({system(quote('python -c "import sys;import os;sys.stdout.write(os.path.dirname(sys.executable))"'), intern=TRUE)
-    }, warning = function(w) {
-        NULL
-    }, error = function(e) {
-        NULL
-    })
-    if (is.null(pythonPath)) return(NULL)
-    fun <- function(x) grep("^python.exe", dir(x), ignore.case=TRUE, value=TRUE)
-    pythonExeName <- fun(pythonPath)
-    if (length(pythonExeName) > 0){
-        return(normalizePath(file.path(pythonPath, pythonExeName)))
-    }
-    NULL
-}
+# This was in the original PythonInR package, but in PythonEmbedInR 
+# we simply can't call to Python via a 'system' command!
+#askPythonForPythonExePath <- function(){
+#    pythonPath <- 
+#    tryCatch({system(quote('python -c "import sys;import os;sys.stdout.write(os.path.dirname(sys.executable))"'), intern=TRUE)
+#    }, warning = function(w) {
+#        NULL
+#    }, error = function(e) {
+#        NULL
+#    })
+#    if (is.null(pythonPath)) return(NULL)
+#    fun <- function(x) grep("^python.exe", dir(x), ignore.case=TRUE, value=TRUE)
+#    pythonExeName <- fun(pythonPath)
+#    if (length(pythonExeName) > 0){
+#        return(normalizePath(file.path(pythonPath, pythonExeName)))
+#    }
+#    NULL
+#}
 

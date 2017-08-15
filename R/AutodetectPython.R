@@ -24,22 +24,8 @@ autodetectPython <- function(pythonExePath=NULL){
     #       do essentially the same same but the function where isn't 
     #       available pre Windows 2003 since many people still use 
     #       WinXp I just leave it as backup! 
-    if (is.null(pythonExePath)){
-				message("pythonExePath is initially null\n")
-        pyCandidates <- guessPythonExePathWhere()
-        pyCandidates <- filterCandidatesByArch(pyCandidates, rArch)
-        if (!is.null(pyCandidates)){
-            pythonExePath <- pyCandidates[1]
-						message("pyCandidates is not null.")
-        }else{
-					message("pyCandidates is  null.")
-					pyCandidates <- guessPythonExePathEnvironmentVariables()
-            pyCandidates <- filterCandidatesByArch(pyCandidates, rArch)
-            if (!is.null(pyCandidates)) pythonExePath <- pyCandidates[1]
-						message("pythonExePath is now:")
-						message(pythonExePath)
-						message("\n")
-        }
+    if (is.null(pythonExePath)) {
+			pythonExePath <- system.file("pythonLibs", package="PythonEmbedInR")
     }
     msg <- paste(c('Python could not be found please provide the path to "python.exe"', 
                  '(e.g. "C:\\Python27\\python.exe") or set the appropriate path variable!')
@@ -49,21 +35,15 @@ autodetectPython <- function(pythonExePath=NULL){
     pyArch <- sprintf("%ibit", guessDllVersion(pythonExePath))
     if (pyArch != rArch) stop(sprintf("Python %s can't be connected with R %s!", pyArch, rArch))
     
-		message("pythonExePath: ")
-		message(pythonExePath)
-		message("\n")
-		
+		# NOTE:  This is one of several places the version is hard coded.  See also zzz.R, configure, configure.win
+	
 		# an alternative would be to force the user to specify it
     # get major version
-    pyMajorVersion <- as.integer(sysCallPython(pythonExePath, "str(sys.version_info.major)"))
-		message("Python Major Version: ")
-		message(pyMajorVersion)
-		message("\n")
+    pyMajorVersion <- as.integer(3)
+
     # get minor version
-    pyMinorVersion <- as.integer(sysCallPython(pythonExePath, "str(sys.version_info.minor)"))                                      
-		message("Python Minor Version: ")
-		message(pyMinorVersion)
-		message("\n")
+    pyMinorVersion <- as.integer(5)                                      
+
 		
     # For simplicity I will just assume PYTHONHOME is where python.exe
     # is located (Another approach would be to get python path and look
