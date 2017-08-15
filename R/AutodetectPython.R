@@ -26,6 +26,7 @@ autodetectPython <- function(pythonExePath=NULL){
     #       WinXp I just leave it as backup! 
     if (is.null(pythonExePath)) {
 			pythonExePath <- system.file("pythonLibs", package="PythonEmbedInR")
+			message("autodetectPython: pythonExePath: ", pythonExePath)
     }
     msg <- paste(c('Python could not be found please provide the path to "python.exe"', 
                  '(e.g. "C:\\Python27\\python.exe") or set the appropriate path variable!')
@@ -70,6 +71,10 @@ autodetectPython <- function(pythonExePath=NULL){
     }else{
         dllDir = NULL
     }
+		
+		message("autodetectPython: dllDir: ", dllDir)
+		
+		
     list(pythonExePath=pythonExePath, 
          dllName=dllName, 
          dllDir=dllDir,

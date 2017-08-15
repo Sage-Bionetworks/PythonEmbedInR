@@ -103,6 +103,7 @@ makeErrorMsg <- function(){
 #}
 
 guessDllVersion <- function(dllPath){
+	  message("guessDllVersion: dllPath: ", dllPath)
     f <- file(dllPath, "rb")
     if (readChar(f, 2) != "MZ") return(-2)
     seek(f, 60, rw="rb")
