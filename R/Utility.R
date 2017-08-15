@@ -122,13 +122,13 @@ guessDllVersion <- function(dllPath){
     return(bit)
 }
 
-filterCandidatesByArch <- function(pyCandidates, rArch){
-    if ( length(pyCandidates) == 0 ) return(NULL)
-    pyArchs <- paste(sapply(pyCandidates, guessDllVersion), "bit", sep="")
-    pyCandidates <- pyCandidates[rArch == pyArchs]
-    if (length(pyCandidates) == 0) return(NULL)
-    pyCandidates
-}
+#filterCandidatesByArch <- function(pyCandidates, rArch){
+#    if ( length(pyCandidates) == 0 ) return(NULL)
+#    pyArchs <- paste(sapply(pyCandidates, guessDllVersion), "bit", sep="")
+#    pyCandidates <- pyCandidates[rArch == pyArchs]
+#    if (length(pyCandidates) == 0) return(NULL)
+#    pyCandidates
+#}
 
 # This was in the original PythonInR package, but in PythonEmbedInR 
 # we simply can't call to Python via a 'system' command!
