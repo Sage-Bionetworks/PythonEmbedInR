@@ -118,8 +118,6 @@ pyCranConnect <- function(){
 #'
 #' @description Connects R to Python. 
 #'              \strong{(The parameters are only needed for the Windows version!)}
-#' @param pythonExePath a character containing the path to "python.exe" 
-#'                      (e.g. "C:\\Python27\\python.exe")
 #' @param dllDir an optional character giving the path to the dll file. 
 #'               Since the dll file is normally in a system folder or in the same 
 #'               location as python.exe, this parameter is \bold{almost never needed}!
@@ -141,7 +139,6 @@ pyCranConnect <- function(){
 #' ## Windows examples
 #' pyConnect() ## will try to detect a suitable python version 
 #'             ## from the PATH given in the environment variables
-#' pyConnect("C:\\Python27\\python.exe")
 #'
 #' ## One can also explicitly set the parameters for the connection.
 #' PythonInR:::pyConnectWinDll(dllName="python27.dll", dllDir=NULL,
@@ -149,12 +146,12 @@ pyCranConnect <- function(){
 #'                             pyArch="32bit")
 #' }
 #  -----------------------------------------------------------------------------
-pyConnect <- function(pythonExePath=NULL, dllDir=NULL, pythonHome=NULL){
+pyConnect <- function(dllDir=NULL, pythonHome=NULL){
     if(pyIsConnected()){
         cat("R is already connected to Python!\n")
     }else{
         if (.Call( "isDllVersion")){
-            py <- autodetectPython(pythonExePath)
+            py <- autodetectPython()
             dllName <- py[['dllName']]
             if (is.null(dllDir)){
                 dllDir <- py[['dllDir']]
