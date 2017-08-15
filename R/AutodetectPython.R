@@ -25,14 +25,20 @@ autodetectPython <- function(pythonExePath=NULL){
     #       available pre Windows 2003 since many people still use 
     #       WinXp I just leave it as backup! 
     if (is.null(pythonExePath)){
+				cat("pythonExePath is initiall null\n")
         pyCandidates <- guessPythonExePathWhere()
         pyCandidates <- filterCandidatesByArch(pyCandidates, rArch)
         if (!is.null(pyCandidates)){
             pythonExePath <- pyCandidates[1]
+						cat("pyCandidates is not null.")
         }else{
-            pyCandidates <- guessPythonExePathEnvironmentVariables()
+					cat("pyCandidates is  null.")
+					pyCandidates <- guessPythonExePathEnvironmentVariables()
             pyCandidates <- filterCandidatesByArch(pyCandidates, rArch)
             if (!is.null(pyCandidates)) pythonExePath <- pyCandidates[1]
+						cat("pythonExePath is now:")
+						cat(pythonExePath)
+						cat("\n")
         }
     }
     msg <- paste(c('Python could not be found please provide the path to "python.exe"', 
@@ -43,12 +49,22 @@ autodetectPython <- function(pythonExePath=NULL){
     pyArch <- sprintf("%ibit", guessDllVersion(pythonExePath))
     if (pyArch != rArch) stop(sprintf("Python %s can't be connected with R %s!", pyArch, rArch))
     
-    # an alternative would be to force the user to specify it
+		cat("pythonExePath: ")
+		cat(pythonExePath)
+		cat("\n")
+		
+		# an alternative would be to force the user to specify it
     # get major version
     pyMajorVersion <- as.integer(sysCallPython(pythonExePath, "str(sys.version_info.major)"))
+		cat("Python Major Version: ")
+		cat(pyMajorVersion)
+		cat("\n")
     # get minor version
     pyMinorVersion <- as.integer(sysCallPython(pythonExePath, "str(sys.version_info.minor)"))                                      
-                                               
+		cat("Python Minor Version: ")
+		cat(pyMinorVersion)
+		cat("\n")
+		
     # For simplicity I will just assume PYTHONHOME is where python.exe
     # is located (Another approach would be to get python path and look
     # which folder is sub folder to most of the other folders. But if
