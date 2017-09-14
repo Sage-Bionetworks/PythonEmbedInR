@@ -8,3 +8,5 @@ inst/share/
 inst/Python-3.5.3/
 **/*.so
 src/Makevars
+
+*.Rproj*
