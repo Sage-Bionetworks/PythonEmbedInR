@@ -10,3 +10,4 @@ inst/Python-3.5.3/
 src/Makevars
 
 *.Rproj*
+.Rproj.user

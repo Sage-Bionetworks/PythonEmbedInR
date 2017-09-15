@@ -5,3 +5,5 @@
 \.git
 \.settings
 inst/lib/
+^.*\.Rproj$
+^\.Rproj\.user$
