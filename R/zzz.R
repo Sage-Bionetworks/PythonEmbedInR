@@ -9,7 +9,8 @@ pathToPythonLibraries<-function(libname, pkgname) {
 # on Windows we need to add Python dll's to library search path
 addPythonLibrariesToWindowsPath<-function(libname, pkgname) {
 	if (Sys.info()['sysname']!="Windows") return
-	Sys.setenv(PATH=pathToPythonLibraries(libname, pkgname))
+	extendedPath <- sprintf("%s%s%s", Sys.getenv("PATH"), .Platform$path.sep, pathToPythonLibraries(libname, pkgname))
+	Sys.setenv(PATH=extendedPath)
 }
 
 # NOTE:  This is one of several places the version is hard coded.  See also AutodetectPython.R, configure, configure.win 
