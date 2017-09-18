@@ -10,9 +10,7 @@ pathToPythonLibraries<-function(libname, pkgname) {
 addPythonLibrariesToWindowsPath<-function(libname, pkgname) {
 	if (Sys.info()['sysname']!="Windows") return
 	extendedPath <- sprintf("%s%s%s", Sys.getenv("PATH"), .Platform$path.sep, pathToPythonLibraries(libname, pkgname))
-	Sys.setenv(PATH=pathToPythonLibraries(libname, pkgname))
-	# TODO uncomment the following, to fix SYNR-1132
-	#Sys.setenv(PATH=extendedPath)
+	Sys.setenv(PATH=extendedPath)
 }
 
 # NOTE:  This is one of several places the version is hard coded.  See also AutodetectPython.R, configure, configure.win 
