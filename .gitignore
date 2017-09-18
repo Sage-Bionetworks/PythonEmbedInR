@@ -9,5 +9,9 @@ inst/Python-3.5.3/
 **/*.so
 src/Makevars
 
+*.tar.gz
+
 *.Rproj*
 .Rproj.user
+.RData
+.Rhistory
