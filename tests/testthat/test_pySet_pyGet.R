@@ -26,9 +26,9 @@ test_that("data.frame can be converted to pandas DataFrame and back", {
 
   # import pandas
   baseDir <- getwd()
-  pyExec(sprintf("sys.path.append(\"%s\")", file.path(baseDir, "inst", "python")))
-  pyImport("installPandas")
-  pyExec(sprintf("installPandas.main('%s')", baseDir))
+  pyExec(sprintf("sys.path.append(\"%s\")", file.path(baseDir, "test", "testthat")))
+  pyImport("install_pandas")
+  pyExec(sprintf("install_pandas.main('%s')", baseDir))
   
   # tell PythonEmbedInR to use pandas
   pyExec("import pandas as pd")
