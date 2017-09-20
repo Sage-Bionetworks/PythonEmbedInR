@@ -15,7 +15,7 @@ src/Makevars
 *.tar.gz
 
 ..Rcheck/
-test/testthat/__pycache__/
+tests/testthat/__pycache__/
 
 *.Rproj*
 .Rproj.user
