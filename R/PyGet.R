@@ -183,7 +183,7 @@ setMethod("pyGetPoly", signature(key="character", autoTypecast = "logical", simp
 setClass("DataFrame")
 setMethod("pyGetPoly", signature(key="character", autoTypecast = "logical", simplify = "logical", pyClass = "DataFrame"),
           function(key, autoTypecast, simplify, pyClass){
-    x <- pyExecg(sprintf("x = %s.to_dict()", key), autoTypecast = autoTypecast, simplify = simplify)[["x"]]
-    return( as.data.frame(x, stringsAsFactors=FALSE) )
+    pyExec(sprintf("x = %s.to_dict(orient='list')", key))
+    return( as.data.frame(pyGet("x"), optional=TRUE, stringsAsFactors=FALSE) )
 })
 
