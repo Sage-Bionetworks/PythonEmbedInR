@@ -1,10 +1,6 @@
 context("test pySet and pyGet")
 
 test_that("data.frame can be converted to PrDataFrame and back", {
-  # making sure that R connected to python
-  pyConnect()
-  expect_true(pyIsConnected())
-
   pyOptions("usePandas", FALSE)
   
   # creating rest data
@@ -19,22 +15,10 @@ test_that("data.frame can be converted to PrDataFrame and back", {
 })
 
 test_that("data.frame can be converted to pandas DataFrame and back", {
-  # making sure that R connected to python
-  pyConnect()
-  expect_true(pyIsConnected())
+  # import pandas in python and set pyOptions to use pandas
+  source(file.path(getwd(), "tests", "testthat", "install_pandas.R"))
 
-  # import pandas
-  baseDir <- getwd()
-  pyExec(sprintf("sys.path.append(\"%s\")", file.path(baseDir, "test", "testthat")))
-  pyImport("install_pandas")
-  pyExec(sprintf("install_pandas.main('%s')", baseDir))
-  
-  # tell PythonEmbedInR to use pandas
-  pyExec("import pandas as pd")
-  pyOptions("usePandas", TRUE)
-  pyOptions("pandasAlias", "pd")
-
-  # creating rest data
+  # creating test data
   df <- data.frame(c(1,2,3), c(T,F,F))
   expect_equal(class(df), "data.frame")
 
