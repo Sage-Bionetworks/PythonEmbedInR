@@ -6,7 +6,6 @@ inst/include/
 inst/lib/
 inst/share/
 inst/Python-3.5.3/
-inst/python/__pycache__/
 **/*.so
 src/Makevars
 
@@ -16,6 +15,7 @@ src/Makevars
 *.tar.gz
 
 ..Rcheck/
+test/testthat/__pycache__/
 
 *.Rproj*
 .Rproj.user
