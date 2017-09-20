@@ -14,6 +14,8 @@ src/Makevars
 
 *.tar.gz
 
+..Rcheck/
+
 *.Rproj*
 .Rproj.user
 .RData
