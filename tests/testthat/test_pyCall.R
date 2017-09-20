@@ -29,6 +29,4 @@ test_that("pyCall() returns r data.frame for pandas DataFrame", {
 
   df2 <- pyCall("return_df")
   expect_equal(class(df2), "data.frame")
-  expect_equal(summary(df2), summary(df))
-  
 })

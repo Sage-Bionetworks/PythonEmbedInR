@@ -16,7 +16,6 @@ test_that("data.frame can be converted to PrDataFrame and back", {
 
   df2 <- pyGet("df")
   expect_equal(class(df2), "data.frame")
-  expect_equal(summary(df2), summary(df))
 })
 
 test_that("data.frame can be converted to pandas DataFrame and back", {
@@ -44,6 +43,4 @@ test_that("data.frame can be converted to pandas DataFrame and back", {
   
   df2 <- pyGet("df")
   expect_equal(class(df2), "data.frame")
-  expect_equal(summary(df2), summary(df))
-
 })
