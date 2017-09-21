@@ -1,8 +1,14 @@
 #ifndef PYTHON_IN_R_FUNCTIONS
 #define PYTHON_IN_R_FUNCTIONS
+
+#include "PythonFunctions.h"
+#include "CheckUserInterrupt.h"
+#include "PythonInR.h"
+
+
 int ISO_C_forbids_an_empty_translation_unit_PythonFunctions = 0;
 #if ( defined(PY_EXPERIMENTAL) && defined(PYTHON_IN_R_NO_EXPLICIT_LINKING) )
-#include "PythonFunctions.h"
+
 
 /* --------------------------------------------------------------------------  \
 
@@ -107,12 +113,31 @@ static PyMethodDef PythonInRMethods[] = {
     {"eval",  (PyCFunction)r_eval_py_string, METH_VARARGS, "comment"},
     {"get",  (PyCFunction)py_get_r_object, METH_VARARGS, "comment"},
     {"set",  (PyCFunction)py_set_r_object, METH_VARARGS, "comment"},
+    {"checkuserinterrupt",  pythoninr_checkuserinterrupt, METH_VARARGS, "Relay R interrupt to Python."},
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC python_in_r_init_methods(void){
-    (void) Py_InitModule("PythonInR", PythonInRMethods);
-}
+#else
+
+static PyMethodDef PythonInRMethods[] = {
+    {"checkuserinterrupt",  pythoninr_checkuserinterrupt, METH_VARARGS, "Relay R interrupt to Python."},
+    {NULL, NULL, 0, NULL}
+};
 
 #endif
+
+static struct PyModuleDef PythonInRmodule = {
+    PyModuleDef_HEAD_INIT,
+    "PythonInR",   /* name of module */
+    NULL, /* module documentation, may be NULL */
+    -1,       /* size of per-interpreter state of the module,
+                 or -1 if the module keeps state in global variables. */
+	PythonInRMethods
+};
+
+PyMODINIT_FUNC python_in_r_init_methods(void){
+    return PyModule_Create(&PythonInRmodule);
+}
+
+
 #endif
