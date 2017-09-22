@@ -4,6 +4,7 @@ import os
 import errno
 import pkg_resources
 import glob
+import shutil
 
 def localSitePackageFolder(root):
     if os.name=='nt':
@@ -23,7 +24,7 @@ def addLocalSitePackageToPythonPath(root):
         os.environ['PYTHONPATH'] += os.pathsep+eggpath
         sys.path.append(eggpath)
     
-def main(path):
+def main(command, path):
     path = pkg_resources.normalize_path(path)
     moduleInstallationPrefix=path+os.sep+"inst"
 
@@ -33,10 +34,21 @@ def main(path):
 
     if not os.path.exists(localSitePackages):
       os.makedirs(localSitePackages)
-    
-    call_pip('pandas', localSitePackages)
+
+    if command == 'install':
+      call_pip('pandas', localSitePackages)
+    elif command == 'uninstall':
+      remove_dirs('pandas', localSitePackages)
+    else:
+      raise Exception("command not supported: "+command)
 
 def call_pip(packageName, target):
-        rc = pip.main(['install', packageName,  '--upgrade', '--quiet', '--target', target])
-        if rc!=0:
-            raise Exception('pip.main returned '+str(rc))
+    rc = pip.main(['install', packageName,  '--upgrade', '--quiet', '--target', target])
+    if rc!=0:
+      raise Exception('pip.main returned '+str(rc))
+
+def remove_dirs(prefix, baseDir):
+    to_remove = glob.iglob(os.path.join(baseDir, prefix+"*"))
+    for path in to_remove:
+      if os.path.isdir(path):
+        shutil.rmtree(path)

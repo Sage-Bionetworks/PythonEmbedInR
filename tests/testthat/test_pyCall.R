@@ -2,7 +2,7 @@ context("test pyCall returns data.frame")
 
 test_that("pyCall() returns r data.frame for pandas DataFrame", {
   # import pandas in python and set pyOptions to use pandas
-  source(file.path(getwd(), "tests", "testthat", "install_pandas.R"))
+  install_pandas()
 
   # creating test data
   df <- data.frame(c(1,2,3), c(T,F,F))
@@ -16,4 +16,6 @@ test_that("pyCall() returns r data.frame for pandas DataFrame", {
 
   df2 <- pyCall("return_df")
   expect_equal(class(df2), "data.frame")
+
+  uninstall_pandas() 
 })
