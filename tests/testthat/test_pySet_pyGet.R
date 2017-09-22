@@ -15,8 +15,7 @@ test_that("data.frame can be converted to PrDataFrame and back", {
 })
 
 test_that("data.frame can be converted to pandas DataFrame and back", {
-  # import pandas in python and set pyOptions to use pandas
-  install_pandas()
+  use_pandas()
 
   # creating test data
   df <- data.frame(c(1,2,3), c(T,F,F))
@@ -27,6 +26,4 @@ test_that("data.frame can be converted to pandas DataFrame and back", {
   
   df2 <- pyGet("df")
   expect_equal(class(df2), "data.frame")
-
-  uninstall_pandas()    
 })
