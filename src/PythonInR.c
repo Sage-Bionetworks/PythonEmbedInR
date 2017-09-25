@@ -6,6 +6,7 @@
 
 \  -------------------------------------------------------------------------- */
 #include "PythonInR.h"
+#include "PythonFunctions.h"
 
 long pyrNamespaceCounter = 0;
 // #TODO: ReThink if it would make sense to add Python like options!
@@ -83,10 +84,16 @@ SEXP py_connect(SEXP initsigs){
         dlopen( xstr(PYTHONLIBXY), RTLD_NOW | RTLD_GLOBAL ); // NOTE: use RTLD_NOW for debugging RTLD_LAZY else
     #endif
     
+    /* Add a built-in module, before Py_Initialize */
+    PyImport_AppendInittab("PythonInR", PyInit_PythonInR);
+
     Py_InitializeEx(asInteger(initsigs));
     PySys_SetArgv(1, argv);
     Py_SetProgramName(PY_V_CHAR("PythonInR")); 
-    
+
+    /* Import the module; alternatively, import can be deferred until the embedded script imports it. */
+    PyImport_ImportModule("PythonInR");
+
     PyRun_SimpleString("import sys; sys.path.append('.')");
 
     #if PY_MAJOR_VERSION < 3
@@ -103,7 +110,7 @@ SEXP py_connect(SEXP initsigs){
         PyRun_SimpleString("import sys");
         PyRun_SimpleString("def execfile(filename):\n    exec(compile(open(filename, 'rb').read(), filename, 'exec'), globals())");
     #endif
-    
+
     return R_NilValue; 
 }
 
@@ -171,6 +178,7 @@ SEXP py_connect(SEXP dllName, SEXP dllDir, SEXP alteredSearchPath){
 #endif        
     }
     if (py_hdll == NULL) error("Error couldn't load dll file!\n");
+
     return R_NilValue;
 }
 
@@ -185,8 +193,14 @@ SEXP py_initialize(SEXP initsigs){
     static wchar_t *argv3K[1] = {L""};
     static char *argv2K[1] =  {""};
     
+    /* Add a built-in module, before Py_Initialize */
+    PyImport_AppendInittab("PythonInR", PyInit_PythonInR);
+
     Py_InitializeEx(asInteger(initsigs));
     
+    /* Import the module; alternatively, import can be deferred until the embedded script imports it. */
+    PyImport_ImportModule("PythonInR");
+
     logging("py_initialize: SetArgv!");
     if (PYTHON_MAJOR_VERSION >= 3) PySys_SetArgv3K(1, argv3K);
     else PySys_SetArgv(1, argv2K);
@@ -349,4 +363,9 @@ SEXP set_int_long_flag(SEXP flag){
 	r_int_to_py_long_flag = R_TO_C_INT(flag);
 	return R_NilValue;
 }
+
+PyMODINIT_FUNC PyInit_PythonInR(void) {
+    return python_in_r_init_methods();
+}
+
 

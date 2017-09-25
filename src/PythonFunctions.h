@@ -6,3 +6,6 @@
 #include <R_ext/Parse.h>
 #endif
 
+PyMODINIT_FUNC python_in_r_init_methods(void);
+
+

@@ -91,3 +91,5 @@ SEXP py_get_info(void);
 SEXP py_close(void);
 
 #endif
+
+PyMODINIT_FUNC PyInit_PythonInR(void);
