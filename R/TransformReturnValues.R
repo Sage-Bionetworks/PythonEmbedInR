@@ -21,6 +21,9 @@ setMethod("pyTransformReturn", signature(obj = "PythonObject"),
         return(pyList(variableName, regFinalizer = TRUE))
     }else if ( obj$type == "dict" ){
         return(pyDict(variableName, regFinalizer = TRUE))
+    }else if ( obj$type == "DataFrame" ){
+        pyExec(sprintf("x = %s.to_dict(orient='list')", variableName))
+        return( as.data.frame(pyGet("x"), optional=TRUE, stringsAsFactors=FALSE) )
     }else{
         return(pyObject(variableName, regFinalizer = TRUE))
     }

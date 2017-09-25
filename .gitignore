@@ -11,3 +11,13 @@ src/Makevars
 
 .pydevproject
 .settings
+
+*.tar.gz
+
+..Rcheck/
+tests/testthat/__pycache__/
+
+*.Rproj*
+.Rproj.user
+.RData
+.Rhistory
