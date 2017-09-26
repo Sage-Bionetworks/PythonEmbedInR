@@ -4,8 +4,8 @@
 #include "CastRObjects.h"
 #include "CastPyObjects.h"
 #include <R_ext/Parse.h>
+PyMODINIT_FUNC python_in_r_init_methods(void);
 #endif
 
-PyMODINIT_FUNC python_in_r_init_methods(void);
 
 
