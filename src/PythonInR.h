@@ -15,6 +15,7 @@ extern int r_int_to_py_long_flag;
 #include <Python.h> // If you are a Linux user, did you realy install the Python headers? Try "sudo apt-get install python-dev" to fix this! :)
 #else
 #define STRICT_R_HEADERS // To disable some R code else I get an compile error
+#include pyport.h // to get definition of PyMODINIT_FUNC
 #endif
 
 #include <string.h>
