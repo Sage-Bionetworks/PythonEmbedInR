@@ -530,7 +530,7 @@ typedef PyObject * (__cdecl *R_PyObject_CallFunction) (PyObject *, char *, ...);
 int get_proc_addresses(HMODULE);
 
 // copied from pyport.h
-#define PyAPI_FUNC(RTYPE) __declspec(dllexport) RTYPE
+#define PyAPI_DATA(RTYPE) extern __declspec(dllexport) RTYPE
 
 // copied from longinterpr.h
 struct _longobject {
