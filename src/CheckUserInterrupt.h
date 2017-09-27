@@ -2,7 +2,7 @@
 #include <signal.h>
 #include "PythonInR.h"
 
-PyObject *pythoninr_checkuserinterrupt(PyObject *self, PyObject *args);
+void pythoninr_checkuserinterrupt(PyObject *self, PyObject *args);
 
 void chkIntFn(void *dummy);
 
