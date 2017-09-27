@@ -15,10 +15,10 @@ extern struct _Py_FalseStruct;
  */
 PyObject *pythoninr_checkuserinterrupt(PyObject *self, PyObject *args) {
 	if (checkInterrupt()) {
-		Py_INCREF(Py_True)
+		Py_INCREF(Py_True);
 		return Py_True;
 	} else {
-		Py_INCREF(Py_False)
+		Py_INCREF(Py_False);
 		return Py_False;
 	}
 }
