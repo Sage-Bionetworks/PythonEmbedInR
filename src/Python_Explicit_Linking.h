@@ -531,28 +531,12 @@ int get_proc_addresses(HMODULE);
 
 // copied from pyport.h
 #define PyAPI_FUNC(RTYPE) __declspec(dllexport) RTYPE
-/* a build with 30-bit digits for Python integers needs an exact-width
- * 32-bit unsigned integer type to store those digits.  (We could just use
- * type 'unsigned long', but that would be wasteful on a system where longs
- * are 64-bits.)  On Unix systems, the autoconf macro AC_TYPE_UINT32_T defines
- * uint32_t to be such a type unless stdint.h or inttypes.h defines uint32_t.
- * However, it doesn't set HAVE_UINT32_T, so we do that here.
- */
-#ifdef uint32_t
-#define HAVE_UINT32_T 1
-#endif
-
-#ifdef HAVE_UINT32_T
-#ifndef PY_UINT32_T
-#define PY_UINT32_T uint32_t
-#endif
-#endif
 
 // copied from longinterpr.h
 typedef PY_UINT32_T digit;
 struct _longobject {
 	PyObject_VAR_HEAD
-	digit ob_digit[1];
+	unsigned ob_digit[1]; // modified from the original
 };
 
 
