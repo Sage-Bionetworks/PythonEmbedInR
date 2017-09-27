@@ -530,12 +530,18 @@ typedef PyObject * (__cdecl *R_PyObject_CallFunction) (PyObject *, char *, ...);
 int get_proc_addresses(HMODULE);
 
 // copied from pyport.h
-// PyAPI_FUNC(RTYPE) __declspec(dllexport) RTYPE
+#define PyAPI_FUNC(RTYPE) __declspec(dllexport) RTYPE
+
+// copied from longinterpr.h
+struct _longobject {
+	PyObject_VAR_HEAD
+	digit ob_digit[1];
+};
+
 
 // copied from boolobject.h
 /* Don't use these directly */
-extern struct _Py_FalseStruct;
-extern struct _Py_TrueStruct;
+PyAPI_DATA(struct _longobject) _Py_FalseStruct, _Py_TrueStruct;
 
 /* Use these macros */
 #define Py_False ((PyObject *) &_Py_FalseStruct)
