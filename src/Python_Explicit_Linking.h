@@ -533,7 +533,6 @@ int get_proc_addresses(HMODULE);
 #define PyAPI_FUNC(RTYPE) __declspec(dllexport) RTYPE
 
 // copied from longinterpr.h
-typedef PY_UINT32_T digit;
 struct _longobject {
 	PyObject_VAR_HEAD
 	unsigned ob_digit[1]; // modified from the original
