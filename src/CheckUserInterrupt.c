@@ -1,13 +1,25 @@
 #include "CheckUserInterrupt.h"
 
+extern struct _Py_TrueStruct;
+extern struct _Py_FalseStruct;
+
+#ifndef Py_True
+#define Py_True ((PyObject *) &_Py_TrueStruct)
+#endif
+#ifndef Py_False
+#define Py_False ((PyObject *) &_Py_FalseStruct)
+#endif
+
 /*
  * Has R detected a keyboard interrupt?
  */
 PyObject *pythoninr_checkuserinterrupt(PyObject *self, PyObject *args) {
 	if (checkInterrupt()) {
-		Py_RETURN_TRUE;
+		Py_INCREF(Py_True)
+		return Py_True;
 	} else {
-		Py_RETURN_FALSE;
+		Py_INCREF(Py_False)
+		return Py_False;
 	}
 }
 
