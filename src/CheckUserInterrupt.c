@@ -1,6 +1,6 @@
 #include "CheckUserInterrupt.h"
 
-#include <boolobject.h>
+#include <Python.h>
 
 /*
  * Has R detected a keyboard interrupt?
