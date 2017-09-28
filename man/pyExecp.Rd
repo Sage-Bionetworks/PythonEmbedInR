@@ -25,7 +25,6 @@ The name pyExecp is short for python execute and print.
          can be used to simulate an interactive Python interpreter behavior.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 pyExecp('"Hello" + " " + "R!"')
 }
-

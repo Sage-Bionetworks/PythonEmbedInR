@@ -79,7 +79,7 @@ except:
 #' to view the members of a PythonInR_Object object.
 #'
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' if ( pyIsConnected() ){
 #' pyExec("import os")
 #' os <- pyObject("os", regFinalizer = FALSE)
@@ -198,7 +198,7 @@ PythonInR_ObjectNoFinalizer <-
 #' @details The function pyFunction makes it easy to create interfaces 
 #'          to Python functions.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' if ( pyIsConnected() ){
 #' pySum <- pyFunction("sum")
 #' pySum(1:3)

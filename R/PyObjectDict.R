@@ -105,7 +105,7 @@ PythonInR_DictNoFinalizer <-
 #'          If the value is a named vector or named list, a new Python
 #'          object based on the vector or list is created.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' if ( pyIsConnected() ){
 #' pyExec('myPyDict = {"a":1, "b":2, "c":3}')
 #' ## create a virtual Python dictionary for an existing dictionary

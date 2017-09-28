@@ -21,10 +21,9 @@ The function pyFunction makes it easy to create interfaces
          to Python functions.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 if ( pyIsConnected() ){
 pySum <- pyFunction("sum")
 pySum(1:3)
 }
 }
-

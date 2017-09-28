@@ -21,8 +21,7 @@ Internally it uses a combination of pyExec and print. Please note that
          terminal.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 pyPrint("'Hello ' + 'R!'")
 pyPrint("sys.version")
 }
-

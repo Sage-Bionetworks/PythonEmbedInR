@@ -33,7 +33,7 @@ based on the provided Python object. The R function \strong{ls} can be used
 to view the members of a PythonInR_Object object.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 if ( pyIsConnected() ){
 pyExec("import os")
 os <- pyObject("os", regFinalizer = FALSE)
@@ -46,4 +46,3 @@ os1$py.variableName
 os2$py.variableName
 }
 }
-

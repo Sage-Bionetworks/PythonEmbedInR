@@ -4,11 +4,7 @@
 \alias{autodetectPython}
 \title{Autodetects the settings for Windows}
 \usage{
-autodetectPython(pythonExePath = NULL)
-}
-\arguments{
-\item{pythonExePath}{a string containing the path to "python.exe"
-(e.g. "C:\\Python34\\python.exe").}
+autodetectPython()
 }
 \value{
 Returns a list containing the information necessary to
@@ -22,7 +18,5 @@ Autodetects the settings needed to connect to
 \examples{
 \dontrun{   
   autodetectPython()
-  autodetectPython("C:\\\\Python27\\\\python.exe")
 }
 }
-

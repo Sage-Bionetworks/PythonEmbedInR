@@ -38,7 +38,7 @@ More information about the type conversion can be found in the README
          file or at \url{http://pythoninr.bitbucket.org/}.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 pySet("x", 3)
 pySet("M", diag(1,3))
 pyImport("os")
@@ -58,4 +58,3 @@ pyExec("d = dict()")
 pySet("myTuple", asTuple(1:10), namespace="d")
 pySet("myList", as.list(1:5), namespace="d")
 }
-

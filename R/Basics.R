@@ -15,7 +15,7 @@
 #'         provided, otherwise a list of valid attributes for the specified object.
 #' @details The Python function dir is similar to the R function ls.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' pyDir()
 #' pyDir("sys")
 #  -----------------------------------------------------------
@@ -45,7 +45,7 @@ pyDir <- function(objName=NULL){
 #' @param topic a string specifying name or topic for which help is sought.
 #' @return Prints the help to the given string.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' pyHelp("abs")
 #  -----------------------------------------------------------
 pyHelp <- function(topic){
@@ -63,7 +63,7 @@ pyHelp <- function(topic){
 #' @param objName a string specifying the name of the Python object.
 #' @return The type of the specified object as character on success, NULL otherwise.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' pyExec("x = dict()")
 #' pyType("x")
 #  -----------------------------------------------------------

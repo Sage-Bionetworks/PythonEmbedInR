@@ -22,7 +22,7 @@
 #' @return Returns the specified Python object converted into an R object if
 #'         possible, else a virtual Python object.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' if ( pyIsConnected() ){
 #' pyExec("import os")
 #' os <- pyGet0("os")
@@ -80,7 +80,7 @@ pyGet0 <- function(key){
 #' @return Returns the specified Python object converted into an R object if
 #'         possible, else a virtual Python object.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' ## get a character of length 1
 #' pyGet("__name__")
 #' ## get a character of length 1 > 1

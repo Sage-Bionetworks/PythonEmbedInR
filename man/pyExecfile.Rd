@@ -24,4 +24,3 @@ The function execfile is kind of the source of Python. Since it got omitted
 pyExecfile("myPythonScript.py")
 }
 }
-
