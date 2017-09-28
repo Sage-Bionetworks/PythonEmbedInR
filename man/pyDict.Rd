@@ -28,7 +28,7 @@ If no value is provided a virtual Python dict for an existing
          object based on the vector or list is created.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 if ( pyIsConnected() ){
 pyExec('myPyDict = {"a":1, "b":2, "c":3}')
 ## create a virtual Python dictionary for an existing dictionary
@@ -50,4 +50,3 @@ myNewDict <- pyDict('myNewDict', list(p=2, y=9, r=1))
 myNewDict
 }
 }
-

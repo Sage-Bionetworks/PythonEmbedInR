@@ -4,12 +4,9 @@
 \alias{pyConnect}
 \title{connects R to Python}
 \usage{
-pyConnect(pythonExePath = NULL, dllDir = NULL, pythonHome = NULL)
+pyConnect(dllDir = NULL, pythonHome = NULL)
 }
 \arguments{
-\item{pythonExePath}{a character containing the path to "python.exe" 
-(e.g. "C:\\Python27\\python.exe")}
-
 \item{dllDir}{an optional character giving the path to the dll file. 
 Since the dll file is normally in a system folder or in the same 
 location as python.exe, this parameter is \bold{almost never needed}!}
@@ -41,12 +38,10 @@ pyConnect() # is done by default when the package is loaded
 ## Windows examples
 pyConnect() ## will try to detect a suitable python version 
             ## from the PATH given in the environment variables
-pyConnect("C:\\\\Python27\\\\python.exe")
 
 ## One can also explicitly set the parameters for the connection.
-PythonInR:::pyConnectWinDll(dllName="python27.dll", dllDir=NULL,
+PythonEmbedInR:::pyConnectWinDll(dllName="python27.dll", dllDir=NULL,
                             majorVersion=2, pythonHome="C:\\\\Python27", 
                             pyArch="32bit")
 }
 }
-

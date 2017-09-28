@@ -26,7 +26,7 @@ Primitive data types like bool, int, long, float, str,
 pyGet0 never creates a new Python object.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 if ( pyIsConnected() ){
 pyExec("import os")
 os <- pyGet0("os")
@@ -36,4 +36,3 @@ os$sep <- "Hello Python!"
 pyExecp("os.sep")
 }
 }
-

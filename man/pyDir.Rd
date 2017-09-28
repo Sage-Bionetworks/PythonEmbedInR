@@ -20,8 +20,7 @@ A convenience function to call the Python function \strong{dir}.
 The Python function dir is similar to the R function ls.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 pyDir()
 pyDir("sys")
 }
-

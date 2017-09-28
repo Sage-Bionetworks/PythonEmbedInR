@@ -17,7 +17,7 @@ assigned to.}
 A convenience function to attach Python objects to R.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 if ( pyIsConnected() ){
 pyExec("import os")
 
@@ -59,4 +59,3 @@ as.environment("python:os")$`os.sep`
 pyExecp("os.sep")
 }
 }
-

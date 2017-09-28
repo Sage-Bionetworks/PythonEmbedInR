@@ -13,7 +13,6 @@ Returns a string containing the Python version and some compiler information.
 A convenience function to get sys.version.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 pyVersion()
 }
-
