@@ -16,8 +16,7 @@ The type of the specified object as character on success, NULL otherwise.
 Convenience function to call the Python function \strong{type}.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 pyExec("x = dict()")
 pyType("x")
 }
-

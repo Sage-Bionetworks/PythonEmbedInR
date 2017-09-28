@@ -26,7 +26,7 @@ If no value is provided a virtual Python tuple for an existing
          object based on the vector or list is created.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 if ( pyIsConnected() ){
 pyExec('myPyTuple = (1, 2, 5, "Hello R!")')
 # create a virtual Python tuple for an existing tuple
@@ -40,4 +40,3 @@ newTuple <- pyTuple('myNewTuple', list(1:3, 'Hello Python'))
 newTuple[1]
 }
 }
-

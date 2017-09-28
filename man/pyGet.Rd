@@ -35,7 +35,7 @@ pyGet always returns a new object, if you want to create a R representation
       of an existing Python object use pyGet0 instead.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 ## get a character of length 1
 pyGet("__name__")
 ## get a character of length 1 > 1
@@ -63,4 +63,3 @@ y
 ## An important difference is that the evaluation of x always will return the same
 ## time, the evaluation of y always will give the new time.
 }
-

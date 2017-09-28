@@ -93,7 +93,7 @@ PythonInR_ListNoFinalizer <-
 #'          If the value is a vector or a list, a new Python
 #'          object based on the vector or list is created.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' if ( pyIsConnected() ){
 #' pyExec('myPyList = [1, 2, 5, "Hello R!"]')
 #' # create a virtual Python list for an existing list

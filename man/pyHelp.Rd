@@ -16,7 +16,6 @@ Prints the help to the given string.
 a convenience function to access the Python \strong{help} system.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 pyHelp("abs")
 }
-

@@ -22,7 +22,7 @@
 #'          can be used to simulate an interactive Python interpreter behavior.
 #'
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' pyExecp('"Hello" + " " + "R!"')
 #  -----------------------------------------------------------------------------   
 pyExecp <- function(code){
@@ -57,7 +57,7 @@ pyExecp <- function(code){
 #' @details Since pyExec can execute multiple lines, it is the obvious choice for defining
 #'          Python functions or running small scripts where no return value is needed.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' pyExec('
 #' print("The following line will not appear in the R terminal!")
 #' "Hello" + " " + "R!"
@@ -131,7 +131,7 @@ pyExec <- function(code){
 #'          and the type, id and an indicator if the object is a callable are 
 #'          returned.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' if ( pyIsConnected() ){
 #' # 1. assigns x to the global namespace
 #' pyExec("x=4")
@@ -169,7 +169,7 @@ pyExec <- function(code){
 #' #     pyExecg does not transform these objects automatically
 #' pyExec("import os")
 #' z <- pyExecg("x = os")
-#' os <- PythonInR:::pyTransformReturn(z[[1]])
+#' os <- PythonEmbedInR:::pyTransformReturn(z[[1]])
 #' os$getcwd()
 #' }
 #  -----------------------------------------------------------------------------
@@ -264,7 +264,7 @@ pyExecfile <- function(filename){
 #'          whereas pyPrint("x") is equivalent to typing print(x) into the Python 
 #'          terminal.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' pyPrint("'Hello ' + 'R!'")
 #' pyPrint("sys.version")
 #  ----------------------------------------------------------------------------- 

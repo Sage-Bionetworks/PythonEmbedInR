@@ -141,7 +141,7 @@ pyCranConnect <- function(){
 #'             ## from the PATH given in the environment variables
 #'
 #' ## One can also explicitly set the parameters for the connection.
-#' PythonInR:::pyConnectWinDll(dllName="python27.dll", dllDir=NULL,
+#' PythonEmbedInR:::pyConnectWinDll(dllName="python27.dll", dllDir=NULL,
 #'                             majorVersion=2, pythonHome="C:\\Python27", 
 #'                             pyArch="32bit")
 #' }
@@ -189,7 +189,7 @@ pyIsConnected <- function() as.logical(.Call( "py_is_connected" ))
 
 # Prints some information about the Python version R is connected to.
 # @examples
-# \dontshow{PythonInR:::pyCranConnect()}
+# \dontshow{PythonEmbedInR:::pyCranConnect()}
 # pyInfo()
 # Was once more use full but to be compatible with Python 3 it is
 # now kind of useless.
@@ -206,7 +206,7 @@ pyInfo <- function(){
 #' @description A convenience function to get sys.version.
 #' @return Returns a string containing the Python version and some compiler information.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' pyVersion()
 #  -----------------------------------------------------------------------------
 pyVersion <- function(){

@@ -41,4 +41,3 @@ pyOptions("pandasAlias", "pd")
 pyOptions("usePandas", TRUE)
 }
 }
-

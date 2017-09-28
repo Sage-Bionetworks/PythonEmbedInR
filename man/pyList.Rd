@@ -26,7 +26,7 @@ If no value is provided a virtual Python list for an existing
          object based on the vector or list is created.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 if ( pyIsConnected() ){
 pyExec('myPyList = [1, 2, 5, "Hello R!"]')
 # create a virtual Python list for an existing list
@@ -44,4 +44,3 @@ ls(myNewList)
 myNewList['::2'] 
 }
 }
-

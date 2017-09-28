@@ -30,7 +30,7 @@ The function pyImport works like the import function in Python.
          pySet is used with the option useNumpy set to TRUE.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 pyImport("os")
 \dontrun{
 #NOTE: The following does not only import numpy but also register the
@@ -49,4 +49,3 @@ sep = "Hello R!"
 pyExecp("sep")
 }
 }
-

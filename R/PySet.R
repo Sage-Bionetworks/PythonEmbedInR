@@ -29,7 +29,7 @@
 #' @details More information about the type conversion can be found in the README 
 #'          file or at \url{http://pythoninr.bitbucket.org/}.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' pySet("x", 3)
 #' pySet("M", diag(1,3))
 #' pyImport("os")
@@ -73,7 +73,7 @@ pySet <- function(key, value, namespace = "__main__",
 
 # pySetSimple is a wrapper over the C function that users can
 # ===========
-# create new generic functions by using the function PythonInR:::pySetSimple
+# create new generic functions by using the function PythonEmbedInR:::pySetSimple
 pySetSimple <- function(key, value, namespace="__main__"){
     .Call("r_set_py", namespace, key, value)
 }

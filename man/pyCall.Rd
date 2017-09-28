@@ -34,7 +34,7 @@ The args and kwargs are transformed to Python variables by the
          be found in the vignette.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 pyCall("sum", args=list(1:3))
 
 ## define a new function with the name fun
@@ -44,4 +44,3 @@ def fun(**kwargs):
 ')
 pyCall("fun", kwargs=list(a=1, f=2, x=4))
 }
-

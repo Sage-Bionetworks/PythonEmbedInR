@@ -59,7 +59,7 @@ PythonInR_TupleNoFinalizer <-
 #'          If the value is a vector or tuple a new Python
 #'          object based on the vector or list is created.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' if ( pyIsConnected() ){
 #' pyExec('myPyTuple = (1, 2, 5, "Hello R!")')
 #' # create a virtual Python tuple for an existing tuple

@@ -14,4 +14,3 @@ Closes the connection from R to Python.
 pyExit()
 }
 }
-

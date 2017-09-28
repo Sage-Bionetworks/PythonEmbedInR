@@ -15,4 +15,3 @@ Checks if R is connected to Python.
 \examples{
 pyIsConnected()
 }
-

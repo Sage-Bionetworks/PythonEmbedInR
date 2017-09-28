@@ -52,7 +52,7 @@ The function pyExecg executes the code in a temporary namespace,
          returned.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 if ( pyIsConnected() ){
 # 1. assigns x to the global namespace
 pyExec("x=4")
@@ -90,8 +90,7 @@ pyPrint("x") # NOTE: x is changed now!
 #     pyExecg does not transform these objects automatically
 pyExec("import os")
 z <- pyExecg("x = os")
-os <- PythonInR:::pyTransformReturn(z[[1]])
+os <- PythonEmbedInR:::pyTransformReturn(z[[1]])
 os$getcwd()
 }
 }
-

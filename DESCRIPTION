@@ -5,11 +5,10 @@ Author: Florian Schwendinger [aut, cre]
 Maintainer: Florian Schwendinger <FlorianSchwendinger@gmx.at>
 Description: Interact with Python from within R.
 Depends:
-    R (>= 2.15), pack, methods, R6, stats
+    R (>= 2.15), R6
 Imports:
     pack,
     methods,
-    R6,
     stats
 SystemRequirements: Python (>= 2.7.0) with header files and shared library
     (UNIX) / static library (Windows)
@@ -19,5 +18,5 @@ URL: https://bitbucket.org/Floooo/pythoninr/
 BugReports: https://bitbucket.org/Floooo/pythoninr/issues
 License: GPL-3
 NeedsCompilation: yes
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Suggests: testthat

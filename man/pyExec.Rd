@@ -18,7 +18,7 @@ Since pyExec can execute multiple lines, it is the obvious choice for defining
          Python functions or running small scripts where no return value is needed.
 }
 \examples{
-\dontshow{PythonInR:::pyCranConnect()}
+\dontshow{PythonEmbedInR:::pyCranConnect()}
 pyExec('
 print("The following line will not appear in the R terminal!")
 "Hello" + " " + "R!"
@@ -27,4 +27,3 @@ print("The following line will appear in the R terminal!")
 print("Hello" + " " + "R!")
 ')
 }
-

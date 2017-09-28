@@ -10,7 +10,7 @@
 #'            assigned to.
 #'
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' if ( pyIsConnected() ){
 #' pyExec("import os")
 #' 

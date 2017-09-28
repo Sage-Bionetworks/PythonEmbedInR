@@ -18,7 +18,7 @@
 #'          numpy but also register their alias in pyOptions. To be found when
 #'          pySet is used with the option useNumpy set to TRUE.
 #' @examples
-#' \dontshow{PythonInR:::pyCranConnect()}
+#' \dontshow{PythonEmbedInR:::pyCranConnect()}
 #' pyImport("os")
 #' \dontrun{
 #' #NOTE: The following does not only import numpy but also register the
