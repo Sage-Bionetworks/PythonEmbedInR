@@ -1,0 +1,5 @@
+#!/bin/sh
+
+#for windows installs
+rm -f src/Makevars.win src/PythonEmbedInR.dll
+rm -rf Python-3.?.?/ inst/pythonLibs/

@@ -20,9 +20,15 @@ PYTHON_VERSION<-"3.5"
   # at the compile time a flag is set which can
   # be accessed by using the function isDllVersion 
   addPythonLibrariesToWindowsPath(libname, pkgname)
+
+  #set pythonhome and pythonpath so python knows where to look for python modules
+  if (Sys.info()['sysname']=="Windows"){
+  	pythonPathEnv<-paste(system.file("pythonLibs", package="PythonEmbedInR"),system.file("pythonLibs\\Lib\\site-packages", package="PythonEmbedInR"),sep=";")
+  }else{
+  	pythonPathEnv<-system.file("lib", package="PythonEmbedInR")
+  }
   Sys.setenv(PYTHONHOME=system.file(package="PythonEmbedInR"))
-  Sys.setenv(PYTHONPATH=system.file("lib", package="PythonEmbedInR"))
-  
+  Sys.setenv(PYTHONPATH=pythonPathEnv)
   # Unloading it and then reloading it is a hacky way of making less modifications to the original code:
   # In the NAMESPACE file, we load load PythonInR.so with "useDynLib(PythonInR)"
   # However, the symbols are not loaded globally(RTLD_GLOBAL) and will cause issues
