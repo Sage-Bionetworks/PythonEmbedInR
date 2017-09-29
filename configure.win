@@ -1,5 +1,6 @@
 #!/bin/sh
 # exit immediately if any step fails
+echo this is a test string
 set -e
 
 RWITHPYTHON_PYTHON_VERSION=3.5
