@@ -1,7 +1,6 @@
 #!/bin/sh
-# exit immediately if any step fails
-echo this is a test string
-set -e
+
+set -e # exit immediately if any step fails
 
 RWITHPYTHON_PYTHON_VERSION=3.5
 RWITHPYTHON_PYTHON_VERSION_EXTENDED=${RWITHPYTHON_PYTHON_VERSION}.3
