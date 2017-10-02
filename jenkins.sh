@@ -121,23 +121,24 @@ else
   exit 1
 fi
 
+## TODO: put this in a test file
 R -e ".libPaths('../RLIB');\
-     library(PythonEmbedInR);\
-     pyExec('import platform');\
-     result<-pyGet('platform.python_version()');\
-     expected<-'3.5.3';\
-     if (is.null(result)) stop('Python version is unexpectedly null.');\
-     if (length(grep(expected, result))==0) stop(sprintf('Expected %s in the version string but found %s\n', expected, result));\
-     cat(sprintf('\n\nPython version string:\n%s\n\n', result));\
+  library(PythonEmbedInR);\
+  pyExec('import platform');\
+  result<-pyGet('platform.python_version()');\
+  expected<-'3.5.3';\
+  if (is.null(result)) stop('Python version is unexpectedly null.');\
+  if (length(grep(expected, result))==0) stop(sprintf('Expected %s in the version string but found %s', expected, result));\
+  cat(sprintf('Python version string: %s ', result));\
 
-     pyImport('pip');\
-     pyImport('ssl');\
-     pyGet('ssl.OPENSSL_VERSION');\
-     
-     testPackage<-'ggplot2';\
-     try(remove.packages(testPackage), silent=T);\
-     install.packages(testPackage, repos='https://cran.cnr.berkeley.edu/');\
-     library(testPackage, character.only=T)"
+  pyImport('pip');\
+  pyImport('ssl');\
+  pyGet('ssl.OPENSSL_VERSION');\
+
+  testPackage<-'ggplot2';\
+  try(remove.packages(testPackage), silent=T);\
+  install.packages(testPackage, repos='https://cran.cnr.berkeley.edu/');\
+  library(testPackage, character.only=T)"
 
 ## clean up the temporary R library dir
 rm -rf ../RLIB
