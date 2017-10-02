@@ -121,9 +121,6 @@ else
   exit 1
 fi
 
-
-R CMD INSTALL ${CREATED_ARCHIVE}
-
 R -e ".libPaths('../RLIB');\
      library(PythonEmbedInR);\
      pyExec('import platform');\
