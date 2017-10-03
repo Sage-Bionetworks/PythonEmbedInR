@@ -20,9 +20,18 @@ PYTHON_VERSION<-"3.5"
   # at the compile time a flag is set which can
   # be accessed by using the function isDllVersion 
   addPythonLibrariesToWindowsPath(libname, pkgname)
-  Sys.setenv(PYTHONHOME=system.file(package="PythonEmbedInR"))
-  Sys.setenv(PYTHONPATH=system.file("lib", package="PythonEmbedInR"))
-  
+	packageRootDir<-file.path(libname, pkgname)
+	Sys.setenv(PYTHONHOME=packageRootDir)
+	
+	#set pythonhome and pythonpath so python knows where to look for python modules
+	if (Sys.info()['sysname']=="Windows"){
+		pythonPathEnv<-paste(file.path(packageRootDir, "pythonLibs"), file.path(packageRootDir, "pythonLibs\\Lib\\site-packages"),sep=";")
+	}else{
+		pythonPathEnv<-file.path(packageRootDir, "lib")
+	}
+	
+  Sys.setenv(PYTHONPATH=pythonPathEnv)
+	
   # Unloading it and then reloading it is a hacky way of making less modifications to the original code:
   # In the NAMESPACE file, we load load PythonInR.so with "useDynLib(PythonInR)"
   # However, the symbols are not loaded globally(RTLD_GLOBAL) and will cause issues
@@ -31,8 +40,8 @@ PYTHON_VERSION<-"3.5"
   # Then every .Call() function to a function defined would have to be rewritten e.g.:
   # .Call( "isDllVersion") ======> .Call( "isDllVersion", PACKAGE="PythonInR")
   # Reference: http://r.789695.n4.nabble.com/question-re-error-message-package-error-quot-functionName-quot-not-resolved-from-current-namespace-td4663892.html
-  library.dynam.unload("PythonEmbedInR", system.file(package="PythonEmbedInR"))
-  library.dynam( "PythonEmbedInR", pkgname, libname, local=FALSE)
+  library.dynam.unload("PythonEmbedInR", packageRootDir)
+  library.dynam("PythonEmbedInR", pkgname, libname, local=FALSE)
 	
 	# On Mac load the ssl libraries
 	if (Sys.info()['sysname']=='Darwin') {
