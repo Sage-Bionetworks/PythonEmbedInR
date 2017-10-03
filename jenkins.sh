@@ -19,9 +19,9 @@ then
   # replace DESCRIPTION with $VERSION
   DATE=`date +%Y-%m-%d`
   DATE_LINE=`grep Date DESCRIPTION.temp`
-  sed "s|$DATE_LINE|Date: $DATE|g" DESCRIPTION.temp > DESCRIPTION.temp
+  sed "s|$DATE_LINE|Date: $DATE|g" DESCRIPTION.temp > DESCRIPTION2.temp
   rm DESCRIPTION
-  mv DESCRIPTION.temp DESCRIPTION
+  mv DESCRIPTION2.temp DESCRIPTION
 fi
 export PACKAGE_VERSION=`grep Version DESCRIPTION | awk '{print $2}'`
 
