@@ -8,3 +8,4 @@ inst/lib/
 ^.*\.Rproj$
 ^\.Rproj\.user$
 \.pydevproject
+\.jenkins.sh
