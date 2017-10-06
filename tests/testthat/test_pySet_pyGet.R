@@ -67,7 +67,8 @@ test_that("dict of timestamp values can be converted to r", {
   expect_equal("numeric", class(r_value))
   expected <- c(1507236276000, 1507236276001)
   names(expected) <- c('now', 'later')
-  expect_equal(expected, r_value)
+  expect_equal(expected['now'], r_value['now'])
+  expect_equal(expected['later'], r_value['later'])
 })
 
 test_that("timestamp value can make a round trip to python and back", {
