@@ -129,7 +129,10 @@ fi
 
 R -e ".libPaths('../RLIB');\
   setwd(sprintf('%s/tests', getwd()));\
-  source('testthat.R')"
+  source('testthat.R')
+  .Last.value"
+
+echo Test status: $?
 
 ## clean up the temporary R library dir
 rm -rf ../RLIB
