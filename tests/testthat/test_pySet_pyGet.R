@@ -28,6 +28,14 @@ test_that("data.frame can be converted to pandas DataFrame and back", {
   expect_equal(class(df2), "data.frame")
 })
 
+test_that("big int value can be converted to r", {
+  pyExec("py_value = pow(2,65)")
+  expect_output(pyExecp("type(py_value)"), "int")
+  r_value <- pyGet("py_value")
+  expect_equal("numeric", class(r_value))
+  expect_equal(36893488147419103232, r_value)
+})
+
 test_that("timestamp value can be converted to r", {
   pyExec("py_value = 1507236276000")
   expect_output(pyExecp("type(py_value)"), "int")
