@@ -1,6 +1,7 @@
 context("checkInterrupt")
 
 test_that("checkInterrupt", {
+  skip("skipping checkInterrupt")
 	pyImport("ctypes")
 	# may have to use WinDLL() in place of CDLL() on Windows.  See: https://docs.python.org/3/library/ctypes.html
 	pyExec(sprintf("peirModule=ctypes.CDLL('PythonEmbedInR%s')", .Platform$dynlib.ext))
