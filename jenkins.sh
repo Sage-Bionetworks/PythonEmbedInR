@@ -127,7 +127,8 @@ else
   exit 1
 fi
 
-R -e "setwd(sprintf('%s/tests', getwd()));\
+R -e ".libPaths('../RLIB');\
+  setwd(sprintf('%s/tests', getwd()));\
   source('testthat.R')"
 
 ## clean up the temporary R library dir
