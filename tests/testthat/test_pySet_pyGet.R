@@ -44,12 +44,30 @@ test_that("timestamp value can be converted to r", {
   expect_equal(1507236276000, r_value)
 })
 
-test_that("vector of timestamp values can be converted to r", {
+test_that("list of timestamp values can be converted to r", {
   pyExec("py_value = [1507236276000, 1507236276001]")
   expect_output(pyExecp("type(py_value)"), "list")
   r_value <- pyGet("py_value")
   expect_equal("numeric", class(r_value))
   expect_equal(c(1507236276000, 1507236276001), r_value)
+})
+
+test_that("tuple of timestamp values can be converted to r", {
+  pyExec("py_value = (1507236276000, 1507236276001)")
+  expect_output(pyExecp("type(py_value)"), "tuple")
+  r_value <- pyGet("py_value")
+  expect_equal("numeric", class(r_value))
+  expect_equal(c(1507236276000, 1507236276001), r_value)
+})
+
+test_that("dict of timestamp values can be converted to r", {
+  pyExec("py_value = {'now': 1507236276000, 'later':1507236276001}")
+  expect_output(pyExecp("type(py_value)"), "dict")
+  r_value <- pyGet("py_value")
+  expect_equal("numeric", class(r_value))
+  expected <- c(1507236276000, 1507236276001)
+  names(expected) <- c('now', 'later')
+  expect_equal(expected, r_value)
 })
 
 test_that("timestamp value can make a round trip to python and back", {
