@@ -2,6 +2,7 @@
 ## build the artifacts and install the package
 ## for the active R version
 
+set -e
 ## create the temporary library directory
 mkdir -p ../RLIB
 
@@ -127,10 +128,9 @@ else
   exit 1
 fi
 
-R -e "
+R -e ".libPaths('../RLIB');\
   setwd(sprintf('%s/tests', getwd()));\
-  source('testthat.R');\
-"
+  source('testthat.R')"
 
 ## clean up the temporary R library dir
 rm -rf ../RLIB

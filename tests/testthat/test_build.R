@@ -8,7 +8,7 @@ test_that("python version is 3.5.3", {
 test_that("pip can be imported", {
   pyImport('pip')
   pyImport('ssl')
-  expect_match(pyGet('ssl.OPENSSL_VERSION'), 'OpenSSL 1.0.2l')
+  expect_match(pyGet('ssl.OPENSSL_VERSION'), 'OpenSSL')
 })
 
 test_that("other package can be installed", {
