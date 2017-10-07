@@ -108,9 +108,9 @@ int Py_GetR_Type(PyObject *py_object){
     }else if ( PyBool_Check(py_object) ){
         r_type = 10;
     }else if ( PyInt_Check(py_object) ){
-        r_type = 13;
+        r_type = 14;
     }else if ( PyLong_Check(py_object) ){
-        r_type = 13;
+        r_type = 14;
     }else if ( PyFloat_Check(py_object) ){
         r_type = 14;
     }else if ( PyString_Check(py_object) ){
@@ -617,14 +617,14 @@ SEXP py_to_r(PyObject *py_object, int simplify, int autotype){
         r_val =  c_to_r_boolean(c_boolean);
 
     }else if( PyInt_Check(py_object) & autotype ){                          // Integer
-        long c_long;
-        c_long = PY_TO_C_INTEGER(py_object);
-        r_val = c_to_r_integer(c_long);
+        double c_double;
+        c_double = PY_TO_C_DOUBLE(py_object);
+        r_val = c_to_r_double(c_double);
 
     }else if( PyLong_Check(py_object) & autotype ){                         // Long
-        long c_long;
-        c_long = PY_TO_C_LONG(py_object);
-        r_val = c_to_r_integer(c_long);
+        double c_double;
+        c_double = PY_TO_C_DOUBLE(py_object);
+        r_val = c_to_r_double(c_double);
 
     }else if( PyFloat_Check(py_object) & autotype ){                        // Float
         double c_double;
