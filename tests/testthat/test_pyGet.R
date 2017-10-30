@@ -2,17 +2,6 @@
 
 context("pyGet")
 
-test_that("NaN in Pandas DataFrame can be converted to r", {
-  use_pandas()
-  pyExec("d = {'col1': [float('NaN'), 'ts1'], 'col2': ['ts2', float('NaN')]}")
-  pyExec("df = pd.DataFrame(data=d)")
-  expect_output(pyExecp("type(df)"), "pandas.core.frame.DataFrame")
-  
-  df2 <- pyGet("df")
-  expect_equal(class(df2), "data.frame")
-
-})
-
 test_that("big int value can be converted to r", {
   pyExec("py_value = pow(2,65)")
   expect_output(pyExecp("type(py_value)"), "int")
