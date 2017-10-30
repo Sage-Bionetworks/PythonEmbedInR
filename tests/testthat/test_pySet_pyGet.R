@@ -39,7 +39,7 @@ test_that("timestamp value can make a round trip to python and back", {
   expect_equal("numeric", class(x))
 })
 
-test_that("NA can be converted to python and back", {
+test_that("how NA is converted to python and back", {
   r_value <- NA
   expect_equal("logical", class(r_value))
   pySet("py_value", r_value)
