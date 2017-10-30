@@ -51,6 +51,5 @@ test_that("list of different type converted to list of list", {
   expect_output(pyExecp("len(l)"), "2")
 
   list <- pyGet("l")
-  expect_equal(class(list), "list")
-  expect_equal(c(1, 1), lengths(list))
+  expect_equal(list(NaN, 'abc'), list)
 })

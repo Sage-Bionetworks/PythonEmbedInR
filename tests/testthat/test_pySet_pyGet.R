@@ -54,7 +54,7 @@ test_that("NULL can be converted to python and back", {
   pySet("py_value", r_value)
   expect_output(pyExecp("type(py_value)"), "<class 'NoneType'>")
   x <- pyGet("py_value")
-  expect_equal("NULL", class(x))
+  expect_null(x)
 })
 
 test_that("NaN can be converted to python and back", {
@@ -63,7 +63,7 @@ test_that("NaN can be converted to python and back", {
   pySet("py_value", r_value)
   expect_output(pyExecp("type(py_value)"), "<class 'float'>")
   x <- pyGet("py_value")
-  expect_equal("numeric", class(x))
+  expect_true(is.nan(x))
 })
 
 test_that("Inf can be converted to python and back", {
@@ -72,5 +72,5 @@ test_that("Inf can be converted to python and back", {
   pySet("py_value", r_value)
   expect_output(pyExecp("type(py_value)"), "<class 'float'>")
   x <- pyGet("py_value")
-  expect_equal("numeric", class(x))
+  expect_true(is.infinite(x))
 })
