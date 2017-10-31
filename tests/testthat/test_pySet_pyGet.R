@@ -1,3 +1,5 @@
+## Testing the round trip from r to python and back
+
 context("test pySet and pyGet")
 
 test_that("data.frame can be converted to PrDataFrame and back", {
@@ -28,49 +30,6 @@ test_that("data.frame can be converted to pandas DataFrame and back", {
   expect_equal(class(df2), "data.frame")
 })
 
-test_that("big int value can be converted to r", {
-  pyExec("py_value = pow(2,65)")
-  expect_output(pyExecp("type(py_value)"), "int")
-  r_value <- pyGet("py_value")
-  expect_equal("numeric", class(r_value))
-  expect_equal(36893488147419103232, r_value)
-})
-
-test_that("timestamp value can be converted to r", {
-  pyExec("py_value = 1507236276000")
-  expect_output(pyExecp("type(py_value)"), "int")
-  r_value <- pyGet("py_value")
-  expect_equal("numeric", class(r_value))
-  expect_equal(1507236276000, r_value)
-})
-
-test_that("list of timestamp values can be converted to r", {
-  pyExec("py_value = [1507236276000, 1507236276001]")
-  expect_output(pyExecp("type(py_value)"), "list")
-  r_value <- pyGet("py_value")
-  expect_equal("numeric", class(r_value))
-  expect_equal(c(1507236276000, 1507236276001), r_value)
-})
-
-test_that("tuple of timestamp values can be converted to r", {
-  pyExec("py_value = (1507236276000, 1507236276001)")
-  expect_output(pyExecp("type(py_value)"), "tuple")
-  r_value <- pyGet("py_value")
-  expect_equal("numeric", class(r_value))
-  expect_equal(c(1507236276000, 1507236276001), r_value)
-})
-
-test_that("dict of timestamp values can be converted to r", {
-  pyExec("py_value = {'now': 1507236276000, 'later':1507236276001}")
-  expect_output(pyExecp("type(py_value)"), "dict")
-  r_value <- pyGet("py_value")
-  expect_equal("numeric", class(r_value))
-  expected <- c(1507236276000, 1507236276001)
-  names(expected) <- c('now', 'later')
-  expect_equal(expected['now'], r_value['now'])
-  expect_equal(expected['later'], r_value['later'])
-})
-
 test_that("timestamp value can make a round trip to python and back", {
   r_value <- 1507236276000
   expect_equal("numeric", class(r_value))
@@ -80,3 +39,38 @@ test_that("timestamp value can make a round trip to python and back", {
   expect_equal("numeric", class(x))
 })
 
+test_that("how NA is converted to python and back", {
+  r_value <- NA
+  expect_equal("logical", class(r_value))
+  pySet("py_value", r_value)
+  expect_output(pyExecp("type(py_value)"), "<class 'NoneType'>")
+  x <- pyGet("py_value")
+  expect_equal("NULL", class(x))
+})
+
+test_that("NULL can be converted to python and back", {
+  r_value <- NULL
+  expect_equal("NULL", class(r_value))
+  pySet("py_value", r_value)
+  expect_output(pyExecp("type(py_value)"), "<class 'NoneType'>")
+  x <- pyGet("py_value")
+  expect_null(x)
+})
+
+test_that("NaN can be converted to python and back", {
+  r_value <- NaN
+  expect_equal("numeric", class(r_value))
+  pySet("py_value", r_value)
+  expect_output(pyExecp("type(py_value)"), "<class 'float'>")
+  x <- pyGet("py_value")
+  expect_true(is.nan(x))
+})
+
+test_that("Inf can be converted to python and back", {
+  r_value <- Inf
+  expect_equal("numeric", class(r_value))
+  pySet("py_value", r_value)
+  expect_output(pyExecp("type(py_value)"), "<class 'float'>")
+  x <- pyGet("py_value")
+  expect_true(is.infinite(x))
+})
