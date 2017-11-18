@@ -9,8 +9,6 @@ test_that("checkInterrupt", {
 	} else {
 		sharedLibraryLocation<-system.file("libs", package="PythonEmbedInR")
 		sharedLibrary<-file.path(sharedLibraryLocation, libraryName)
-		#cat("will load library ", sharedLibrary, "\n")
-		#cat("library exists: ", file.exists(sharedLibrary), "\n")
 	}
 	pyExec(sprintf("peirModule=ctypes.CDLL('%s')", sharedLibrary))
 	pyExec("result=peirModule.checkInterrupt()")
