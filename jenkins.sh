@@ -6,6 +6,11 @@ set -e
 ## create the temporary library directory
 mkdir -p ../RLIB
 
+## Install required R libraries
+ R -e "list.of.packages <- c('pack', 'R6', 'testthat');\
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,'Package'])];\
+if(length(new.packages)) install.packages(new.packages, repos='http://cran.fhcrc.org')"
+
 ## export the jenkins-defined environment variables
 export label
 export RVERS
@@ -14,13 +19,10 @@ PACKAGE_NAME=PythonEmbedInR
 # if version is specified, build the given version
 if [ -n ${VERSION} ] 
 then
-  # replace DESCRIPTION with $VERSION
-  VERSION_LINE=`grep Version DESCRIPTION`
-  sed "s|$VERSION_LINE|Version: $VERSION|g" DESCRIPTION > DESCRIPTION.temp
-  # replace DESCRIPTION with $VERSION
   DATE=`date +%Y-%m-%d`
-  DATE_LINE=`grep Date DESCRIPTION.temp`
-  sed "s|$DATE_LINE|Date: $DATE|g" DESCRIPTION.temp > DESCRIPTION2.temp
+  # replace DESCRIPTION with $VERSION & $DATE
+  sed "s|^Version: .*$|Version: $VERSION|g" DESCRIPTION > DESCRIPTION.temp
+  sed "s|^Date: .*$|Date: $DATE|g" DESCRIPTION.temp > DESCRIPTION2.temp
 
   rm DESCRIPTION
   mv DESCRIPTION2.temp DESCRIPTION
@@ -43,7 +45,7 @@ then
   	echo "Linux artifact was not created"
   	exit 1
   fi  
-elif [ $label = osx ] || [ $label = osx-lion ] || [ $label = osx-leopard ]
+elif [ $label = osx ] || [ $label = osx-lion ] || [ $label = osx-leopard ] || [ $label = MacOS-10.11 ]
 then
   ## build the package, including the vignettes
   # for some reason latex is not on the path.  So we add it.
