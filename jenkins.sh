@@ -6,6 +6,11 @@ set -e
 ## create the temporary library directory
 mkdir -p ../RLIB
 
+## Install required R libraries
+ R -e "list.of.packages <- c('pack', 'R6', 'testthat');\
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,'Package'])];\
+if(length(new.packages)) install.packages(new.packages, repos='http://cran.fhcrc.org')"
+
 ## export the jenkins-defined environment variables
 export label
 export RVERS
@@ -40,7 +45,7 @@ then
   	echo "Linux artifact was not created"
   	exit 1
   fi  
-elif [ $label = osx ] || [ $label = osx-lion ] || [ $label = osx-leopard ]
+elif [ $label = osx ] || [ $label = osx-lion ] || [ $label = osx-leopard ] || [ $label = MacOS-10.11 ]
 then
   ## build the package, including the vignettes
   # for some reason latex is not on the path.  So we add it.
