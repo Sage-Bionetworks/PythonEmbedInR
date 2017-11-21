@@ -6,6 +6,11 @@ set -e
 ## create the temporary library directory
 mkdir -p ../RLIB
 
+## Install required R libraries
+ R -e "list.of.packages <- c('pack', 'R6', 'testthat');\
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,'Package'])];\
+if(length(new.packages)) install.packages(new.packages, repos='http://cran.fhcrc.org')"
+
 ## export the jenkins-defined environment variables
 export label
 export RVERS
