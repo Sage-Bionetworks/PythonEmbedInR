@@ -2,8 +2,8 @@
 ##  pyTransformReturn
 ##  =================
 ##
-##  Is used to transform the return values it is not integrated
-##  into pyGet so it can be reused for pyCall.
+##  Is used to transform the return values.
+##  It is being used by both pyGet and pyCall.
 ##
 ## -----------------------------------------------------------
 
@@ -22,8 +22,15 @@ setMethod("pyTransformReturn", signature(obj = "PythonObject"),
     }else if ( obj$type == "dict" ){
         return(pyDict(variableName, regFinalizer = TRUE))
     }else if ( obj$type == "DataFrame" ){
-        pyExec(sprintf("x = %s.to_dict(orient='list')", variableName))
-        return( as.data.frame(pyGet("x"), optional=TRUE, stringsAsFactors=FALSE) )
+      pyExec(sprintf("x = %s.to_dict(orient='list')", variableName))
+      return( as.data.frame(pyGet("x"), optional=TRUE, stringsAsFactors=FALSE) )
+    }else if ( obj$type == "collections.OrderedDict" ){
+      pyExec(sprintf("keys = list(%s.keys())", variableName))
+      pyExec(sprintf("values = list(%s.values())", variableName))
+      keys <- pyGet("keys")
+      values <- pyGet("values")
+      names(values) <- keys
+      return(values)
     }else{
         return(pyObject(variableName, regFinalizer = TRUE))
     }

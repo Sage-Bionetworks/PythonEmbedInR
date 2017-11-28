@@ -53,3 +53,13 @@ test_that("list of different type converted to list of list", {
   list <- pyGet("l")
   expect_equal(list(NaN, 'abc'), list)
 })
+
+test_that("OrderedDict convert to named list", {
+  pyImport("OrderedDict", from="collections")
+  pyExec("od = OrderedDict([('pear', 1), ('apple', 4), ('orange', 2), ('banana', 3)])")
+  r_value <- pyGet("od")
+  expect_equal("numeric", class(r_value))
+  expected <- c(1, 4, 2, 3)
+  names(expected) <-c('pear', 'apple', 'orange', 'banana')
+  expect_equal(expected, r_value)
+})
