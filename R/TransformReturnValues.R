@@ -22,15 +22,9 @@ setMethod("pyTransformReturn", signature(obj = "PythonObject"),
     }else if ( obj$type == "dict" ){
         return(pyDict(variableName, regFinalizer = TRUE))
     }else if ( obj$type == "DataFrame" ){
-      pyExec(sprintf("x = %s.to_dict(orient='list')", variableName))
-      return( as.data.frame(pyGet("x"), optional=TRUE, stringsAsFactors=FALSE) )
+      return( getPandasDataFrame(variableName))
     }else if ( obj$type == "collections.OrderedDict" ){
-      pyExec(sprintf("keys = list(%s.keys())", variableName))
-      pyExec(sprintf("values = list(%s.values())", variableName))
-      keys <- pyGet("keys")
-      values <- pyGet("values")
-      names(values) <- keys
-      return(values)
+      return( getOrderedDict(variableName))
     }else{
         return(pyObject(variableName, regFinalizer = TRUE))
     }
