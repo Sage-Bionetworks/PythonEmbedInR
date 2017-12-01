@@ -101,16 +101,25 @@ pyObject <- function(key, regFinalizer = TRUE){
 
     pyMethods <- list()
     pyActive <- list()
+    pyPrivate <- list()
     
     pydir <- pyDir(key)
     for (o in pydir){
         po <- paste(c(key, o), collapse=".")
         if (pyIsCallable(po)){
             cfun <- sprintf(callFun, po)
-            pyMethods[[o]] <- eval(parse(text=cfun))
+            if (grepl("._", po)) {
+              pyPrivate[[o]] <- eval(parse(text=cfun))
+            } else {
+              pyMethods[[o]] <- eval(parse(text=cfun))
+            }
         }else{
             afun <- sprintf(activeFun, key, o, o, key)
-            pyActive[[o]] <- eval(parse(text=afun))
+            if (grepl("._", po)) {
+              pyPrivate[[o]] <- eval(parse(text=afun))
+            } else {
+              pyActive[[o]] <- eval(parse(text=afun))
+            }
         }
     }
 
@@ -121,6 +130,7 @@ pyObject <- function(key, regFinalizer = TRUE){
     ## and initialize to py.initialize
     for (n in c("print", "initialize")){
         names(pyMethods)[names(pyMethods) == n] <- sprintf("py.%s", n)
+        names(pyPrivate)[names(pyPrivate) == n] <- sprintf("py.%s", n)
         names(pyActive)[names(pyActive) == n] <- sprintf("py.%s", n)
     }
 
@@ -139,12 +149,14 @@ pyObject <- function(key, regFinalizer = TRUE){
                     portable = TRUE,
                     inherit = PythonInR_Object,
                     public = pyMethods,
+                    private = pyPrivate,
                     active = pyActive)
     }else{
         pyobject <- R6Class(className,
                     portable = TRUE,
                     inherit = PythonInR_ObjectNoFinalizer,
                     public = pyMethods,
+                    private = pyPrivate,
                     active = pyActive)
         class(pyobject) <- class(pyobject)[-2]
     }
