@@ -25,6 +25,8 @@ a = MyClass()')
   r_object$increment()
   expect_true(exists("x", r_object))
   expect_equal(1, r_object$x)
+  expect_true(exists("py.variableName", r_class))
+  expect_equal("a", r_object$`py.variableName`)
 
   # test private methods
   expect_false(exists("__init__", r_class))
@@ -47,7 +49,5 @@ a = MyClass()')
   expect_null(r_object$`py.objectName`)
   expect_false(exists("py.type", r_class))
   expect_null(r_object$`py.type`)
-  expect_false(exists("py.variableName", r_class))
-  expect_null(r_object$`py.variableName`)
 })
 

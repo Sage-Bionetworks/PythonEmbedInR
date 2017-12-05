@@ -168,21 +168,21 @@ PythonInR_Object <- R6Class(
     "PythonInR_Object",
     portable=TRUE,
     private=list(
-      py.variableName=NA,
       py.objectName="",
       py.type="",
       py.del = function(){
-        pyExec(sprintf("del(%s)", private$py.variableName))
+        pyExec(sprintf("del(%s)", self$py.variableName))
       }
     ),
     public=list(
+        py.variableName=NA,
         initialize = function(variableName, objectName, type) {
-            if (!missing(variableName)) private$py.variableName <- variableName
+            if (!missing(variableName)) self$py.variableName <- variableName
             if (!missing(objectName)) private$py.objectName <- objectName
             if (!missing(type)) private$py.type <- type
             reg.finalizer(self, pyObjectFinalize, onexit = TRUE)
         },
-        print = function() pyPrint(private$py.variableName)
+        print = function() pyPrint(self$py.variableName)
         ))
 
 PythonInR_ObjectNoFinalizer <-
@@ -191,7 +191,7 @@ PythonInR_ObjectNoFinalizer <-
             inherit = PythonInR_Object,
             public = list(
                 initialize = function(variableName, objectName, type) {
-                    if (!missing(variableName)) private$py.variableName <- variableName
+                    if (!missing(variableName)) self$py.variableName <- variableName
                     if (!missing(objectName)) private$py.objectName <- objectName
                     if (!missing(type)) private$py.type <- type
                 }
