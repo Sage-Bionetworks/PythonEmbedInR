@@ -108,14 +108,14 @@ pyObject <- function(key, regFinalizer = TRUE){
         po <- paste(c(key, o), collapse=".")
         if (pyIsCallable(po)){
             cfun <- sprintf(callFun, po)
-            if (grepl("._", po)) {
+            if (grepl("^_", o)) {
               pyPrivate[[o]] <- eval(parse(text=cfun))
             } else {
               pyMethods[[o]] <- eval(parse(text=cfun))
             }
         }else{
             afun <- sprintf(activeFun, key, o, o, key)
-            if (grepl("._", po)) {
+            if (grepl("^_", o)) {
               pyPrivate[[o]] <- eval(parse(text=afun))
             } else {
               pyActive[[o]] <- eval(parse(text=afun))

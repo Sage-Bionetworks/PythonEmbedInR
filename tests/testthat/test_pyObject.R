@@ -37,12 +37,12 @@ a = MyClass()')
 
   # test private non-methods
   expect_false(exists("__dict__", r_class))
-  expect_error(r_object$`__dict__`())
+  expect_error(r_object$`__dict__`)
   expect_false(exists("__doc__", r_class))
-  expect_error(r_object$`__doc__`())
+  expect_error(r_object$`__doc__`)
   expect_false(exists("__module__", r_class))
-  expect_error(r_object$`__module__`())
+  expect_error(r_object$`__module__`)
   expect_false(exists("__weakref__", r_class))
-  expect_error(r_object$`__weakref__`())
+  expect_error(r_object$`__weakref__`)
 })
 
