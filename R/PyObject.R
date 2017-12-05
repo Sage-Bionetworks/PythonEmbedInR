@@ -166,23 +166,23 @@ pyObject <- function(key, regFinalizer = TRUE){
 
 PythonInR_Object <- R6Class(
     "PythonInR_Object",
+    portable=TRUE,
+    private=list(
+      py.variableName=NA,
+      py.objectName="",
+      py.type="",
+      py.del = function(){
+        pyExec(sprintf("del(%s)", private$py.variableName))
+      }
+    ),
     public=list(
-        portable=TRUE,
-        py.variableName=NA,
-        py.objectName="",
-        py.type="",
-        py.del = function(){
-            pyExec(sprintf("del(%s)", self$py.variableName))
-        },
         initialize = function(variableName, objectName, type) {
-            if (!missing(variableName)) self$py.variableName <- variableName
-            if (!missing(objectName)) self$py.objectName <- objectName
-            if (!missing(type)) self$py.type <- type
+            if (!missing(variableName)) private$py.variableName <- variableName
+            if (!missing(objectName)) private$py.objectName <- objectName
+            if (!missing(type)) private$py.type <- type
             reg.finalizer(self, pyObjectFinalize, onexit = TRUE)
         },
-        # #print = function(){pyExecp(self$py.variableName)}
-        ## This should better handle unicode.
-        print = function() pyPrint(self$py.variableName)
+        print = function() pyPrint(private$py.variableName)
         ))
 
 PythonInR_ObjectNoFinalizer <-
@@ -191,9 +191,9 @@ PythonInR_ObjectNoFinalizer <-
             inherit = PythonInR_Object,
             public = list(
                 initialize = function(variableName, objectName, type) {
-                    if (!missing(variableName)) self$py.variableName <- variableName
-                    if (!missing(objectName)) self$py.objectName <- objectName
-                    if (!missing(type)) self$py.type <- type
+                    if (!missing(variableName)) private$py.variableName <- variableName
+                    if (!missing(objectName)) private$py.objectName <- objectName
+                    if (!missing(type)) private$py.type <- type
                 }
             ))
 

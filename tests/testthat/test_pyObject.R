@@ -15,9 +15,6 @@ class MyClass:
 a = MyClass()')
   r_class <- pyObject("MyClass")
 
-  # test r_class name
-  expect_equal("MyClass", r_class$py.objectName)
-
   # test that r_class is an environment
   expect_true(is.environment(r_class))
   expect_true(environmentIsLocked(r_class))
@@ -34,15 +31,23 @@ a = MyClass()')
   expect_error(r_object$`__init__`())
   expect_false(exists("_do_increment", r_class))
   expect_error(r_object$`_do_increment`())
+  expect_false(exists("py.del", r_class))
+  expect_error(r_object$`py.del`())
 
   # test private non-methods
   expect_false(exists("__dict__", r_class))
-  expect_error(r_object$`__dict__`)
+  expect_null(r_object$`__dict__`)
   expect_false(exists("__doc__", r_class))
-  expect_error(r_object$`__doc__`)
+  expect_null(r_object$`__doc__`)
   expect_false(exists("__module__", r_class))
-  expect_error(r_object$`__module__`)
+  expect_null(r_object$`__module__`)
   expect_false(exists("__weakref__", r_class))
-  expect_error(r_object$`__weakref__`)
+  expect_null(r_object$`__weakref__`)
+  expect_false(exists("py.objectName", r_class))
+  expect_null(r_object$`py.objectName`)
+  expect_false(exists("py.type", r_class))
+  expect_null(r_object$`py.type`)
+  expect_false(exists("py.variableName", r_class))
+  expect_null(r_object$`py.variableName`)
 })
 
