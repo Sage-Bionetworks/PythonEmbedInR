@@ -93,7 +93,6 @@ test_that("list of int values can be converted to r", {
 })
 
 test_that("list of int values with None can be converted to r", {
-  skip("None is currently converted to -1 in list of int")
   pyExec("py_value = [1507236276000, 1507236276001, None]")
   expect_output(pyExecp("type(py_value)"), "list")
   r_value <- pyGet("py_value")
@@ -110,7 +109,6 @@ test_that("list of float values can be converted to r", {
 })
 
 test_that("list of float values with None can be converted to r", {
-  skip("None is currently converted to -1.0 in list of float")
   pyExec("py_value = [3.4, float('Inf'), float('NaN'), None]")
   expect_output(pyExecp("type(py_value)"), "list")
   r_value <- pyGet("py_value")
@@ -127,7 +125,6 @@ test_that("list of str values can be converted to R", {
 })
 
 test_that("list of str values with None can be converted to R", {
-  skip("error thrown for None in list of string")
   pyExec("pylist = ['a', 'b', 'c', None]")
   expect_output(pyExecp("type(py_value)"), "list")
   r_value <- pyGet("pylist")
@@ -178,7 +175,6 @@ test_that("tuple of int values can be converted to r", {
 })
 
 test_that("tuple of int values with None can be converted to r", {
-  skip("None is currently converted to -1 in tuple of int")
   pyExec("py_value = (1507236276000, 1507236276001, None)")
   expect_output(pyExecp("type(py_value)"), "tuple")
   r_value <- pyGet("py_value")
@@ -195,7 +191,6 @@ test_that("tuple of float values can be converted to r", {
 })
 
 test_that("tuple of float values with None can be converted to r", {
-  skip("None is currently converted to -1.0 in tuple of float")
   pyExec("py_value = (3.4, float('Inf'), float('NaN'), None)")
   expect_output(pyExecp("type(py_value)"), "tuple")
   r_value <- pyGet("py_value")
@@ -212,7 +207,6 @@ test_that("tuple of str values can be converted to R", {
 })
 
 test_that("tuple of str values with None can be converted to R", {
-  skip("error thrown for None in tuple of string")
   pyExec("pylist = ('a', 'b', 'c', None)")
   expect_output(pyExecp("type(py_value)"), "tuple")
   r_value <- pyGet("pylist")
@@ -254,8 +248,8 @@ test_that("dict of bool values with None can be converted to r", {
   pyExec("py_value = {'a': True, 'b':False, 'c':None}")
   expect_output(pyExecp("type(py_value)"), "dict")
   r_value <- pyGet("py_value")
-  expect_equal("list", class(r_value))
-  expected <- list(TRUE, FALSE, NULL)
+  expect_equal("logical", class(r_value))
+  expected <- c(TRUE, FALSE, NA)
   names(expected) <- c('a', 'b', 'c')
   expect_equal(expected['a'], r_value['a'])
   expect_equal(expected['b'], r_value['b'])
@@ -274,7 +268,6 @@ test_that("dict of int values can be converted to r", {
 })
 
 test_that("dict of int values with None can be converted to r", {
-  skip("None is converted to -1 in dict of int values")
   pyExec("py_value = {'now': 1507236276000, 'later':1507236276001, 'whenever':None}")
   expect_output(pyExecp("type(py_value)"), "dict")
   r_value <- pyGet("py_value")
@@ -299,7 +292,6 @@ test_that("dict of float values can be converted to r", {
 })
 
 test_that("dict of float values with None can be converted to r", {
-  skip("None is converted to -1.0 in dict of float values")
   pyExec("py_value = {'a': 3.4, 'b':float('Inf'), 'c':float('NaN'), 'd':None}")
   expect_output(pyExecp("type(py_value)"), "dict")
   r_value <- pyGet("py_value")
@@ -327,8 +319,8 @@ test_that("dict of string values with None can be converted to r", {
   pyExec("py_value = {'a': 'apple', 'b':'bee', 'c':None}")
   expect_output(pyExecp("type(py_value)"), "dict")
   r_value <- pyGet("py_value")
-  expect_equal("list", class(r_value))
-  expected <- list("apple", "bee", NULL)
+  expect_equal("character", class(r_value))
+  expected <- c("apple", "bee", NA)
   names(expected) <- c('a', 'b', 'c')
   expect_equal(expected['a'], r_value['a'])
   expect_equal(expected['b'], r_value['b'])
@@ -348,6 +340,7 @@ test_that("dict with None key can be converted to r", {
 ## OrderedDict
 
 test_that("OrderedDict convert to named list", {
+  skip("skipping OrderedDict")
   pyImport("OrderedDict", from="collections")
   pyExec("od = OrderedDict([('pear', 1), ('apple', 4), ('orange', 2), ('banana', 3)])")
   r_value <- pyGet("od")
@@ -358,7 +351,7 @@ test_that("OrderedDict convert to named list", {
 })
 
 test_that("OrderedDict with None value convert to named list", {
-  skip("same error with list of int with None")
+  skip("skipping OrderedDict")
   pyImport("OrderedDict", from="collections")
   pyExec("od = OrderedDict([('pear', 1), ('apple', 4), ('orange', 2), ('banana', None)])")
   r_value <- pyGet("od")
@@ -369,7 +362,7 @@ test_that("OrderedDict with None value convert to named list", {
 })
 
 test_that("OrderedDict with None key convert to named list", {
-  skip("same error with list of string with None")
+  skip("skipping OrderedDict")
   pyImport("OrderedDict", from="collections")
   pyExec("od = OrderedDict([('pear', 1), ('apple', 4), (None, 2), ('banana', 3)])")
   r_value <- pyGet("od")
