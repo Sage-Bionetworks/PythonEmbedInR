@@ -134,7 +134,9 @@ int PyList_AllSameType(PyObject *py_object){
     Py_XDECREF(py_len);
 
     // empty list will be converted to NULL
-    if (list_len == 0) return 0;
+    if (list_len == 0) {
+      return 0;
+    }
 
     int r_type = 0;
     long i = 0;
@@ -144,6 +146,9 @@ int PyList_AllSameType(PyObject *py_object){
       Py_XINCREF(item);
       Py_XDECREF(py_i);
       int item_type = Py_GetR_Type(item);
+      if (item_type == -1) {
+        return -1;
+      }
       if ((r_type > 0) && (item_type > 0) && (item_type != r_type)) {
         return -1;
       }
@@ -165,6 +170,8 @@ int PyList_AllSameType(PyObject *py_object){
 
 /*  ----------------------------------------------------------------------------
     PyTuple_AllSameType
+      returns the integer that Py_GetR_Type() returns for all items in the tuple (except None),
+        or -1 if items in the list do not have the same type.
     --------------------------------------------------------------------------*/
 int PyTuple_AllSameType(PyObject *py_object){
     PyObject *item, *py_len, *py_i;
@@ -173,9 +180,10 @@ int PyTuple_AllSameType(PyObject *py_object){
     long list_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
 
-    
     // empty list will be converted to NULL
-    if (list_len == 0) return 0;
+    if (list_len == 0) {
+      return 0;
+    }
     
     int r_type = 0;
     long i = 0;
@@ -185,6 +193,9 @@ int PyTuple_AllSameType(PyObject *py_object){
       Py_XINCREF(item);
       Py_XDECREF(py_i);
       int item_type = Py_GetR_Type(item);
+      if (item_type == -1) {
+        return -1;
+      }
       if ((r_type > 0) && (item_type > 0) && (item_type != r_type)) {
         return -1;
       }
@@ -194,7 +205,7 @@ int PyTuple_AllSameType(PyObject *py_object){
       Py_XDECREF(item);
       i++;
     }
-    
+
     if (r_type == 0) {
       // there is None item in the list
       // return a list with NA (logical)

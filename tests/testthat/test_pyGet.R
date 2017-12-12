@@ -360,6 +360,29 @@ test_that("dict with None key can be converted to r", {
   expect_equal(expected['b'], r_value['b'])
 })
 
+test_that("dict of different values can be converted to r", {
+  pyExec("py_dict = {'a': 'apple', 'b':2}")
+  expect_output(pyExecp("type(py_dict)"), "dict")
+  r_value <- pyGet("py_dict")
+  expect_equal("list", class(r_value))
+  expected <- list("apple", 2)
+  names(expected) <- c('a', 'b')
+  expect_equal(expected['a'], r_value['a'])
+  expect_equal(expected['b'], r_value['b'])
+})
+
+test_that("dict of list values can be converted to r", {
+  skip("PythonEmbedInR does not support recursive conversion")
+  pyExec("py_dict = {'a': [1, 2, 3], 'b': [True, False, True]}")
+  expect_output(pyExecp("type(py_dict)"), "dict")
+  r_value <- pyGet("py_dict")
+  expect_equal("list", class(r_value))
+  expected <- list(c(1, 2, 3), c(True, False, True))
+  names(expected) <- c('a', 'b')
+  expect_equal(expected['a'], r_value['a'])
+  expect_equal(expected['b'], r_value['b'])
+})
+
 # set
 
 test_that("set of Logical values can be converted to r", {
