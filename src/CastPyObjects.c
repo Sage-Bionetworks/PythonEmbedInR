@@ -123,40 +123,44 @@ int Py_GetR_Type(PyObject *py_object){
 
 /*  ----------------------------------------------------------------------------
     PyList_AllSameType
+      returns the integer that Py_GetR_Type() returns for all items in the list (except None),
+        or -1 if items in the list do not have the same type.
     --------------------------------------------------------------------------*/
 int PyList_AllSameType(PyObject *py_object){
     PyObject *item, *py_len, *py_i;
-    long list_len, count;
-    int r_type = -1, item_type;
 
     py_len = PyLong_FromSsize_t(PyList_GET_SIZE(py_object));
-    list_len = PY_TO_C_LONG(py_len);
+    long list_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
-    
-    py_i = PyLong_FromLong(0);
-    item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
-    Py_XINCREF(item); // If item is NULL Py_XINCREF has no effect.
-    Py_XDECREF(py_i);
-    if ( item == NULL ) return 0;
-    r_type = Py_GetR_Type(item); // just makes sence for the types which exists in R
-    Py_XDECREF(item);
-    if ( r_type == -1 ) return r_type; // -1 is returned if it is not (None, boolean, int, long, float, string or unicode)
 
-    count = 0;
-    for (long i=1; i < list_len; i++){
-        py_i = PyLong_FromLong(i);
-        item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
-        Py_XINCREF(item);
-        Py_XDECREF(py_i);
-        item_type = Py_GetR_Type(item);
-        count += ( (r_type != item_type) && (0 != item_type) );
-        Py_XDECREF(item);
-        if (count > 0) break;
+    // empty list will be converted to NULL
+    if (list_len == 0) return 0;
+
+    int r_type = 0;
+    long i = 0;
+    while (i < list_len) {
+      py_i = PyLong_FromLong(i);
+      item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
+      Py_XINCREF(item);
+      Py_XDECREF(py_i);
+      int item_type = Py_GetR_Type(item);
+      if ((r_type > 0) && (item_type > 0) && (item_type != r_type)) {
+        return -1;
+      }
+      if ((r_type == 0) && (item_type > 0)) {
+        r_type = item_type;
+      }
+      Py_XDECREF(item);
+      i++;
     }
 
-    r_type = (count == 0) ? r_type : -1;
-
-    return r_type;
+    if (r_type == 0) {
+      // there is None item in the list
+      // return a list with NA (logical)
+      return 10;
+    } else {
+      return r_type;
+    }
 }
 
 /*  ----------------------------------------------------------------------------
@@ -164,37 +168,40 @@ int PyList_AllSameType(PyObject *py_object){
     --------------------------------------------------------------------------*/
 int PyTuple_AllSameType(PyObject *py_object){
     PyObject *item, *py_len, *py_i;
-    long list_len, count;
-    int r_type = -1, item_type;
 
     py_len = PyLong_FromSsize_t(PyTuple_GET_SIZE(py_object));
-    list_len = PY_TO_C_LONG(py_len);
+    long list_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
 
-    py_i = PyLong_FromLong(0);
-    item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
-    Py_XINCREF(item);
-    Py_XDECREF(py_i);
-    if ( item == NULL ) return 0;
-    r_type = Py_GetR_Type(item); // just makes sence for the types which exists in R
-    Py_DECREF(item);
-    if ( r_type == -1 ) return r_type;
-
-    count = 0;
-    for (long i=1; i < list_len; i++){
-        py_i = PyLong_FromLong(i);
-        item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
-        Py_XINCREF(item);
-        Py_XDECREF(py_i);
-        item_type = Py_GetR_Type(item);
-        count += ( (r_type != item_type) && (0 != item_type) );
-        Py_XDECREF(item);
-        if (count > 0) break;
+    
+    // empty list will be converted to NULL
+    if (list_len == 0) return 0;
+    
+    int r_type = 0;
+    long i = 0;
+    while (i < list_len) {
+      py_i = PyLong_FromLong(i);
+      item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
+      Py_XINCREF(item);
+      Py_XDECREF(py_i);
+      int item_type = Py_GetR_Type(item);
+      if ((r_type > 0) && (item_type > 0) && (item_type != r_type)) {
+        return -1;
+      }
+      if ((r_type == 0) && (item_type > 0)) {
+        r_type = item_type;
+      }
+      Py_XDECREF(item);
+      i++;
     }
-
-    r_type = (count == 0) ? r_type : -1;
-
-    return r_type;
+    
+    if (r_type == 0) {
+      // there is None item in the list
+      // return a list with NA (logical)
+      return 10;
+    } else {
+      return r_type;
+    }
 }
 
 /*  ----------------------------------------------------------------------------

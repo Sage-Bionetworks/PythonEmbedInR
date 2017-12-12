@@ -78,73 +78,81 @@ test_that("list of bool values can be converted to r", {
 })
 
 test_that("list of bool values with None can be converted to R", {
-  pyExec("pylist = [True, False, None]")
+  pyExec("pylist = [None, True, False]")
   r_value <- pyGet("pylist")
   expect_equal("logical", class(r_value))
-  expect_equal(c(TRUE, FALSE, NA), r_value)
+  expect_equal(c(NA, TRUE, FALSE), r_value)
 })
 
 test_that("list of int values can be converted to r", {
-  pyExec("py_value = [1507236276000, 1507236276001]")
-  expect_output(pyExecp("type(py_value)"), "list")
-  r_value <- pyGet("py_value")
+  pyExec("pylist = [1507236276000, 1507236276001]")
+  expect_output(pyExecp("type(pylist)"), "list")
+  r_value <- pyGet("pylist")
   expect_equal("numeric", class(r_value))
   expect_equal(c(1507236276000, 1507236276001), r_value)
 })
 
 test_that("list of int values with None can be converted to r", {
-  pyExec("py_value = [1507236276000, 1507236276001, None]")
-  expect_output(pyExecp("type(py_value)"), "list")
-  r_value <- pyGet("py_value")
+  pyExec("pylist = [None, 1507236276000, 1507236276001]")
+  expect_output(pyExecp("type(pylist)"), "list")
+  r_value <- pyGet("pylist")
   expect_equal("numeric", class(r_value))
-  expect_equal(c(1507236276000, 1507236276001, NA), r_value)
+  expect_equal(c(NA, 1507236276000, 1507236276001), r_value)
 })
 
 test_that("list of float values can be converted to r", {
-  pyExec("py_value = [3.4, float('Inf'), float('NaN')]")
-  expect_output(pyExecp("type(py_value)"), "list")
-  r_value <- pyGet("py_value")
+  pyExec("pylist = [3.4, float('Inf'), float('NaN')]")
+  expect_output(pyExecp("type(pylist)"), "list")
+  r_value <- pyGet("pylist")
   expect_equal("numeric", class(r_value))
   expect_equal(c(3.4, Inf, NaN), r_value)
 })
 
 test_that("list of float values with None can be converted to r", {
-  pyExec("py_value = [3.4, float('Inf'), float('NaN'), None]")
-  expect_output(pyExecp("type(py_value)"), "list")
-  r_value <- pyGet("py_value")
+  pyExec("pylist = [3.4, float('Inf'), float('NaN'), None]")
+  expect_output(pyExecp("type(pylist)"), "list")
+  r_value <- pyGet("pylist")
   expect_equal("numeric", class(r_value))
   expect_equal(c(3.4, Inf, NaN, NA), r_value)
 })
 
 test_that("list of str values can be converted to R", {
   pyExec("pylist = ['a', 'b', 'c']")
-  expect_output(pyExecp("type(py_value)"), "list")
+  expect_output(pyExecp("type(pylist)"), "list")
   r_value <- pyGet("pylist")
   expect_equal("character", class(r_value))
   expect_equal(c('a', 'b', 'c'), r_value)
 })
 
 test_that("list of str values with None can be converted to R", {
-  pyExec("pylist = ['a', 'b', 'c', None]")
-  expect_output(pyExecp("type(py_value)"), "list")
+  pyExec("pylist = [None, 'a', 'b', 'c']")
+  expect_output(pyExecp("type(pylist)"), "list")
   r_value <- pyGet("pylist")
   expect_equal("character", class(r_value))
-  expect_equal(c('a', 'b', 'c', NA), r_value)
+  expect_equal(c(NA, 'a', 'b', 'c'), r_value)
+})
+
+test_that("list of None values can be converted to R", {
+  pyExec("pylist = [None]")
+  expect_output(pyExecp("type(pylist)"), "list")
+  r_value <- pyGet("pylist")
+  expect_equal("logical", class(r_value))
+  expect_equal(c(NA), r_value)
 })
 
 ## list of different types
 
 test_that("list of different type converted to list of list", {
-  pyExec("l = [float('NaN'), 'abc']")
-  expect_output(pyExecp("type(l)"), "list")
-  list <- pyGet("l")
+  pyExec("pylist = [float('NaN'), 'abc']")
+  expect_output(pyExecp("type(pylist)"), "list")
+  list <- pyGet("pylist")
   expect_equal(list(NaN, 'abc'), list)
 })
 
 test_that("list of different type with None converted to list of list", {
-  pyExec("l = [float('NaN'), 'abc', None]")
-  expect_output(pyExecp("type(l)"), "list")
-  list <- pyGet("l")
+  pyExec("pylist = [float('NaN'), 'abc', None]")
+  expect_output(pyExecp("type(pylist)"), "list")
+  list <- pyGet("pylist")
   expect_equal(list(NaN, 'abc', NULL), list)
 })
 
@@ -207,11 +215,27 @@ test_that("tuple of str values can be converted to R", {
 })
 
 test_that("tuple of str values with None can be converted to R", {
-  pyExec("pylist = ('a', 'b', 'c', None)")
+  pyExec("pylist = (None, 'a', 'b', 'c')")
   expect_output(pyExecp("type(py_value)"), "tuple")
   r_value <- pyGet("pylist")
   expect_equal("character", class(r_value))
-  expect_equal(c('a', 'b', 'c', NA), r_value)
+  expect_equal(c(NA, 'a', 'b', 'c'), r_value)
+})
+
+test_that("tuple of None value can be converted to R", {
+  pyExec("pylist = (None)")
+  expect_output(pyExecp("type(py_value)"), "tuple")
+  r_value <- pyGet("pylist")
+  expect_equal("NULL", class(r_value))
+  expect_equal(NULL, r_value)
+})
+
+test_that("tuple of None values can be converted to R", {
+  pyExec("pylist = (None, None)")
+  expect_output(pyExecp("type(py_value)"), "tuple")
+  r_value <- pyGet("pylist")
+  expect_equal("logical", class(r_value))
+  expect_equal(c(NA, NA), r_value)
 })
 
 ## tuple of different types
@@ -230,13 +254,12 @@ test_that("tuple of different type with None converted to list of list", {
   expect_equal(list(NaN, 'abc', NULL), list)
 })
 
-
 ## dict
 
 test_that("dict of bool values can be converted to r", {
-  pyExec("py_value = {'a': True, 'b':False}")
-  expect_output(pyExecp("type(py_value)"), "dict")
-  r_value <- pyGet("py_value")
+  pyExec("py_dict = {'a': True, 'b':False}")
+  expect_output(pyExecp("type(py_dict)"), "dict")
+  r_value <- pyGet("py_dict")
   expect_equal("logical", class(r_value))
   expected <- c(TRUE, FALSE)
   names(expected) <- c('a', 'b')
@@ -245,9 +268,9 @@ test_that("dict of bool values can be converted to r", {
 })
 
 test_that("dict of bool values with None can be converted to r", {
-  pyExec("py_value = {'a': True, 'b':False, 'c':None}")
-  expect_output(pyExecp("type(py_value)"), "dict")
-  r_value <- pyGet("py_value")
+  pyExec("py_dict = {'a': True, 'b':False, 'c':None}")
+  expect_output(pyExecp("type(py_dict)"), "dict")
+  r_value <- pyGet("py_dict")
   expect_equal("logical", class(r_value))
   expected <- c(TRUE, FALSE, NA)
   names(expected) <- c('a', 'b', 'c')
@@ -257,9 +280,9 @@ test_that("dict of bool values with None can be converted to r", {
 })
 
 test_that("dict of int values can be converted to r", {
-  pyExec("py_value = {'now': 1507236276000, 'later':1507236276001}")
-  expect_output(pyExecp("type(py_value)"), "dict")
-  r_value <- pyGet("py_value")
+  pyExec("py_dict = {'now': 1507236276000, 'later':1507236276001}")
+  expect_output(pyExecp("type(py_dict)"), "dict")
+  r_value <- pyGet("py_dict")
   expect_equal("numeric", class(r_value))
   expected <- c(1507236276000, 1507236276001)
   names(expected) <- c('now', 'later')
@@ -268,11 +291,11 @@ test_that("dict of int values can be converted to r", {
 })
 
 test_that("dict of int values with None can be converted to r", {
-  pyExec("py_value = {'now': 1507236276000, 'later':1507236276001, 'whenever':None}")
-  expect_output(pyExecp("type(py_value)"), "dict")
-  r_value <- pyGet("py_value")
-  expect_equal("list", class(r_value))
-  expected <- list(1507236276000, 1507236276001, NULL)
+  pyExec("py_dict = {'now': None, 'later':1507236276001, 'whenever':1507236276000}")
+  expect_output(pyExecp("type(py_dict)"), "dict")
+  r_value <- pyGet("py_dict")
+  expect_equal("numeric", class(r_value))
+  expected <- c(NA, 1507236276000, 1507236276001)
   names(expected) <- c('now', 'later', 'whenever')
   expect_equal(expected['now'], r_value['now'])
   expect_equal(expected['later'], r_value['later'])
@@ -280,9 +303,9 @@ test_that("dict of int values with None can be converted to r", {
 })
 
 test_that("dict of float values can be converted to r", {
-  pyExec("py_value = {'a': 3.4, 'b':float('Inf'), 'c':float('NaN')}")
-  expect_output(pyExecp("type(py_value)"), "dict")
-  r_value <- pyGet("py_value")
+  pyExec("py_dict = {'a': 3.4, 'b':float('Inf'), 'c':float('NaN')}")
+  expect_output(pyExecp("type(py_dict)"), "dict")
+  r_value <- pyGet("py_dict")
   expect_equal("numeric", class(r_value))
   expected <- c(3.4, Inf, NaN)
   names(expected) <- c('a', 'b', 'c')
@@ -292,9 +315,9 @@ test_that("dict of float values can be converted to r", {
 })
 
 test_that("dict of float values with None can be converted to r", {
-  pyExec("py_value = {'a': 3.4, 'b':float('Inf'), 'c':float('NaN'), 'd':None}")
-  expect_output(pyExecp("type(py_value)"), "dict")
-  r_value <- pyGet("py_value")
+  pyExec("py_dict = {'a': 3.4, 'b':float('Inf'), 'c':float('NaN'), 'd':None}")
+  expect_output(pyExecp("type(py_dict)"), "dict")
+  r_value <- pyGet("py_dict")
   expect_equal("numeric", class(r_value))
   expected <- c(3.4, Inf, NaN, NA)
   names(expected) <- c('a', 'b', 'c', 'd')
@@ -305,9 +328,9 @@ test_that("dict of float values with None can be converted to r", {
 })
 
 test_that("dict of string values can be converted to r", {
-  pyExec("py_value = {'a': 'apple', 'b':'bee'}")
-  expect_output(pyExecp("type(py_value)"), "dict")
-  r_value <- pyGet("py_value")
+  pyExec("py_dict = {'a': 'apple', 'b':'bee'}")
+  expect_output(pyExecp("type(py_dict)"), "dict")
+  r_value <- pyGet("py_dict")
   expect_equal("character", class(r_value))
   expected <- c("apple", "bee")
   names(expected) <- c('a', 'b')
@@ -316,9 +339,9 @@ test_that("dict of string values can be converted to r", {
 })
 
 test_that("dict of string values with None can be converted to r", {
-  pyExec("py_value = {'a': 'apple', 'b':'bee', 'c':None}")
-  expect_output(pyExecp("type(py_value)"), "dict")
-  r_value <- pyGet("py_value")
+  pyExec("py_dict = {'a': 'apple', 'b':'bee', 'c':None}")
+  expect_output(pyExecp("type(py_dict)"), "dict")
+  r_value <- pyGet("py_dict")
   expect_equal("character", class(r_value))
   expected <- c("apple", "bee", NA)
   names(expected) <- c('a', 'b', 'c')
@@ -328,13 +351,24 @@ test_that("dict of string values with None can be converted to r", {
 })
 
 test_that("dict with None key can be converted to r", {
-  pyExec("py_value = {None: True, 'b':False}")
-  expect_output(pyExecp("type(py_value)"), "dict")
-  r_value <- pyGet("py_value")
+  pyExec("py_dict = {None: True, 'b':False}")
+  expect_output(pyExecp("type(py_dict)"), "dict")
+  r_value <- pyGet("py_dict")
   expect_equal("logical", class(r_value))
   expected <- c(TRUE, FALSE)
   names(expected) <- c(NA, 'b')
   expect_equal(expected['b'], r_value['b'])
+})
+
+# set
+
+test_that("set of Logical values can be converted to r", {
+  skip("PythonEmbedInR does not support python set")
+  pyExec("py_set = {True}")
+  expect_output(pyExecp("type(py_set)"), "set")
+  r_value <- pyGet("py_set")
+  expect_equal("logical", class(r_value))
+  expect_equal(c(TRUE), r_value)
 })
 
 ## OrderedDict
