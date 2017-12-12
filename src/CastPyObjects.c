@@ -129,13 +129,15 @@ int Py_GetR_Type(PyObject *py_object){
 int PyList_AllSameType(PyObject *py_object){
     PyObject *item, *py_len, *py_i;
 
+    if (Py_GetR_Type(py_object) == 0) return 0;
+
     py_len = PyLong_FromSsize_t(PyList_GET_SIZE(py_object));
     long list_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
 
-    // empty list will be converted to NULL
+    // empty list will be converted to empty logical vector
     if (list_len == 0) {
-      return 0;
+      return 10;
     }
 
     int r_type = 0;
@@ -176,13 +178,15 @@ int PyList_AllSameType(PyObject *py_object){
 int PyTuple_AllSameType(PyObject *py_object){
     PyObject *item, *py_len, *py_i;
 
+    if (Py_GetR_Type(py_object) == 0) return 0;
+
     py_len = PyLong_FromSsize_t(PyTuple_GET_SIZE(py_object));
     long list_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
 
-    // empty list will be converted to NULL
+    // empty list will be converted to empty logical vector in r
     if (list_len == 0) {
-      return 0;
+      return 10;
     }
     
     int r_type = 0;
