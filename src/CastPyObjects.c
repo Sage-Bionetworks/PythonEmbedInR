@@ -237,7 +237,8 @@ int Py_GetR_Type(PyObject *py_object){
           use LIST_COLLECTION_TYPE or TUPLE_COLLECTION_TYPE
       returns
         the integer that Py_GetR_Type() returns for all items in the list (except None),
-        or -1 if items in the list do not have the same type.
+        or R_UNCATEGORIZED_TYPE if the type can't be determined because either items in 
+        the list do not have the same type or if the list is empty.
     --------------------------------------------------------------------------*/
 int PyCollection_AllSameType(PyObject *py_object, int collection_type){
     PyObject *item, *py_len, *py_i;
