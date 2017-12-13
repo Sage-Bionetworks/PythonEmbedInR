@@ -27,7 +27,7 @@ const int R_UNCATEGORIZED_TYPE = -1;
 /*  ----------------------------------------------------------------------------
 
   * convert
- *   converts one item in a python list to an item in an r vector
+ *   converts one item in a python collection to an item in an r vector
  *
  *  params
  *    r_vector_type 
@@ -67,7 +67,7 @@ void convert(int r_vector_type, SEXP r_vec, long pos, PyObject *item) {
 /*  ----------------------------------------------------------------------------
  
  * convert_vector
- *   converts a list in python to an r vector
+ *   converts a python collection to an r vector
  *
  *   params
  *    vec_len
