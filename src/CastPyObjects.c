@@ -29,16 +29,17 @@ const int R_UNCATEGORIZED_TYPE = -1;
  *   converts one item in a python list to an item in an r vector
  */
 void convert(int r_vector_type, SEXP r_vec, long pos, PyObject *item) {
-  if ( Py_GetR_Type(item) == 0 ){
-    if (r_vector_type == R_INTEGER_TYPE) {
+  if ( Py_GetR_Type(item) == R_NA_TYPE ){
+    if (r_vector_type == R_LOGICAL_TYPE) {
+      LOGICAL(r_vec)[pos] = NA_LOGICAL;
+    } else if (r_vector_type == R_INTEGER_TYPE) {
       INTEGER(r_vec)[pos] = NA_INTEGER;
     } else if (r_vector_type == R_NUMERIC_TYPE) {
       REAL(r_vec)[pos] = NA_REAL;
     } else if (r_vector_type == R_CHARACTER_TYPE) {
       SET_STRING_ELT(r_vec, pos, NA_STRING);
     } else {
-      // default to NA_LOGICAL
-      LOGICAL(r_vec)[pos] = NA_LOGICAL;
+      error("do not support r vector type ", r_vector_type);
     }
   } else if (r_vector_type == R_LOGICAL_TYPE) {
     LOGICAL(r_vec)[pos] = PY_TO_C_BOOLEAN(item);
@@ -72,6 +73,8 @@ void convert_vector(long vec_len, PyObject *py_keys, PyObject *py_values,
       value_item = PyList_GetItem(py_values, PyLong_AsSsize_t(py_i));
     } else if (collection_type == TUPLE_COLLECTION_TYPE) {
       value_item = PyTuple_GetItem(py_values, PyLong_AsSsize_t(py_i));
+    } else {
+      error("do not support collection type ", collection_type);
     }
     Py_XINCREF(value_item);
     convert(r_type, r_vec, i, value_item);
@@ -203,14 +206,15 @@ int Py_GetR_Type(PyObject *py_object){
 int PyCollection_AllSameType(PyObject *py_object, int collection_type){
     PyObject *item, *py_len, *py_i;
 
-    if (Py_GetR_Type(py_object) == 0) return 0;
+    if (Py_GetR_Type(py_object) == R_NA_TYPE) return R_NA_TYPE;
 
     if (collection_type == LIST_COLLECTION_TYPE) {
       py_len = PyLong_FromSsize_t(PyList_GET_SIZE(py_object));
     } else if (collection_type == TUPLE_COLLECTION_TYPE) {
       py_len = PyLong_FromSsize_t(PyTuple_GET_SIZE(py_object));
     } else {
-      return 0;
+      // should throw an error here
+      return R_UNCATEGORIZED_TYPE;
     }
 
     long list_len = PY_TO_C_LONG(py_len);
@@ -218,10 +222,10 @@ int PyCollection_AllSameType(PyObject *py_object, int collection_type){
 
     // empty list will be converted to empty logical vector
     if (list_len == 0) {
-      return 10;
+      return R_LOGICAL_TYPE;
     }
 
-    int r_type = 0;
+    int r_type = R_NA_TYPE;
     long i = 0;
     while (i < list_len) {
       py_i = PyLong_FromLong(i);
@@ -230,29 +234,28 @@ int PyCollection_AllSameType(PyObject *py_object, int collection_type){
       } else if (collection_type == TUPLE_COLLECTION_TYPE) {
         item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
       } else {
-        // should never get to this else 
-        return -1;
+        error("do not support collection type ", collection_type);
       }
       Py_XINCREF(item);
       Py_XDECREF(py_i);
       int item_type = Py_GetR_Type(item);
-      if (item_type == -1) {
-        return -1;
+      if (item_type == R_UNCATEGORIZED_TYPE) {
+        return R_UNCATEGORIZED_TYPE;
       }
-      if ((r_type > 0) && (item_type > 0) && (item_type != r_type)) {
-        return -1;
+      if ((r_type > R_NA_TYPE) && (item_type > R_NA_TYPE) && (item_type != r_type)) {
+        return R_UNCATEGORIZED_TYPE;
       }
-      if ((r_type == 0) && (item_type > 0)) {
+      if ((r_type == R_NA_TYPE) && (item_type > R_NA_TYPE)) {
         r_type = item_type;
       }
       Py_XDECREF(item);
       i++;
     }
 
-    if (r_type == 0) {
+    if (r_type == R_NA_TYPE) {
       // there is None item in the list
       // return a list with NA (logical)
-      return 10;
+      return R_LOGICAL_TYPE;
     } else {
       return r_type;
     }
@@ -281,7 +284,7 @@ SEXP py_dict_to_r_vec(PyObject *py_object, int r_vector_type){
     SEXP r_vec, r_vec_names;
     long vec_len;
 
-    if (r_vector_type == 0) return R_NilValue;
+    if (r_vector_type == R_NA_TYPE) return R_NilValue;
 
     py_len = PyLong_FromSsize_t(PyDict_Size(py_object));
     vec_len = PY_TO_C_LONG(py_len);
@@ -291,20 +294,10 @@ SEXP py_dict_to_r_vec(PyObject *py_object, int r_vector_type){
 
     PROTECT(r_vec = allocVector(r_vector_type, vec_len));
     PROTECT(r_vec_names = allocVector(VECSXP, vec_len)); // allocate it as list since in Python it just has to be an unmuateable
-    
-    // TODO: check vec_len = 0
 
-	// TODO: I return now NULL instead of list(NULL) which should also
-        //       be possible I would some how set a NULL with class list
-    if (r_vector_type == 10){                                           // boolean
-        convert_vector(vec_len, py_keys, py_values, r_vec, r_vec_names, R_LOGICAL_TYPE, LIST_COLLECTION_TYPE);
-    }else if (r_vector_type == 13){                                   // integer
-        convert_vector(vec_len, py_keys, py_values, r_vec, r_vec_names, R_INTEGER_TYPE, LIST_COLLECTION_TYPE);
-    }else if (r_vector_type == 14){                                   // numeric
-        convert_vector(vec_len, py_keys, py_values, r_vec, r_vec_names, R_NUMERIC_TYPE, LIST_COLLECTION_TYPE);
-    }else if (r_vector_type == 16){                                 // character
-        convert_vector(vec_len, py_keys, py_values, r_vec, r_vec_names, R_CHARACTER_TYPE, LIST_COLLECTION_TYPE);
-    }else{
+    if (r_vector_type > R_NA_TYPE) {
+      convert_vector(vec_len, py_keys, py_values, r_vec, r_vec_names, r_vector_type, LIST_COLLECTION_TYPE);
+    } else{
         UNPROTECT(2);
         error("in py_dict_to_r_vec (ERROR CODE 0001)!\n");          // shouldn't happen!!
     }
@@ -375,7 +368,7 @@ SEXP py_list_to_r_vec(PyObject *py_object, int r_vector_type){
     SEXP r_vec;
     long vec_len;
     
-    if (r_vector_type == 0) return R_NilValue; // since you also can't create NULL vectors in R
+    if (r_vector_type == R_NA_TYPE) return R_NilValue; // since you also can't create NULL vectors in R
     
     py_len = PyLong_FromSsize_t(PyList_GET_SIZE(py_object));
     vec_len = PY_TO_C_LONG(py_len);
@@ -384,15 +377,9 @@ SEXP py_list_to_r_vec(PyObject *py_object, int r_vector_type){
 
     PROTECT(r_vec = allocVector(r_vector_type, vec_len));
 
-    if (r_vector_type == 10){                                           // boolean
-      convert_vector(vec_len, NULL, py_object, r_vec, NULL, R_LOGICAL_TYPE, LIST_COLLECTION_TYPE);
-    }else if (r_vector_type == 13){                                   // integer
-      convert_vector(vec_len, NULL, py_object, r_vec, NULL, R_INTEGER_TYPE, LIST_COLLECTION_TYPE);
-    }else if (r_vector_type == 14){                                   // numeric
-      convert_vector(vec_len, NULL, py_object, r_vec, NULL, R_NUMERIC_TYPE, LIST_COLLECTION_TYPE);
-    }else if (r_vector_type == 16){                                 // character
-      convert_vector(vec_len, NULL, py_object, r_vec, NULL, R_CHARACTER_TYPE, LIST_COLLECTION_TYPE);
-    }else{
+    if (r_vector_type > R_NA_TYPE) {
+      convert_vector(vec_len, NULL, py_object, r_vec, NULL, r_vector_type, LIST_COLLECTION_TYPE);
+    } else{
         error("in py_list_to_r_vec\n");
     }
 
@@ -412,7 +399,7 @@ SEXP py_tuple_to_r_vec(PyObject *py_object, int r_vector_type){
     SEXP r_vec;
     long vec_len;
     
-    if (r_vector_type == 0) return R_NilValue; // since you also can't create NULL vectors in R
+    if (r_vector_type == R_NA_TYPE) return R_NilValue; // since you also can't create NULL vectors in R
     
     py_len = PyLong_FromSsize_t(PyTuple_GET_SIZE(py_object));
     vec_len = PY_TO_C_LONG(py_len);
@@ -421,14 +408,8 @@ SEXP py_tuple_to_r_vec(PyObject *py_object, int r_vector_type){
 
     PROTECT(r_vec = allocVector(r_vector_type, vec_len));
 
-    if (r_vector_type == 10){                                           // boolean
-      convert_vector(vec_len, NULL, py_object, r_vec, NULL, R_LOGICAL_TYPE, TUPLE_COLLECTION_TYPE);
-    }else if (r_vector_type == 13){                                   // integer
-      convert_vector(vec_len, NULL, py_object, r_vec, NULL, R_INTEGER_TYPE, TUPLE_COLLECTION_TYPE);
-    }else if (r_vector_type == 14){                                   // numeric
-      convert_vector(vec_len, NULL, py_object, r_vec, NULL, R_NUMERIC_TYPE, TUPLE_COLLECTION_TYPE);
-    }else if (r_vector_type == 16){                                 // character
-      convert_vector(vec_len, NULL, py_object, r_vec, NULL, R_CHARACTER_TYPE, TUPLE_COLLECTION_TYPE);
+    if (r_vector_type > R_NA_TYPE) {
+      convert_vector(vec_len, NULL, py_object, r_vec, NULL, r_vector_type, TUPLE_COLLECTION_TYPE);
     }else{
         error("in py_list_to_r_vec\n");
     }
