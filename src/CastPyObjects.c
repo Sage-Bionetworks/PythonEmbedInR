@@ -256,9 +256,9 @@ int PyCollection_AllSameType(PyObject *py_object, int collection_type){
     long list_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
 
-    // empty list will be converted to empty logical vector
+    // empty list will be converted to empty list in r
     if (list_len == 0) {
-      return R_LOGICAL_TYPE;
+      return R_UNCATEGORIZED_TYPE;
     }
 
     int r_type = R_NA_TYPE;

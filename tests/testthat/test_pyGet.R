@@ -66,8 +66,8 @@ test_that("empty list converts to vector in r", {
   pyExec("py_list = []")
   expect_output(pyExecp("type(py_list)"), "list")
   r_value <- pyGet("py_list")
-  expect_equal("logical", class(r_value))
-  expect_equal(logical(0), r_value)
+  expect_equal("list", class(r_value))
+  expect_equal(list(), r_value)
 })
 
 test_that("list of None values converts to logical vector in R", {
@@ -79,6 +79,14 @@ test_that("list of None values converts to logical vector in R", {
 })
 
 ## list of the same type
+
+test_that("list of bool values converts to logical vector in r", {
+  pyExec("py_list = [True]")
+  expect_output(pyExecp("type(py_list)"), "list")
+  r_value <- pyGet("py_list")
+  expect_equal("logical", class(r_value))
+  expect_equal(c(TRUE), r_value)
+})
 
 test_that("list of bool values converts to logical vector in r", {
   pyExec("py_list = [True, False]")
@@ -166,8 +174,8 @@ test_that("empty tuple converts to a logical vector in r", {
   pyExec("py_value = ()")
   expect_output(pyExecp("type(py_value)"), "tuple")
   r_value <- pyGet("py_value")
-  expect_equal("logical", class(r_value))
-  expect_equal(logical(0), r_value)
+  expect_equal("list", class(r_value))
+  expect_equal(list(), r_value)
 })
 
 test_that("tuple of None value converts to NULL in r", {
@@ -274,9 +282,9 @@ test_that("empty dict converts to logical vector in r", {
   pyExec("py_dict = {}")
   expect_output(pyExecp("type(py_dict)"), "dict")
   r_value <- pyGet("py_dict")
-  expect_equal("logical", class(r_value))
-  expected <- logical(0)
-  names(expected) <- logical(0)
+  expect_equal("list", class(r_value))
+  expected <- list()
+  names(expected) <- list()
   expect_equal(expected, r_value)
 })
 
