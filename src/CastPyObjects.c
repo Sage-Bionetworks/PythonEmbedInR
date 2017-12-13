@@ -10,6 +10,9 @@
 #include "PythonInR.h"
 #include "CToR.h"
 
+const int LIST_COLLECTION_TYPE = 0;
+const int TUPLE_COLLECTION_TYPE = 1;
+
 //#define     NILSXP       0 /* nil = NULL */
 //#define     SYMSXP       1 /* symbols */
 //#define     LISTSXP      2 /* lists of dotted pairs */
@@ -122,16 +125,26 @@ int Py_GetR_Type(PyObject *py_object){
 }
 
 /*  ----------------------------------------------------------------------------
-    PyList_AllSameType
-      returns the integer that Py_GetR_Type() returns for all items in the list (except None),
+    PyCollection_AllSameType
+      param
+        collection_type: use LIST_COLLECTION_TYPE, TUPLE_COLLECTION_TYPE
+      returns
+        the integer that Py_GetR_Type() returns for all items in the list (except None),
         or -1 if items in the list do not have the same type.
     --------------------------------------------------------------------------*/
-int PyList_AllSameType(PyObject *py_object){
+int PyCollection_AllSameType(PyObject *py_object, int collection_type){
     PyObject *item, *py_len, *py_i;
 
     if (Py_GetR_Type(py_object) == 0) return 0;
 
-    py_len = PyLong_FromSsize_t(PyList_GET_SIZE(py_object));
+    if (collection_type == LIST_COLLECTION_TYPE) {
+      py_len = PyLong_FromSsize_t(PyList_GET_SIZE(py_object));
+    } else if (collection_type == TUPLE_COLLECTION_TYPE) {
+      py_len = PyLong_FromSsize_t(PyTuple_GET_SIZE(py_object));
+    } else {
+      return 0;
+    }
+
     long list_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
 
@@ -144,56 +157,14 @@ int PyList_AllSameType(PyObject *py_object){
     long i = 0;
     while (i < list_len) {
       py_i = PyLong_FromLong(i);
-      item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
-      Py_XINCREF(item);
-      Py_XDECREF(py_i);
-      int item_type = Py_GetR_Type(item);
-      if (item_type == -1) {
+      if (collection_type == LIST_COLLECTION_TYPE) {
+        item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
+      } else if (collection_type == TUPLE_COLLECTION_TYPE) {
+        item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
+      } else {
+        // should never get to this else 
         return -1;
       }
-      if ((r_type > 0) && (item_type > 0) && (item_type != r_type)) {
-        return -1;
-      }
-      if ((r_type == 0) && (item_type > 0)) {
-        r_type = item_type;
-      }
-      Py_XDECREF(item);
-      i++;
-    }
-
-    if (r_type == 0) {
-      // there is None item in the list
-      // return a list with NA (logical)
-      return 10;
-    } else {
-      return r_type;
-    }
-}
-
-/*  ----------------------------------------------------------------------------
-    PyTuple_AllSameType
-      returns the integer that Py_GetR_Type() returns for all items in the tuple (except None),
-        or -1 if items in the list do not have the same type.
-    --------------------------------------------------------------------------*/
-int PyTuple_AllSameType(PyObject *py_object){
-    PyObject *item, *py_len, *py_i;
-
-    if (Py_GetR_Type(py_object) == 0) return 0;
-
-    py_len = PyLong_FromSsize_t(PyTuple_GET_SIZE(py_object));
-    long list_len = PY_TO_C_LONG(py_len);
-    Py_XDECREF(py_len);
-
-    // empty list will be converted to empty logical vector in r
-    if (list_len == 0) {
-      return 10;
-    }
-    
-    int r_type = 0;
-    long i = 0;
-    while (i < list_len) {
-      py_i = PyLong_FromLong(i);
-      item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
       Py_XINCREF(item);
       Py_XDECREF(py_i);
       int item_type = Py_GetR_Type(item);
@@ -227,7 +198,7 @@ int PyDict_AllSameType(PyObject *py_object){
     int r_type;
     // PyDict_Values -> New reference
     py_values = PyDict_Values(py_object);
-    r_type = PyList_AllSameType(py_values);
+    r_type = PyCollection_AllSameType(py_values, LIST_COLLECTION_TYPE);
     Py_XDECREF(py_values);
     return  r_type;
 }
@@ -689,7 +660,7 @@ SEXP py_to_r(PyObject *py_object, int simplify, int autotype){
 
     }else if( PyTuple_CheckExact(py_object) & autotype ){                        // Tuple
         if (simplify){
-	       r_type = PyTuple_AllSameType(py_object);
+	       r_type = PyCollection_AllSameType(py_object, TUPLE_COLLECTION_TYPE);
 	       if ( r_type > -1 ){  
 	           r_val = py_tuple_to_r_vec(py_object, r_type);
 	       }else{
@@ -700,7 +671,7 @@ SEXP py_to_r(PyObject *py_object, int simplify, int autotype){
 	    }
     }else if( PyList_CheckExact(py_object) & autotype ){                         // List
         if (simplify){
-            r_type = PyList_AllSameType(py_object);
+            r_type = PyCollection_AllSameType(py_object, LIST_COLLECTION_TYPE);
 	        if ( r_type > -1 ){
  	            r_val = py_list_to_r_vec(py_object, r_type);
 	        }else{

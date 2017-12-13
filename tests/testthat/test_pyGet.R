@@ -171,17 +171,17 @@ test_that("empty tuple converts to a logical vector in r", {
 })
 
 test_that("tuple of None value converts to NULL in r", {
-  pyExec("pylist = (None)")
-  expect_output(pyExecp("type(py_value)"), "tuple")
-  r_value <- pyGet("pylist")
+  pyExec("py_value = (None)")
+  expect_output(pyExecp("type(py_value)"), "NoneType")
+  r_value <- pyGet("py_value")
   expect_equal("NULL", class(r_value))
   expect_equal(NULL, r_value)
 })
 
 test_that("tuple of None values converts to logical vector in r", {
-  pyExec("pylist = (None, None)")
+  pyExec("py_value = (None, None)")
   expect_output(pyExecp("type(py_value)"), "tuple")
-  r_value <- pyGet("pylist")
+  r_value <- pyGet("py_value")
   expect_equal("logical", class(r_value))
   expect_equal(c(NA, NA), r_value)
 })
