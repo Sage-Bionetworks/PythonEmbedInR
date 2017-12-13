@@ -24,10 +24,22 @@ const int R_UNCATEGORIZED_TYPE = -1;
  * Helper Functions
  */
 
-/*
- * convert
+/*  ----------------------------------------------------------------------------
+
+  * convert
  *   converts one item in a python list to an item in an r vector
- */
+ *
+ *  params
+ *    r_vector_type 
+ *      the type of the result r vector
+ *    r_vec 
+ *      the result r vector
+ *    pos
+ *      the position of the item to convert into r_vec
+ *    item
+ *      the item in to convert
+ 
+ ----------------------------------------------------------------------------*/
 void convert(int r_vector_type, SEXP r_vec, long pos, PyObject *item) {
   if ( Py_GetR_Type(item) == R_NA_TYPE ){
     if (r_vector_type == R_LOGICAL_TYPE) {
@@ -52,10 +64,30 @@ void convert(int r_vector_type, SEXP r_vec, long pos, PyObject *item) {
   }
 }
 
-/*
+/*  ----------------------------------------------------------------------------
+ 
  * convert_vector
  *   converts a list in python to an r vector
- */
+ *
+ *   params
+ *    vec_len
+ *      the length of the vector
+ *    py_keys
+ *      the python collection that will be converted into a name vector,
+ *      could be NULL
+ *    py_values
+ *      the python collection that will be converted into an r vector
+ *    r_vec
+ *      the returning r vector
+ *    r_vec_names
+ *      the returning name vector,
+ *      could be NULL
+ *    r_type
+ *      the type of r_vec
+ *    collection_type
+ *      the type of the python collection that we are converting
+
+ ----------------------------------------------------------------------------*/
 void convert_vector(long vec_len, PyObject *py_keys, PyObject *py_values,
                             SEXP r_vec, SEXP r_vec_names, int r_type, int collection_type) {
   PyObject *key_item, *value_item, *py_i;
@@ -197,8 +229,12 @@ int Py_GetR_Type(PyObject *py_object){
 
 /*  ----------------------------------------------------------------------------
     PyCollection_AllSameType
-      param
-        collection_type: use LIST_COLLECTION_TYPE, TUPLE_COLLECTION_TYPE
+      params
+        py_object
+          the python collection to check
+        collection_type
+          the type of py_object,
+          use LIST_COLLECTION_TYPE or TUPLE_COLLECTION_TYPE
       returns
         the integer that Py_GetR_Type() returns for all items in the list (except None),
         or -1 if items in the list do not have the same type.
