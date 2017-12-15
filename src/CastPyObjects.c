@@ -10,6 +10,112 @@
 #include "PythonInR.h"
 #include "CToR.h"
 
+const int LIST_COLLECTION_TYPE = 0;
+const int TUPLE_COLLECTION_TYPE = 1;
+const int R_NA_TYPE = 0;
+const int R_LOGICAL_TYPE = 10;
+const int R_INTEGER_TYPE = 13;
+const int R_NUMERIC_TYPE = 14;
+const int R_CHARACTER_TYPE = 16;
+const int R_UNCATEGORIZED_TYPE = -1;
+
+
+/*
+ * Helper Functions
+ */
+
+/*  ----------------------------------------------------------------------------
+
+  * convert
+ *   converts one item in a python collection to an item in an r vector
+ *
+ *  params
+ *    r_vector_type 
+ *      the type of the result r vector
+ *    r_vec 
+ *      the result r vector
+ *    pos
+ *      the position of the item to convert into r_vec
+ *    item
+ *      the item in to convert
+ 
+ ----------------------------------------------------------------------------*/
+void convert(int r_vector_type, SEXP r_vec, long pos, PyObject *item) {
+  if ( Py_GetR_Type(item) == R_NA_TYPE ){
+    if (r_vector_type == R_LOGICAL_TYPE) {
+      LOGICAL(r_vec)[pos] = NA_LOGICAL;
+    } else if (r_vector_type == R_INTEGER_TYPE) {
+      INTEGER(r_vec)[pos] = NA_INTEGER;
+    } else if (r_vector_type == R_NUMERIC_TYPE) {
+      REAL(r_vec)[pos] = NA_REAL;
+    } else if (r_vector_type == R_CHARACTER_TYPE) {
+      SET_STRING_ELT(r_vec, pos, NA_STRING);
+    } else {
+      error("do not support r vector type ", r_vector_type);
+    }
+  } else if (r_vector_type == R_LOGICAL_TYPE) {
+    LOGICAL(r_vec)[pos] = PY_TO_C_BOOLEAN(item);
+  } else if (r_vector_type == R_INTEGER_TYPE) {
+    INTEGER(r_vec)[pos] = PY_TO_C_INTEGER(item);
+  } else if (r_vector_type == R_NUMERIC_TYPE) {
+    REAL(r_vec)[pos] = PY_TO_C_DOUBLE(item);
+  } else if (r_vector_type == R_CHARACTER_TYPE) {
+    SET_STRING_ELT(r_vec, pos, mkCharCE(py_to_c_string(item), CE_UTF8));
+  }
+}
+
+/*  ----------------------------------------------------------------------------
+ 
+ * convert_vector
+ *   converts a python collection to an r vector
+ *
+ *   params
+ *    vec_len
+ *      the length of the vector
+ *    py_keys
+ *      the python collection that will be converted into a name vector,
+ *      could be NULL
+ *    py_values
+ *      the python collection that will be converted into an r vector
+ *    r_vec
+ *      the returning r vector
+ *    r_vec_names
+ *      the returning name vector,
+ *      could be NULL
+ *    r_type
+ *      the type of r_vec
+ *    collection_type
+ *      the type of the python collection that we are converting
+
+ ----------------------------------------------------------------------------*/
+void convert_vector(long vec_len, PyObject *py_keys, PyObject *py_values,
+                            SEXP r_vec, SEXP r_vec_names, int r_type, int collection_type) {
+  PyObject *key_item, *value_item, *py_i;
+  for (long i = 0; i < vec_len; i++){
+    py_i = PyLong_FromLong(i);
+
+    if (r_vec_names != NULL) {
+      key_item = PyList_GetItem(py_keys, PyLong_AsSsize_t(py_i));
+      Py_XINCREF(key_item);
+      SET_VECTOR_ELT(r_vec_names, i, py_to_r(key_item, 0, 1));
+      Py_XDECREF(key_item);
+    }
+
+    if (collection_type == LIST_COLLECTION_TYPE) {
+      value_item = PyList_GetItem(py_values, PyLong_AsSsize_t(py_i));
+    } else if (collection_type == TUPLE_COLLECTION_TYPE) {
+      value_item = PyTuple_GetItem(py_values, PyLong_AsSsize_t(py_i));
+    } else {
+      error("do not support collection type ", collection_type);
+    }
+    Py_XINCREF(value_item);
+    convert(r_type, r_vec, i, value_item);
+    Py_XDECREF(value_item);
+    Py_DECREF(py_i);
+  }
+}
+
+
 //#define     NILSXP       0 /* nil = NULL */
 //#define     SYMSXP       1 /* symbols */
 //#define     LISTSXP      2 /* lists of dotted pairs */
@@ -101,100 +207,95 @@ SEXP py_class(PyObject *py_object){
 
   ----------------------------------------------------------------------------*/
 int Py_GetR_Type(PyObject *py_object){
-    int r_type = -1;
+    int r_type = R_UNCATEGORIZED_TYPE;
 
     if ( PyNone_Check(py_object) ){
-        r_type = 0;
+        r_type = R_NA_TYPE;
     }else if ( PyBool_Check(py_object) ){
-        r_type = 10;
+        r_type = R_LOGICAL_TYPE;
     }else if ( PyInt_Check(py_object) ){
-        r_type = 14;
+        r_type = R_NUMERIC_TYPE;
     }else if ( PyLong_Check(py_object) ){
-        r_type = 14;
+        r_type = R_NUMERIC_TYPE;
     }else if ( PyFloat_Check(py_object) ){
-        r_type = 14;
+        r_type = R_NUMERIC_TYPE;
     }else if ( PyString_Check(py_object) ){
-        r_type = 16;
+        r_type = R_CHARACTER_TYPE;
     }else if ( PyUnicode_Check(py_object) ){
-        r_type = 16;
+        r_type = R_CHARACTER_TYPE;
     }
     return r_type;
 }
 
 /*  ----------------------------------------------------------------------------
-    PyList_AllSameType
+    PyCollection_AllSameType
+      params
+        py_object
+          the python collection to check
+        collection_type
+          the type of py_object,
+          use LIST_COLLECTION_TYPE or TUPLE_COLLECTION_TYPE
+      returns
+        the integer that Py_GetR_Type() returns for all items in the list (except None),
+        or R_UNCATEGORIZED_TYPE if the type can't be determined because either items in 
+        the list do not have the same type or if the list is empty.
     --------------------------------------------------------------------------*/
-int PyList_AllSameType(PyObject *py_object){
+int PyCollection_AllSameType(PyObject *py_object, int collection_type){
     PyObject *item, *py_len, *py_i;
-    long list_len, count;
-    int r_type = -1, item_type;
 
-    py_len = PyLong_FromSsize_t(PyList_GET_SIZE(py_object));
-    list_len = PY_TO_C_LONG(py_len);
+    if (Py_GetR_Type(py_object) == R_NA_TYPE) return R_NA_TYPE;
+
+    if (collection_type == LIST_COLLECTION_TYPE) {
+      py_len = PyLong_FromSsize_t(PyList_GET_SIZE(py_object));
+    } else if (collection_type == TUPLE_COLLECTION_TYPE) {
+      py_len = PyLong_FromSsize_t(PyTuple_GET_SIZE(py_object));
+    } else {
+      // should throw an error here
+      return R_UNCATEGORIZED_TYPE;
+    }
+
+    long list_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
-    
-    py_i = PyLong_FromLong(0);
-    item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
-    Py_XINCREF(item); // If item is NULL Py_XINCREF has no effect.
-    Py_XDECREF(py_i);
-    if ( item == NULL ) return 0;
-    r_type = Py_GetR_Type(item); // just makes sence for the types which exists in R
-    Py_XDECREF(item);
-    if ( r_type == -1 ) return r_type; // -1 is returned if it is not (None, boolean, int, long, float, string or unicode)
 
-    count = 0;
-    for (long i=1; i < list_len; i++){
-        py_i = PyLong_FromLong(i);
+    // empty list will be converted to empty list in r
+    if (list_len == 0) {
+      return R_UNCATEGORIZED_TYPE;
+    }
+
+    int r_type = R_NA_TYPE;
+    long i = 0;
+    while (i < list_len) {
+      py_i = PyLong_FromLong(i);
+      if (collection_type == LIST_COLLECTION_TYPE) {
         item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
-        Py_XINCREF(item);
-        Py_XDECREF(py_i);
-        item_type = Py_GetR_Type(item);
-        count += ( (r_type != item_type) && (0 != item_type) );
-        Py_XDECREF(item);
-        if (count > 0) break;
-    }
-
-    r_type = (count == 0) ? r_type : -1;
-
-    return r_type;
-}
-
-/*  ----------------------------------------------------------------------------
-    PyTuple_AllSameType
-    --------------------------------------------------------------------------*/
-int PyTuple_AllSameType(PyObject *py_object){
-    PyObject *item, *py_len, *py_i;
-    long list_len, count;
-    int r_type = -1, item_type;
-
-    py_len = PyLong_FromSsize_t(PyTuple_GET_SIZE(py_object));
-    list_len = PY_TO_C_LONG(py_len);
-    Py_XDECREF(py_len);
-
-    py_i = PyLong_FromLong(0);
-    item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
-    Py_XINCREF(item);
-    Py_XDECREF(py_i);
-    if ( item == NULL ) return 0;
-    r_type = Py_GetR_Type(item); // just makes sence for the types which exists in R
-    Py_DECREF(item);
-    if ( r_type == -1 ) return r_type;
-
-    count = 0;
-    for (long i=1; i < list_len; i++){
-        py_i = PyLong_FromLong(i);
+      } else if (collection_type == TUPLE_COLLECTION_TYPE) {
         item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
-        Py_XINCREF(item);
-        Py_XDECREF(py_i);
-        item_type = Py_GetR_Type(item);
-        count += ( (r_type != item_type) && (0 != item_type) );
-        Py_XDECREF(item);
-        if (count > 0) break;
+      } else {
+        error("do not support collection type ", collection_type);
+      }
+      Py_XINCREF(item);
+      Py_XDECREF(py_i);
+      int item_type = Py_GetR_Type(item);
+      if (item_type == R_UNCATEGORIZED_TYPE) {
+        return R_UNCATEGORIZED_TYPE;
+      }
+      if ((r_type > R_NA_TYPE) && (item_type > R_NA_TYPE) && (item_type != r_type)) {
+        return R_UNCATEGORIZED_TYPE;
+      }
+      if ((r_type == R_NA_TYPE) && (item_type > R_NA_TYPE)) {
+        r_type = item_type;
+      }
+      Py_XDECREF(item);
+      i++;
     }
 
-    r_type = (count == 0) ? r_type : -1;
-
-    return r_type;
+    if (r_type == R_NA_TYPE) {
+      // there is None item in the list
+      // return a list with NA (logical)
+      return R_LOGICAL_TYPE;
+    } else {
+      return r_type;
+    }
 }
 
 /*  ----------------------------------------------------------------------------
@@ -205,7 +306,7 @@ int PyDict_AllSameType(PyObject *py_object){
     int r_type;
     // PyDict_Values -> New reference
     py_values = PyDict_Values(py_object);
-    r_type = PyList_AllSameType(py_values);
+    r_type = PyCollection_AllSameType(py_values, LIST_COLLECTION_TYPE);
     Py_XDECREF(py_values);
     return  r_type;
 }
@@ -216,90 +317,24 @@ int PyDict_AllSameType(PyObject *py_object){
 
   ----------------------------------------------------------------------------*/
 SEXP py_dict_to_r_vec(PyObject *py_object, int r_vector_type){
-    PyObject *item, *py_keys, *py_values, *py_len, *py_i;
+    PyObject *py_keys, *py_values, *py_len;
     SEXP r_vec, r_vec_names;
     long vec_len;
 
-	if (r_vector_type == 0) return R_NilValue;
+    if (r_vector_type == R_NA_TYPE) return R_NilValue;
 
     py_len = PyLong_FromSsize_t(PyDict_Size(py_object));
     vec_len = PY_TO_C_LONG(py_len);
     Py_XDECREF(py_len);
-    item = NULL;
     py_keys = PyDict_Keys(py_object);
     py_values = PyDict_Values(py_object);
 
     PROTECT(r_vec = allocVector(r_vector_type, vec_len));
     PROTECT(r_vec_names = allocVector(VECSXP, vec_len)); // allocate it as list since in Python it just has to be an unmuateable
-    
-    // TODO: check vec_len = 0
 
-	// TODO: I return now NULL instead of list(NULL) which should also
-        //       be possible I would some how set a NULL with class list
-	if (r_vector_type == 10){                                           // boolean
-        for (long i=0; i < vec_len; i++){
-            py_i = PyLong_FromLong(i);
-            item = PyList_GetItem(py_keys, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);
-            SET_VECTOR_ELT(r_vec_names, i, py_to_r(item, 0, 1));
-            Py_XDECREF(item);
-            item = PyList_GetItem(py_values, PyLong_AsSsize_t(py_i));
-            Py_XDECREF(item);
-            Py_XINCREF(item);
-            // to handle NA variables of type None are transformed to NA
-            if ( Py_GetR_Type(item) == 0 ){
-				LOGICAL(r_vec)[i] = INT_MIN;
-			}else{
-				LOGICAL(r_vec)[i] = PY_TO_C_BOOLEAN(item);
-			}
-            // Py_XDECREF(item); Booleans never follow the api in Python!
-            Py_DECREF(py_i);
-        }
-    }else if (r_vector_type == 13){                                   // integer
-        for (long i=0; i < vec_len; i++){
-            py_i = PyLong_FromLong(i);
-            item = PyList_GetItem(py_keys, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);         
-            SET_VECTOR_ELT(r_vec_names, i, py_to_r(item, 0, 1));
-            Py_XDECREF(item);
-            item = PyList_GetItem(py_values, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);
-            // to handle NA variables of type None are transformed to NA
-            if ( Py_GetR_Type(item) == 0 ){
-				INTEGER(r_vec)[i] = INT_MIN;
-			}else{
-				INTEGER(r_vec)[i] = py_to_c_integer(item);
-			}
-            Py_XDECREF(item);
-            Py_DECREF(py_i);
-        }
-    }else if (r_vector_type == 14){                                   // numeric
-        for (long i=0; i < vec_len; i++){
-            py_i = PyLong_FromLong(i);
-            item = PyList_GetItem(py_keys, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);
-            SET_VECTOR_ELT(r_vec_names, i, py_to_r(item, 0, 1));
-            Py_XDECREF(item);
-            item = PyList_GetItem(py_values, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);
-            REAL(r_vec)[i] = PY_TO_C_DOUBLE(item);
-            Py_XDECREF(item);
-            Py_DECREF(py_i);
-        }
-    }else if (r_vector_type == 16){                                 // character
-        for (long i=0; i < vec_len; i++){
-            py_i = PyLong_FromLong(i);
-            item = PyList_GetItem(py_keys, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);
-            SET_VECTOR_ELT(r_vec_names, i, py_to_r(item, 0, 1));
-            Py_XDECREF(item);
-            item = PyList_GetItem(py_values, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);
-            SET_STRING_ELT(r_vec, i, mkCharCE(py_to_c_string(item), CE_UTF8));
-            Py_XDECREF(item);
-            Py_DECREF(py_i);
-        }
-    }else{
+    if (r_vector_type > R_NA_TYPE) {
+      convert_vector(vec_len, py_keys, py_values, r_vec, r_vec_names, r_vector_type, LIST_COLLECTION_TYPE);
+    } else{
         UNPROTECT(2);
         error("in py_dict_to_r_vec (ERROR CODE 0001)!\n");          // shouldn't happen!!
     }
@@ -370,7 +405,7 @@ SEXP py_list_to_r_vec(PyObject *py_object, int r_vector_type){
     SEXP r_vec;
     long vec_len;
     
-    if (r_vector_type == 0) return R_NilValue; // since you also can't create NULL vectors in R
+    if (r_vector_type == R_NA_TYPE) return R_NilValue; // since you also can't create NULL vectors in R
     
     py_len = PyLong_FromSsize_t(PyList_GET_SIZE(py_object));
     vec_len = PY_TO_C_LONG(py_len);
@@ -379,53 +414,9 @@ SEXP py_list_to_r_vec(PyObject *py_object, int r_vector_type){
 
     PROTECT(r_vec = allocVector(r_vector_type, vec_len));
 
-    if (r_vector_type == 10){                                         // boolean
-        for (long i=0; i < vec_len; i++){
-            py_i = PyLong_FromLong(i);
-            item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);
-            // to handle NA variables of type None are transformed to NA
-            if ( Py_GetR_Type(item) == 0 ){
-				LOGICAL(r_vec)[i] = INT_MIN;
-			}else{
-				LOGICAL(r_vec)[i] = PY_TO_C_BOOLEAN(item);
-			}
-            // Py_XDECREF(item);
-            Py_DECREF(py_i);
-        }
-    }else if (r_vector_type == 13){                                   // integer
-        for (long i=0; i < vec_len; i++){
-            py_i = PyLong_FromLong(i);
-            item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);
-            // to handle NA variables of type None are transformed to NA
-            if ( Py_GetR_Type(item) == 0 ){
-				INTEGER(r_vec)[i] = INT_MIN;
-			}else{
-				INTEGER(r_vec)[i] = py_to_c_integer(item);
-			}
-            Py_XDECREF(item);
-            Py_DECREF(py_i);
-        }
-    }else if (r_vector_type == 14){                                   // numeric
-        for (long i=0; i < vec_len; i++){
-            py_i = PyLong_FromLong(i);
-            item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);
-            REAL(r_vec)[i] = PY_TO_C_DOUBLE(item);
-            Py_XDECREF(item);
-            Py_DECREF(py_i);
-        }
-    }else if (r_vector_type == 16){                                 // character
-        for (long i=0; i < vec_len; i++){
-            py_i = PyLong_FromLong(i);
-            item = PyList_GetItem(py_object, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);
-            SET_STRING_ELT(r_vec, i, mkCharCE(py_to_c_string(item), CE_UTF8));
-            Py_XDECREF(item);
-            Py_DECREF(py_i);
-        }
-    }else{
+    if (r_vector_type > R_NA_TYPE) {
+      convert_vector(vec_len, NULL, py_object, r_vec, NULL, r_vector_type, LIST_COLLECTION_TYPE);
+    } else{
         error("in py_list_to_r_vec\n");
     }
 
@@ -445,7 +436,7 @@ SEXP py_tuple_to_r_vec(PyObject *py_object, int r_vector_type){
     SEXP r_vec;
     long vec_len;
     
-    if (r_vector_type == 0) return R_NilValue; // since you also can't create NULL vectors in R
+    if (r_vector_type == R_NA_TYPE) return R_NilValue; // since you also can't create NULL vectors in R
     
     py_len = PyLong_FromSsize_t(PyTuple_GET_SIZE(py_object));
     vec_len = PY_TO_C_LONG(py_len);
@@ -454,50 +445,8 @@ SEXP py_tuple_to_r_vec(PyObject *py_object, int r_vector_type){
 
     PROTECT(r_vec = allocVector(r_vector_type, vec_len));
 
-    if (r_vector_type == 10){                                         // boolean
-        for (long i=0; i < vec_len; i++){
-            py_i = PyLong_FromLong(i);
-            item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);
-            if ( Py_GetR_Type(item) == 0 ){
-				LOGICAL(r_vec)[i] = INT_MIN;
-			}else{
-				LOGICAL(r_vec)[i] = PY_TO_C_BOOLEAN(item);
-			}
-            //Py_XDECREF(item);
-            Py_DECREF(py_i);
-        }
-    }else if (r_vector_type == 13){                                   // integer
-        for (long i=0; i < vec_len; i++){
-            py_i = PyLong_FromLong(i);
-            item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);
-			if ( Py_GetR_Type(item) == 0 ){
-				INTEGER(r_vec)[i] = INT_MIN;
-			}else{
-				INTEGER(r_vec)[i] = py_to_c_integer(item);
-			}
-            Py_XDECREF(item);
-            Py_DECREF(py_i);
-        }
-    }else if (r_vector_type == 14){                                   // numeric
-        for (long i=0; i < vec_len; i++){
-            py_i = PyLong_FromLong(i);
-            item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);
-            REAL(r_vec)[i] = PY_TO_C_DOUBLE(item);
-            Py_XDECREF(item);
-            Py_DECREF(py_i);
-        }
-    }else if (r_vector_type == 16){                                 // character
-        for (long i=0; i < vec_len; i++){
-            py_i = PyLong_FromLong(i);
-            item = PyTuple_GetItem(py_object, PyLong_AsSsize_t(py_i));
-            Py_XINCREF(item);
-            SET_STRING_ELT(r_vec, i, mkCharCE(py_to_c_string(item), CE_UTF8));
-            Py_XDECREF(item);
-            Py_DECREF(py_i);
-        }
+    if (r_vector_type > R_NA_TYPE) {
+      convert_vector(vec_len, NULL, py_object, r_vec, NULL, r_vector_type, TUPLE_COLLECTION_TYPE);
     }else{
         error("in py_list_to_r_vec\n");
     }
@@ -643,7 +592,7 @@ SEXP py_to_r(PyObject *py_object, int simplify, int autotype){
 
     }else if( PyTuple_CheckExact(py_object) & autotype ){                        // Tuple
         if (simplify){
-	       r_type = PyTuple_AllSameType(py_object);
+	       r_type = PyCollection_AllSameType(py_object, TUPLE_COLLECTION_TYPE);
 	       if ( r_type > -1 ){  
 	           r_val = py_tuple_to_r_vec(py_object, r_type);
 	       }else{
@@ -654,7 +603,7 @@ SEXP py_to_r(PyObject *py_object, int simplify, int autotype){
 	    }
     }else if( PyList_CheckExact(py_object) & autotype ){                         // List
         if (simplify){
-            r_type = PyList_AllSameType(py_object);
+            r_type = PyCollection_AllSameType(py_object, LIST_COLLECTION_TYPE);
 	        if ( r_type > -1 ){
  	            r_val = py_list_to_r_vec(py_object, r_type);
 	        }else{
@@ -703,4 +652,3 @@ SEXP py_to_r(PyObject *py_object, int simplify, int autotype){
     
     return r_val;
 }
-
