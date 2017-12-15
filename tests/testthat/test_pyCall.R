@@ -18,7 +18,6 @@ test_that("pyCall() returns r data.frame for pandas DataFrame", {
 })
 
 test_that("pyCall() returns named list for OrderedList", {
-  skip("skipping OrderedDict")
   pyImport("OrderedDict", from="collections")
   pyExec("od = OrderedDict([('pear', 1), ('apple', 4), (None, 2), ('banana', None)])")
   # define a test function in python

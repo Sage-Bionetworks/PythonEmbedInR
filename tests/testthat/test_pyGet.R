@@ -441,7 +441,6 @@ test_that("set of Logical values converts to logical vector in r", {
 ## OrderedDict
 
 test_that("OrderedDict converts to named list in r", {
-  skip("skipping OrderedDict")
   pyImport("OrderedDict", from="collections")
   pyExec("od = OrderedDict([('pear', 1), ('apple', 4), ('orange', 2), ('banana', 3)])")
   r_value <- pyGet("od")
@@ -452,7 +451,6 @@ test_that("OrderedDict converts to named list in r", {
 })
 
 test_that("OrderedDict with None value converts to named list in r", {
-  skip("skipping OrderedDict")
   pyImport("OrderedDict", from="collections")
   pyExec("od = OrderedDict([('pear', 1), ('apple', 4), ('orange', 2), ('banana', None)])")
   r_value <- pyGet("od")
@@ -463,7 +461,6 @@ test_that("OrderedDict with None value converts to named list in r", {
 })
 
 test_that("OrderedDict with None key converts to named list in r", {
-  skip("skipping OrderedDict")
   pyImport("OrderedDict", from="collections")
   pyExec("od = OrderedDict([('pear', 1), ('apple', 4), (None, 2), ('banana', 3)])")
   r_value <- pyGet("od")
