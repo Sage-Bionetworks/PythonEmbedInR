@@ -70,8 +70,8 @@ PythonInR_DictNoFinalizer <-
             public = list(
                 initialize = function(variableName, objectName, type) {
                     if (!missing(variableName)) self$py.variableName <- variableName
-                    if (!missing(objectName)) self$py.objectName <- objectName
-                    if (!missing(type)) self$py.type <- type
+                    if (!missing(objectName)) private$py.objectName <- objectName
+                    if (!missing(type)) private$py.type <- type
                 }
             ))
 
