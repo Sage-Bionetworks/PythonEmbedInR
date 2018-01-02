@@ -99,7 +99,7 @@ then
 
   ## build the package, including the vignettes
   # for some reason latex is not on the path.  So we add it.
-  export PATH="$PATH:/cygdrive/c/Program Files/MiKTeX 2.9/miktex/bin/x64"
+  export PATH="$PATH:/cygdrive/c/Program Files/MiKTeX 2.9/miktex/bin/x64:/cygdrive/c/Program Files/MiKTeX 2.9/miktex/bin/i386"
   echo $PATH
   # make sure there are no stray .tar.gz files
   # 'set +e' keeps the script from terminating if there are no .tgz files
@@ -113,7 +113,7 @@ then
   ## build the binary for Windows
   for f in ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz
   do
-     R CMD INSTALL --build "$f" --library=../RLIB --no-test-load
+     R CMD INSTALL --build "$f" --library=../RLIB --no-test-load --force-biarch
   done
   ## This is very important, otherwise the source packages from the windows build overwrite 
   ## the ones created on the unix machine.

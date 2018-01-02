@@ -183,7 +183,12 @@ setMethod("pyGetPoly", signature(key="character", autoTypecast = "logical", simp
 setClass("DataFrame")
 setMethod("pyGetPoly", signature(key="character", autoTypecast = "logical", simplify = "logical", pyClass = "DataFrame"),
           function(key, autoTypecast, simplify, pyClass){
-    pyExec(sprintf("x = %s.to_dict(orient='list')", key))
-    return( as.data.frame(pyGet("x"), optional=TRUE, stringsAsFactors=FALSE) )
+            getPandasDataFrame(key)
+})
+
+setClass("OrderedDict")
+setMethod("pyGetPoly", signature(key="character", autoTypecast = "logical", simplify = "logical", pyClass = "OrderedDict"), 
+          function(key, autoTypecast, simplify, pyClass){
+            getOrderedDict(key)
 })
 

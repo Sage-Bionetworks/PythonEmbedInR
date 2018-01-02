@@ -12,7 +12,12 @@ class MyClass:
   def increment(self):
     self._do_increment()
 
-a = MyClass()')
+a = MyClass()
+def myFunc():
+  b = MyClass()
+  b.increment()
+  return b
+')
   r_class <- pyObject("MyClass")
 
   # test that r_class is an environment
@@ -49,5 +54,8 @@ a = MyClass()')
   expect_null(r_object$`py.objectName`)
   expect_false(exists("py.type", r_class))
   expect_null(r_object$`py.type`)
+
+  returnValue <- pyCall("myFunc")
+  expect_equal("MyClass", class(returnValue)[1])
 })
 

@@ -134,11 +134,11 @@ pyObject <- function(key, regFinalizer = TRUE){
         names(pyActive)[names(pyActive) == n] <- sprintf("py.%s", n)
     }
 
-    if ( (!is.null(objectName)) & (!is.null(type)) ){
+    if ( (!is.null(objectName)) & (!is.null(type)) & (!is.na(objectName)) & (!is.na(type))){
         className <- sprintf("%s.%s", type, objectName)
-    }else if (is.null(objectName)){
+    }else if (is.null(objectName) | (is.na(objectName))){
         className <- type
-    }else if (is.null(type)){ # should never happen since everything should have a type
+    }else if (is.null(type) | (is.na(type))){ # should never happen since everything should have a type
         className <- objectName
     }else{
         className <- "?"
