@@ -395,7 +395,7 @@ py_list_to_r_vec
 
 ----------------------------------------------------------------------------*/
 SEXP py_list_to_r_vec(PyObject *py_object, int r_vector_type){
-  PyObject *item, *py_len, *py_i;
+  PyObject *py_len;
   SEXP r_vec;
   long vec_len;
   
@@ -404,8 +404,7 @@ SEXP py_list_to_r_vec(PyObject *py_object, int r_vector_type){
   py_len = PyLong_FromSsize_t(PyList_GET_SIZE(py_object));
   vec_len = PY_TO_C_LONG(py_len);
   Py_XDECREF(py_len);
-  item = NULL;
-  
+
   PROTECT(r_vec = allocVector(r_vector_type, vec_len));
   
   if (r_vector_type > NILSXP) {
@@ -426,7 +425,7 @@ py_tuple_to_r_vec
 
 ----------------------------------------------------------------------------*/
 SEXP py_tuple_to_r_vec(PyObject *py_object, int r_vector_type){
-  PyObject *item, *py_len, *py_i;
+  PyObject *py_len;
   SEXP r_vec;
   long vec_len;
   
@@ -435,8 +434,7 @@ SEXP py_tuple_to_r_vec(PyObject *py_object, int r_vector_type){
   py_len = PyLong_FromSsize_t(PyTuple_GET_SIZE(py_object));
   vec_len = PY_TO_C_LONG(py_len);
   Py_XDECREF(py_len);
-  item = NULL;
-  
+
   PROTECT(r_vec = allocVector(r_vector_type, vec_len));
   
   if (r_vector_type > NILSXP) {
