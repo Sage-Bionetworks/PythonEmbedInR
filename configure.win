@@ -35,8 +35,6 @@ install_python() {
   mkdir -p ${PYTHON_ZIP_FILE_NAME}
   mv ${TEMP_ZIP_FILE} ${PYTHON_ZIP_FILE_NAME}/
   cd ${PYTHON_ZIP_FILE_NAME}
-  echo 'Unzipping ${TEMP_ZIP_FILE} in '
-  pwd 
   unzip ${TEMP_ZIP_FILE}
   cd ..
   
