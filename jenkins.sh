@@ -17,6 +17,7 @@ export RVERS
 
 PACKAGE_NAME=PythonEmbedInR
 # if version is specified, build the given version
+echo 'VERSION is ' ${VERSION}
 if [ -n ${VERSION} ] 
 then
   DATE=`date +%Y-%m-%d`
@@ -29,6 +30,8 @@ then
   rm DESCRIPTION.temp
 fi
 export PACKAGE_VERSION=`grep Version DESCRIPTION | awk '{print $2}'`
+
+echo 'Package version is ' ${PACKAGE_VERSION}
 
 ## Now build/install the package
 if [ $label = ubuntu ] || [ $label = ubuntu-remote ]
