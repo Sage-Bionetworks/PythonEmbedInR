@@ -39,7 +39,7 @@ pyExecp <- function(code){
             }
         }else{
             ret <- .Call("py_run_string_single_input", code)
-            if (ret == -1) stop("An error has occured while executing Python code.",
+            if (ret == -1) stop("An error has occurred while executing Python code.",
                                 " See traceback above.")
         }
     }
@@ -80,7 +80,7 @@ pyExec <- function(code){
             }
         }else{
             ret <- .Call("py_run_simple_string", code)
-            if (ret == -1) stop("An error has occured while executing Python code.",
+            if (ret == -1) stop("An error has occurred while executing Python code.",
                                 " See traceback above.")
         }
     }

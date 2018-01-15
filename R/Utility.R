@@ -71,7 +71,7 @@ check_string <- function(x, minlen=1){
 }
 
 # printStoutErr
-#     Is a small work around wich fixes the issue with Python 3 64-bit and MinGW
+#     Is a small work around which fixes the issue with Python 3 64-bit and MinGW
 makeErrorMsg <- function(){
     err = pyGetSimple('__getStderr()')
     if ( !is.null(err) ){
