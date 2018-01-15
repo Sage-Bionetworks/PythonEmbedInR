@@ -7,7 +7,7 @@ def __getStderr():
  return None
 '
 
-errorGen<-'
+errorGenDef<-'
 def errorGen():
  raise Exception("This is an error!")
 '
@@ -24,7 +24,8 @@ if (isWindows) {
 	
 	test_that("pyCall errors are correctly turned into R errors", {
 		# On Windows, the unmodified PythonInR code returns a try-error rather than raising an exception
-		expect_error(pyCall(errorGen))
+		pyExec(errorGenDef)
+		expect_error(pyCall("errorGen"))
 	})
 	
 	# this python code restores __getStderr
