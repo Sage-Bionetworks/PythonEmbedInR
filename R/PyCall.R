@@ -42,7 +42,7 @@ pyCall <- function(callableObj, args=NULL, kwargs=NULL, autoTypecast=TRUE, simpl
         returnValue <- try(.Call("py_call_obj", callableObj, args, kwargs, simplify, autoTypecast), 
                            silent=TRUE)
         msg <- makeErrorMsg()
-        if (!is.null(msg)) stop(msg)
+        if (!is.null(msg) || class(returnValue)=="try-error") stop(msg)
     }else{
         returnValue <- .Call("py_call_obj", callableObj, args, kwargs, simplify, autoTypecast)
     }
