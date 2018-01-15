@@ -18,7 +18,6 @@ if (isWindows) {
 	setup(pyExec(mock__getStderr))
 	# this python code restores __getStderr
 	restore__getStderr<-'__getStderr=orig__getStderr'
-	teardown(pyExec(restore__getStderr))
 
 	test_that("pyExec errors are correctly turned into R errors", {
 		# On Windows, the unmodified PythonInR code returns an integer error code rather than raising an exception
@@ -30,4 +29,6 @@ if (isWindows) {
 		pyExec(errorGenDef)
 		expect_error(pyCall("errorGen"))
 	})
+	
+	pyExec(restore__getStderr)
 }
