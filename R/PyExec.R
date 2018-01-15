@@ -33,9 +33,9 @@ pyExecp <- function(code){
         if (pyOptions("winPython364")){
             ret <- try(.Call("py_run_string_single_input", code), silent = TRUE)
             cat(pyGetSimple("__getStdout()")) ## print stdout
-            if (ret == -1){
+            if (ret == -1 || class(ret)=="try-error"){
                 msg <- makeErrorMsg()
-                if (!is.null(msg)) stop(msg)
+                stop(msg)
             }
         }else{
             ret <- .Call("py_run_string_single_input", code)
@@ -74,9 +74,9 @@ pyExec <- function(code){
         if (pyOptions("winPython364")){
             ret <- try(.Call("py_run_simple_string", code), silent = TRUE)
             cat(pyGetSimple("__getStdout()")) ## print stdout
-            if (ret == -1){
+            if (ret == -1 || class(ret)=="try-error"){
                 msg <- makeErrorMsg()
-                if (!is.null(msg)) stop(msg)
+                stop(msg)
             }
         }else{
             ret <- .Call("py_run_simple_string", code)
@@ -205,7 +205,7 @@ except:
                              simplify), silent = TRUE)
         cat(pyGetSimple("__getStdout()")) ## print stdout
         msg <- makeErrorMsg()
-        if (!is.null(msg)) stop(msg)
+        if (!is.null(msg) || class(ret_val)=="try-error") stop(msg)
     }else{
         ret_val <- .Call("PythonInR_Run_String", code, 257L, autoTypecast,
                          mergeNamespaces, override, returnToR, simplify)
@@ -214,16 +214,6 @@ except:
     #       if it is FALSE only NULL get's returned!
     if (returnToR) return(ret_val)
     invisible(ret_val)
-}
-
-# An intern smaller version else I get a endless recursion when 
-# I add printStoutErr also to pyExecg
-pyExecgIntern <- function(code, autoTypecast=TRUE, mergeNamespaces=FALSE,
-                          override=TRUE, simplify=TRUE){
-    if ( pyConnectionCheck() ) return(invisible(NULL))
-    ret_val <- try(.Call("PythonInR_Run_String", code, 257L, autoTypecast,
-                     mergeNamespaces, override, 2L, simplify), silent = TRUE)
-    return(ret_val)
 }
 
 #  -----------------------------------------------------------------------------
