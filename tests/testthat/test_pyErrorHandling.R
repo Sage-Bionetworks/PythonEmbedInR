@@ -11,7 +11,7 @@ setup(pyExec(mock__getStderr))
 test_that("pyExec errors are correctly turned into R errors", {
 
 	# On Windows, the unmodified PythonInR code returns an integer error code rather than raising an exception
-	expect_error(pyExec(("raise Exception('foo')"))
+	expect_error(pyExec("raise Exception('foo')"))
 
 })
 
