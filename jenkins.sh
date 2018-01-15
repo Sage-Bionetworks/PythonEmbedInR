@@ -17,7 +17,7 @@ export RVERS
 
 PACKAGE_NAME=PythonEmbedInR
 # if version is specified, build the given version
-echo 'VERSION is ' ${VERSION}
+echo 'VERSION is <'${VERSION}'>'
 if [ -n ${VERSION} ] 
 then
   DATE=`date +%Y-%m-%d`
