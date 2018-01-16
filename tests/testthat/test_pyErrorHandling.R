@@ -16,8 +16,13 @@ isWindows<-.Call( "isDllVersion")
 
 if (isWindows) {
 	setup(pyExec(mock__getStderr))
-	# this python code restores __getStderr
-	restore__getStderr<-'__getStderr=orig__getStderr'
+	teardown({
+		# this python code restores __getStderr
+		restore__getStderr<-'__getStderr=orig__getStderr'
+		pyExec(restore__getStderr)
+		# flush the content
+		pyExec("__getStderr()")
+	})
 
 	test_that("pyExec errors are correctly turned into R errors", {
 		# On Windows, the unmodified PythonInR code returns an integer error code rather than raising an exception
@@ -30,5 +35,4 @@ if (isWindows) {
 		expect_error(pyCall("errorGen"))
 	})
 	
-	pyExec(restore__getStderr)
 }
