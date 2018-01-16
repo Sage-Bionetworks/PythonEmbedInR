@@ -33,9 +33,9 @@ pyExecp <- function(code){
         if (pyOptions("winPython364")){
             ret <- try(.Call("py_run_string_single_input", code), silent = TRUE)
             cat(pyGetSimple("__getStdout()")) ## print stdout
-            if (ret == -1){ # TODO add: || class(ret)=="try-error"
+            if (ret == -1 || class(ret)=="try-error"){
                 msg <- makeErrorMsg()
-                if (!is.null(msg)) stop(msg) # TODO remove: if (!is.null(msg)) 
+                stop(msg)
             }
         }else{
             ret <- .Call("py_run_string_single_input", code)
