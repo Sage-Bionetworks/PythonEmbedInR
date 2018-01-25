@@ -469,3 +469,10 @@ test_that("OrderedDict with None key converts to named list in r", {
   names(expected) <-c('pear', 'apple', NA, 'banana')
   expect_equal(expected, r_value)
 })
+
+test_that("list can hold an object", {
+	pyExec("class Foo:\n\tdef __init__(self, x):\n\t\tself.x=x")
+	pyExec("x = [Foo(42)]")
+	x<-pyGet("x")
+	expect_equal(x[[1]]$x, 42)
+})

@@ -7,6 +7,8 @@
 ##
 ## -----------------------------------------------------------
 
+# if the object is a primitive (e.g. a vector or a list) 
+# pyTransformReturn simply returns the value
 pyTransformReturn <- function(obj) obj
 
 setGeneric("pyTransformReturn")
@@ -28,4 +30,16 @@ setMethod("pyTransformReturn", signature(obj = "PythonObject"),
     }else{
         return(pyObject(variableName, regFinalizer = TRUE))
     }
+})
+
+# recurively apply to list
+setMethod("pyTransformReturn", signature(obj = "list"),
+          function(obj) {
+	lapply(obj, function(x) {pyTransformReturn(x)})
+})
+
+# this stops data frames from being treated like lists
+setMethod("pyTransformReturn", signature(obj = "data.frame"),
+          function(obj) {
+	obj
 })
