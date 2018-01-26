@@ -7,6 +7,6 @@ test_that("pyDict", {
   myDict <- pyDict("myPyDict")
   expect_equal(myDict$get("a"), 1)
   expect_equal(myDict$pop("a"), 1)
-  myDict$setdefault("a", "A") #previously this threw an error
+  expect_equal(myDict$setdefault("a", "A") , "A")
 })
 
