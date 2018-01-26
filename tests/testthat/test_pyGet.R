@@ -476,3 +476,12 @@ test_that("list can hold an object", {
 	x<-pyGet("x")
 	expect_equal(x[[1]]$x, 42)
 })
+
+test_that("pyTransformReturn works for lists of objects", {
+	pyExec("class Foo:\n\tdef __init__(self, x):\n\t\tself.x=x")
+	pyExec("x = [Foo(42)]")
+	x <- pyGetPoly("x", autoTypecast=TRUE, simplify=TRUE, "list")
+	x<-pyTransformReturn(x)
+	expect_equal(x[[1]]$x, 42)
+})
+
