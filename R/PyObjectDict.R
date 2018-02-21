@@ -24,7 +24,7 @@ PythonInR_Dict <-
           else pyCall(cable, list(seq, value))},
       get = function(key, default){
           cable <- sprintf("%s.get", self$py.variableName)
-          if (missing(value)) pyCall(cable, list(key))
+          if (missing(default)) pyCall(cable, list(key))
           else pyCall(cable, list(key, default))},
       has_key = function(key){
           cable <- sprintf("%s.has_key", self$py.variableName)
@@ -37,14 +37,14 @@ PythonInR_Dict <-
           pyCall(cable)},
       pop = function(key, default){
           cable <- sprintf("%s.pop", self$py.variableName)
-          if (missing(value)) pyCall(cable, list(key))
+          if (missing(default)) pyCall(cable, list(key))
           else pyCall(cable, list(key, default))},
       popitem = function(){
           cable <- sprintf("%s.popitem", self$py.variableName)
           pyCall(cable)},
       setdefault = function(key, default){
           cable <- sprintf("%s.setdefault", self$py.variableName)
-          if (missing(value)) pyCall(cable, list(key))
+          if (missing(default)) pyCall(cable, list(key))
           else pyCall(cable, list(key, default))},
       update = function(dict){
           cable <- sprintf("%s.update", self$py.variableName)
@@ -70,8 +70,8 @@ PythonInR_DictNoFinalizer <-
             public = list(
                 initialize = function(variableName, objectName, type) {
                     if (!missing(variableName)) self$py.variableName <- variableName
-                    if (!missing(objectName)) self$py.objectName <- objectName
-                    if (!missing(type)) self$py.type <- type
+                    if (!missing(objectName)) private$py.objectName <- objectName
+                    if (!missing(type)) private$py.type <- type
                 }
             ))
 

@@ -6,40 +6,46 @@ RWITHPYTHON_PYTHON_VERSION=3.5
 RWITHPYTHON_PYTHON_VERSION_EXTENDED=${RWITHPYTHON_PYTHON_VERSION}.3
 VERSION_FILE_SUFFIX=35
 
-if [ $R_ARCH = "/x64" ]
-then
-	EMBEDDED_ZIP=https://www.python.org/ftp/python/${RWITHPYTHON_PYTHON_VERSION_EXTENDED}/python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed-amd64.zip
-else
-	EMBEDDED_ZIP=https://www.python.org/ftp/python/${RWITHPYTHON_PYTHON_VERSION_EXTENDED}/python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed-win32.zip
-fi
+install_python() {
+  arch=$1
+  if [ $arch = "x64" ]
+  then
+    EMBEDDED_ZIP=https://www.python.org/ftp/python/${RWITHPYTHON_PYTHON_VERSION_EXTENDED}/python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed-amd64.zip
+  else
+    EMBEDDED_ZIP=https://www.python.org/ftp/python/${RWITHPYTHON_PYTHON_VERSION_EXTENDED}/python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed-win32.zip
+  fi
+  # This creates a folder /pythonLibs$arch in the installed package.
+  # Note:  You can't create /libs which is reserved for the R package installer
+  PYTHON_LIB_PATH=inst/pythonLibs$arch
+  mkdir -p ${PYTHON_LIB_PATH}
+  cd ${PYTHON_LIB_PATH}
+  wget -O python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip $EMBEDDED_ZIP
+  if [ "$?" -ne "0" ]; then
+    echo "Failed to download $EMBEDDED_ZIP"
+    exit 1
+  fi
 
-# This creates a folder /pythonLibs in the installed package.
-# Note:  You can't create /libs which is reserved for the R package installer
-PYTHON_LIB_PATH=inst/pythonLibs
-mkdir -p ${PYTHON_LIB_PATH}
-cd ${PYTHON_LIB_PATH}
-wget -O python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip $EMBEDDED_ZIP
-if [ "$?" -ne "0" ]; then
-  echo "Failed to download $EMBEDDED_ZIP"
-  exit 1
-fi
-unzip python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip
+  unzip python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip
+  
+  # per https://bugs.python.org/issue24960 we unzip the file inst/pythonLibs/python35.zip into a folder of the same name
+  # our current directory is inst/pythonLibs$arch
+  PYTHON_ZIP_FILE_NAME=python${VERSION_FILE_SUFFIX}.zip
+  TEMP_ZIP_FILE=temp-python${VERSION_FILE_SUFFIX}.zip
+  mv ${PYTHON_ZIP_FILE_NAME} ${TEMP_ZIP_FILE}
+  mkdir -p ${PYTHON_ZIP_FILE_NAME}
+  mv ${TEMP_ZIP_FILE} ${PYTHON_ZIP_FILE_NAME}/
+  cd ${PYTHON_ZIP_FILE_NAME}
+  unzip ${TEMP_ZIP_FILE}
+  cd ..
+  
+  PIP_INSTALL_SCRIPT=get-pip.py
+  wget -O $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/get-pip.py
+  ./python.exe $PIP_INSTALL_SCRIPT
+  cd ../..
+}
 
-# per https://bugs.python.org/issue24960 we unzip the file inst/pythonLibs/python35.zip into a folder of the same name
-# our current directory is inst/pythonLibs
-PYTHON_ZIP_FILE_NAME=python${VERSION_FILE_SUFFIX}.zip
-TEMP_ZIP_FILE=temp-python${VERSION_FILE_SUFFIX}.zip
-mv ${PYTHON_ZIP_FILE_NAME} ${TEMP_ZIP_FILE}
-mkdir -p ${PYTHON_ZIP_FILE_NAME}
-mv ${TEMP_ZIP_FILE} ${PYTHON_ZIP_FILE_NAME}/
-cd ${PYTHON_ZIP_FILE_NAME}
-unzip ${TEMP_ZIP_FILE}
-cd ..
-
-PIP_INSTALL_SCRIPT=get-pip.py
-wget -O $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/get-pip.py
-./python.exe $PIP_INSTALL_SCRIPT
-cd ../..
+install_python "x64"
+install_python "i386"
 
 # Now get the include files
 # Note, we don't put them into 'inst' because they aren't needed in the installed package
@@ -62,4 +68,8 @@ PYTHON_SRC_PATH=${PYTHON_ARCHIVE_NAME}
 # relative paths established during this script.  
 echo 'PKG_CFLAGS=-I"'../${PYTHON_SRC_PATH}/Include'" -I"'../${PYTHON_SRC_PATH}/PC'"' > src/Makevars.win
 
-echo 'PKG_LIBS=-L"'../${PYTHON_LIB_PATH}'" -lpython'${VERSION_FILE_SUFFIX}  >> src/Makevars.win
+echo 'ifeq "$(WIN)" "64"' >> src/Makevars.win
+echo 'PKG_LIBS=-L"'../inst/pythonLibsx64'" -lpython'${VERSION_FILE_SUFFIX}  >> src/Makevars.win
+echo 'else' >> src/Makevars.win
+echo 'PKG_LIBS=-L"'../inst/pythonLibsi386'" -lpython'${VERSION_FILE_SUFFIX}  >> src/Makevars.win
+echo 'endif' >> src/Makevars.win

@@ -6,6 +6,11 @@ set -e
 ## create the temporary library directory
 mkdir -p ../RLIB
 
+## Install required R libraries
+ R -e "list.of.packages <- c('pack', 'R6', 'testthat');\
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,'Package'])];\
+if(length(new.packages)) install.packages(new.packages, repos='http://cran.fhcrc.org')"
+
 ## export the jenkins-defined environment variables
 export label
 export RVERS
@@ -14,13 +19,10 @@ PACKAGE_NAME=PythonEmbedInR
 # if version is specified, build the given version
 if [ -n ${VERSION} ] 
 then
-  # replace DESCRIPTION with $VERSION
-  VERSION_LINE=`grep Version DESCRIPTION`
-  sed "s|$VERSION_LINE|Version: $VERSION|g" DESCRIPTION > DESCRIPTION.temp
-  # replace DESCRIPTION with $VERSION
   DATE=`date +%Y-%m-%d`
-  DATE_LINE=`grep Date DESCRIPTION.temp`
-  sed "s|$DATE_LINE|Date: $DATE|g" DESCRIPTION.temp > DESCRIPTION2.temp
+  # replace DESCRIPTION with $VERSION & $DATE
+  sed "s|^Version: .*$|Version: $VERSION|g" DESCRIPTION > DESCRIPTION.temp
+  sed "s|^Date: .*$|Date: $DATE|g" DESCRIPTION.temp > DESCRIPTION2.temp
 
   rm DESCRIPTION
   mv DESCRIPTION2.temp DESCRIPTION
@@ -43,7 +45,7 @@ then
   	echo "Linux artifact was not created"
   	exit 1
   fi  
-elif [ $label = osx ] || [ $label = osx-lion ] || [ $label = osx-leopard ]
+elif [ $label = osx ] || [ $label = osx-lion ] || [ $label = osx-leopard ] || [ $label = MacOS-10.11 ]
 then
   ## build the package, including the vignettes
   # for some reason latex is not on the path.  So we add it.
@@ -97,7 +99,7 @@ then
 
   ## build the package, including the vignettes
   # for some reason latex is not on the path.  So we add it.
-  export PATH="$PATH:/cygdrive/c/Program Files/MiKTeX 2.9/miktex/bin/x64"
+  export PATH="$PATH:/cygdrive/c/Program Files/MiKTeX 2.9/miktex/bin/x64:/cygdrive/c/Program Files/MiKTeX 2.9/miktex/bin/i386"
   echo $PATH
   # make sure there are no stray .tar.gz files
   # 'set +e' keeps the script from terminating if there are no .tgz files
@@ -111,7 +113,7 @@ then
   ## build the binary for Windows
   for f in ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz
   do
-     R CMD INSTALL --build "$f" --library=../RLIB --no-test-load
+     R CMD INSTALL --build "$f" --library=../RLIB --no-test-load --force-biarch
   done
   ## This is very important, otherwise the source packages from the windows build overwrite 
   ## the ones created on the unix machine.

@@ -120,7 +120,7 @@ SEXP PythonInR_Run_String(SEXP code, SEXP start_symbol, SEXP auto_typecast,
 			if (c_start_symbol == 258){
 				error("\nKeyError: '%s'\n", py_code);
 			}else{
-				error("\n\toccured while executing:\n'%s'\n", py_code);
+				error("\n\toccurred while executing:\n'%s'\n", py_code);
 			}
 		}else{
 			if ( ret_to_r == 0 ){

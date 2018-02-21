@@ -71,7 +71,7 @@ check_string <- function(x, minlen=1){
 }
 
 # printStoutErr
-#     Is a small work around wich fixes the issue with Python 3 64-bit and MinGW
+#     Is a small work around which fixes the issue with Python 3 64-bit and MinGW
 makeErrorMsg <- function(){
     err = pyGetSimple('__getStderr()')
     if ( !is.null(err) ){
@@ -123,3 +123,17 @@ guessPythonExePathEnvironmentVariables <- function(){
     pythonExePaths
 }
 
+getPandasDataFrame <- function(key){
+  pyExec(sprintf("x = %s.to_dict(orient='list')", key))
+  return( as.data.frame(pyGet("x"), optional=TRUE, stringsAsFactors=FALSE) )
+}
+
+getOrderedDict <- function(key){
+  pyExec(sprintf("keys = list(%s.keys())", key))
+  pyExec(sprintf("values = list(%s.values())", key))
+  keys <- pyGet("keys")
+  values <- pyGet("values")
+  names(values) <- keys
+  return(values)
+}
+  

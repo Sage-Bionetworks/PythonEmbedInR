@@ -101,16 +101,25 @@ pyObject <- function(key, regFinalizer = TRUE){
 
     pyMethods <- list()
     pyActive <- list()
+    pyPrivate <- list()
     
     pydir <- pyDir(key)
     for (o in pydir){
         po <- paste(c(key, o), collapse=".")
         if (pyIsCallable(po)){
             cfun <- sprintf(callFun, po)
-            pyMethods[[o]] <- eval(parse(text=cfun))
+            if (grepl("^_", o)) {
+              pyPrivate[[o]] <- eval(parse(text=cfun))
+            } else {
+              pyMethods[[o]] <- eval(parse(text=cfun))
+            }
         }else{
             afun <- sprintf(activeFun, key, o, o, key)
-            pyActive[[o]] <- eval(parse(text=afun))
+            if (grepl("^_", o)) {
+              pyPrivate[[o]] <- eval(parse(text=afun))
+            } else {
+              pyActive[[o]] <- eval(parse(text=afun))
+            }
         }
     }
 
@@ -121,14 +130,15 @@ pyObject <- function(key, regFinalizer = TRUE){
     ## and initialize to py.initialize
     for (n in c("print", "initialize")){
         names(pyMethods)[names(pyMethods) == n] <- sprintf("py.%s", n)
+        names(pyPrivate)[names(pyPrivate) == n] <- sprintf("py.%s", n)
         names(pyActive)[names(pyActive) == n] <- sprintf("py.%s", n)
     }
 
-    if ( (!is.null(objectName)) & (!is.null(type)) ){
+    if ( (!is.null(objectName)) & (!is.null(type)) & (!is.na(objectName)) & (!is.na(type))){
         className <- sprintf("%s.%s", type, objectName)
-    }else if (is.null(objectName)){
+    }else if (is.null(objectName) | (is.na(objectName))){
         className <- type
-    }else if (is.null(type)){ # should never happen since everything should have a type
+    }else if (is.null(type) | (is.na(type))){ # should never happen since everything should have a type
         className <- objectName
     }else{
         className <- "?"
@@ -139,12 +149,14 @@ pyObject <- function(key, regFinalizer = TRUE){
                     portable = TRUE,
                     inherit = PythonInR_Object,
                     public = pyMethods,
+                    private = pyPrivate,
                     active = pyActive)
     }else{
         pyobject <- R6Class(className,
                     portable = TRUE,
                     inherit = PythonInR_ObjectNoFinalizer,
                     public = pyMethods,
+                    private = pyPrivate,
                     active = pyActive)
         class(pyobject) <- class(pyobject)[-2]
     }
@@ -154,22 +166,22 @@ pyObject <- function(key, regFinalizer = TRUE){
 
 PythonInR_Object <- R6Class(
     "PythonInR_Object",
+    portable=TRUE,
+    private=list(
+      py.objectName="",
+      py.type="",
+      py.del = function(){
+        pyExec(sprintf("del(%s)", self$py.variableName))
+      }
+    ),
     public=list(
-        portable=TRUE,
         py.variableName=NA,
-        py.objectName="",
-        py.type="",
-        py.del = function(){
-            pyExec(sprintf("del(%s)", self$py.variableName))
-        },
         initialize = function(variableName, objectName, type) {
             if (!missing(variableName)) self$py.variableName <- variableName
-            if (!missing(objectName)) self$py.objectName <- objectName
-            if (!missing(type)) self$py.type <- type
+            if (!missing(objectName)) private$py.objectName <- objectName
+            if (!missing(type)) private$py.type <- type
             reg.finalizer(self, pyObjectFinalize, onexit = TRUE)
         },
-        # #print = function(){pyExecp(self$py.variableName)}
-        ## This should better handle unicode.
         print = function() pyPrint(self$py.variableName)
         ))
 
@@ -180,8 +192,8 @@ PythonInR_ObjectNoFinalizer <-
             public = list(
                 initialize = function(variableName, objectName, type) {
                     if (!missing(variableName)) self$py.variableName <- variableName
-                    if (!missing(objectName)) self$py.objectName <- objectName
-                    if (!missing(type)) self$py.type <- type
+                    if (!missing(objectName)) private$py.objectName <- objectName
+                    if (!missing(type)) private$py.type <- type
                 }
             ))
 
