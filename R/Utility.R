@@ -136,4 +136,84 @@ getOrderedDict <- function(key){
   names(values) <- keys
   return(values)
 }
-  
+
+# ------------------------------------------------------------------------------
+#
+#   Helpers for wrapping python functions
+#
+# ------------------------------------------------------------------------------
+
+#' Determines args and kwargs
+#'
+#' This function determines args and kwargs for a given list of values.
+#'
+#' @param ... the input values
+#' @return A list of args and kwargs
+determineArgsAndKwArgs <- function(...) {
+  values <- list(...)
+  valuenames <- names(values)
+  n <- length(values)
+  args <- list()
+  kwargs <- list()
+  if (n > 0) {
+    positionalArgument <- TRUE
+    for (i in 1:n) {
+      if (is.null(valuenames) || length(valuenames[[i]]) == 0 || nchar(valuenames[[i]]) == 0) {
+        # it's a positional argument
+        if (!positionalArgument) {
+          stop("positional argument follows keyword argument")
+        }
+        if (is.null(values[[i]])) {
+          # inserting a value into a list at best is a no-op, at worst removes an existing value
+          # to get the desired insertion we must wrap it in a list
+          args[length(args) + 1] <- list(NULL)
+        } else {
+          args[[length(args) + 1]] <- values[[i]]
+        }
+      } else {
+        # It's a keyword argument.  All subsequent arguments must also be keyword arg's
+        positionalArgument <- FALSE
+        # a repeated value will overwite an earlier one
+        if (is.null(values[[i]])) {
+          # inserting a value into a list at best is a no-op, at worst removes an existing value
+          # to get the desired insertion we must wrap it in a list
+          kwargs[valuenames[[i]]] <- list(NULL)
+        } else {
+          kwargs[[valuenames[[i]]]] <- values[[i]]
+        }
+      }
+    }
+  }
+  list(args = args, kwargs = kwargs)
+}
+
+#' Clean up stack trace
+#'
+#' This function clean up stack trace for a callable.
+#'
+#' @param callable the callable to be called
+#' @param args the input to be passed to callable
+#' @return the result of calling callable with args after cleaning up the stack trace
+cleanUpStackTrace <- function(callable, args) {
+  conn <- textConnection("outputCapture", open = "w")
+  sink(conn)
+  tryCatch({
+    result <- do.call(callable, args)
+    sink()
+    close(conn)
+    cat(paste(outputCapture, collapse = ""))
+    result
+  },
+  error = function(e) {
+    sink()
+    close(conn)
+    errorToReport <- paste(c(outputCapture, e$message), collapse = "\n")
+    if (!getOption("verbose")) {
+      # extract the error message
+      splitArray <- strsplit(errorToReport, "exception-message-boundary", fixed = TRUE)[[1]]
+      if (length(splitArray) >= 2) errorToReport <- splitArray[2]
+    }
+    stop(errorToReport)
+  }
+  )
+}

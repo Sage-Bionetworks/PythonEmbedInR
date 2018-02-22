@@ -43,4 +43,6 @@ export(autodetectPython,
        pyList,
        pyTuple,
        pyOptions,
-       BEGIN.Python)
+       BEGIN.Python,
+       determineArgsAndKwArgs,
+       cleanUpStackTrace)
