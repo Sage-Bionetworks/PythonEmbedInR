@@ -11,7 +11,6 @@ context("test_createRdFiles")
 
 sourceRootDir<-"../.."
 templateDir <- sprintf("%s/inst/templates", sourceRootDir)
-source(file.path(sourceRootDir, "R/createRdFiles.R"))
 
 initAutoGenerateRdFiles(templateDir)
 
