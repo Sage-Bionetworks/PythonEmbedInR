@@ -45,4 +45,5 @@ export(autodetectPython,
        pyOptions,
        BEGIN.Python,
        determineArgsAndKwArgs,
-       cleanUpStackTrace)
+       cleanUpStackTrace,
+       autoGenerateRdFiles)
