@@ -1,25 +1,31 @@
 ## PythonEmbedInR - Access a private copy of Python embedded in this R package.
 
-This package is a modification of [PythonInR](https://bitbucket.org/Floooo/pythoninr) which embeds a private copy of Python, isolated from any Python installation that might be on the host system.   The documentation of the original package follows. 
+This package is a modification of [PythonInR](https://bitbucket.org/Floooo/pythoninr) which embeds a private copy of Python, isolated from any Python installation that might be on the host system. The documentation of the original package follows. 
 
 
 ## PythonInR - Makes accessing Python from within R as easy as pie.
 
 More documentation can be found at [https://bitbucket.org/Floooo/pythoninr](https://bitbucket.org/Floooo/pythoninr) and [http://pythoninr.bitbucket.org/](http://pythoninr.bitbucket.org/).
 
+
 ## Dependencies
 
 **R** >= 2.15.0
- 
-**R-packages:**   
+
+**R-packages:**
 - pack
+- R6
+- rjson
+- methods
+- stats
 
 
 ## Installation
 ```r
-install.packages(c("pack", "R6", "PythonEmbedInR"), repos=c("http://cran.fhcrc.org", "https://sage-bionetworks.github.io/ran"))
+install.packages("PythonEmbedInR", repos=c("http://cran.fhcrc.org", "https://sage-bionetworks.github.io/ran"))
 # (Use your favorite CRAN mirror above.  See https://cran.r-project.org/mirrors.html for a list of available mirrors.)
 ```
+
 
 ## NOTES
 ### Python 3
@@ -31,12 +37,14 @@ def execfile(filename):
     exec(compile(open(filename, 'rb').read(), filename, 'exec'), globals())
 ```
 
+
 ## Type Casting
 ### R to Python (pySet)
 To allow a nearly one to one conversion from R to Python, PythonInR provides
 Python classes for vectors, matrices and data.frames which allow 
 an easy conversion from R to Python and back. The names of the classes are PrVector,
 PrMatrix and PrDataFrame.
+
 
 #### Default Conversion
 | R                  | length (n) | Python      |
@@ -72,6 +80,7 @@ setMethod("pySetPoly", signature(key="character", value = "integer"),
     pyExec(cmd)
 })
 ```
+
 To change the predefined behavior one can simply use setMethod again.
 ```r
 pySetPoly <- PythonInR:::pySetPoly
@@ -91,34 +100,35 @@ pySet("x", 1:3)
 pyPrint(x)
 pyType("x")
 ```
-**NOTE PythonInR:::pySetSimple**   
-The functions **pySetSimple** and **pySetPoly** shouldn't be used **outside** the function 
-**pySet** since they do not check if R is connected to Python. If R is not connected 
+
+**NOTE PythonInR:::pySetSimple**
+The functions **pySetSimple** and **pySetPoly** shouldn't be used **outside** the function
+**pySet** since they do not check if R is connected to Python. If R is not connected
 to Python this can **yield** to **segfault** !
 
 
-**NOTE (named lists):**   
-When executing `pySet("x", list(b=3, a=2))` and `pyGet("x")` the order 
+**NOTE (named lists):**
+When executing `pySet("x", list(b=3, a=2))` and `pyGet("x")` the order
 of the elements in x will change. This is not a special behavior of **PythonInR**
 but the default behavior of Python for dictionaries.
 
-**NOTE (matrix):**   
-Matrices are either transformed to an object of the class PrMatrix or 
+**NOTE (matrix):**
+Matrices are either transformed to an object of the class PrMatrix or
 to an numpy array (if the option useNumpy is set to TRUE).
 
 
-**NOTE (data.frame):**   
-Data frames are either transformed to an object of the class PrDataFrame   
+**NOTE (data.frame):**
+Data frames are either transformed to an object of the class PrDataFrame
 or to a pandas DataFrame (if the option usePandas is set to TRUE).
 
 
-### R to Python (pyGet)  
+### R to Python (pyGet)
 
 | Python      | R                    | simplify     |
 | ----------- | -------------------- | ------------ |
 | None        | NULL                 | TRUE / FALSE |
 | boolean     | logical              | TRUE / FALSE |
-| integer     | integer              | TRUE / FALSE |
+| integer     | numeric              | TRUE / FALSE |
 | double      | numeric              | TRUE / FALSE |
 | string      | character            | TRUE / FALSE |
 | unicode     | character            | TRUE / FALSE |
@@ -133,6 +143,7 @@ or to a pandas DataFrame (if the option usePandas is set to TRUE).
 | PrMatrix    | matrix               | TRUE         |
 | PrDataFrame | data.frame           | TRUE         |
 
+
 #### Change the predefined conversion of pyGet
 Similar to pySet the behavior of pyGet can be changed by utilizing pyGetPoly.
 The predefined version of pyGetPoly for an object of class PrMatrix looks like the following:
@@ -146,6 +157,7 @@ setMethod("pyGetPoly", signature(key="character", autoTypecast = "logical", simp
     return(M)
 })
 ```
+
 For objects of type "type" no conversion is defined. Therefore, PythonInR doesn't know how
 to transform it into an R object so it will return a PythonInR_Object. This is kind of a
 nice example since the return value of type(x) is a function therefore PythonInR will
@@ -153,6 +165,7 @@ return an object of type pyFunction.
 ```r
 pyGet("type(list())")
 ```
+
 One can define a new function to get elements of type "type" as follows.
 ```r
 pyGetPoly <- PythonInR:::pyGetPoly
@@ -164,18 +177,18 @@ setMethod("pyGetPoly", signature(key="character", autoTypecast = "logical", simp
 pyGet("type(list())")
 ```
 
-**NOTE pyGetPoly**   
-The functions **pyGetPoly** should not be used **outside** the function 
-**pyGet** since it does not check if R is connected to Python. If R is not connected 
+**NOTE pyGetPoly**
+The functions **pyGetPoly** should not be used **outside** the function
+**pyGet** since it does not check if R is connected to Python. If R is not connected
 to Python this will **yield** to **segfault** !
 
 
-**NOTE (bytes):**   
+**NOTE (bytes):**
 In short, in Python 3 the data type string was replaced by the data type bytes.
 More information can be found [here](http://www.diveintopython3.net/strings.html).
 
 
-## Cheat Sheet  
+## Cheat Sheet
 
 | Command          | Short Description                                  | Example Usage                                                        |
 | ---------------- | -------------------------------------------------- | -------------------------------------------------------------------- |
@@ -207,23 +220,67 @@ More information can be found [here](http://www.diveintopython3.net/strings.html
 | pyVersion        | Returns the version of Python                      | `pyVersion()`                                                        |
 
 
-# Usage Examples   
+# Wrapping python packages
+
+While using the original PythonInR to wrap a python package in R, automatically generates R functions and documentation, we added a few helper functions in out version of PythonEmbedInR:
+
+## Determine args and kwargs (determineArgsAndKwArgs)
+
+There are many ways to wrap a Python function in R. To create an R wrapper on top of the Python function without making any changes in the function signature, we need to figure out the user's input and pass them along to the Python function. This helper function is used to determine the parameters to pass to the underlying Python function.
+
+| example                                             | output                                                      |
+| `determineArgsAndKwArgs()`                          | `list(args=list(), kwargs=list())`                          |
+| `determineArgsAndKwArgs("foo", "bar")`              | `list(args=list("foo", "bar"), kwargs=list())`              |
+| `determineArgsAndKwArgs("foo", "bar", x="baz")`     | `list(args=list("foo", "bar"), kwargs=list(x="baz"))`       |
+| `determineArgsAndKwArgs(a="foo", b="bar", c="baz")` | `list(args=list(), kwargs=list(a="foo", b="bar", c="baz"))` |
+
+## Clean up stack trace (cleanUpStackTrace)
+
+While executing a R function that wraps Python function, the underlying Python function may throw an exception. We want to show the informative message from the exception. However, the message is buried in the distracting hybrid Python/R stack trace. This function helps clean up that stack trace and display just the message.
+
+Examples:
+```r
+cleanUpStackTrace(myFunction, myParams)
+```
+
+## Generate Rd Files (autoGenerateRdFiles)
+
+This helper function can be used to convert Python [Sphinx](http://www.sphinx-doc.org/en/master/) docs into Rd files. It only supports a subset of Sphinx tags, including:
+- title
+- description
+- usage
+- arguments
+- value
+- examples
+
+Examples:
+```r
+pyImport(inspect)
+pyImport(myPythonPkg)
+pyExec("functionInfo = inspect.getmembers(myPyModule, isFunctionOrRoutine)")
+functionInfo <- pyGet("functionInfo")
+pyExec("classInfo = inspect.getmembers(myPyModule, inspect.isClass)")
+classInfo <- pyGet("classInfo")
+autoGenerateRdFiles(mySrcDir, functionInfo, classInfo)
+```
+
+# Usage Examples
 ## Dynamic Documents
-  + **PythonInR and KnitR** [Example](https://gist.github.com/kohske/3e438a7962cacfef9d32)   
+  + **PythonInR and KnitR** [Example](https://gist.github.com/kohske/3e438a7962cacfef9d32)
 
 ## Data and Text Mining   
-  + **PythonInR and word2vec** [Example](https://speakerdeck.com/yamano357/tokyor51-lt)  
+  + **PythonInR and word2vec** [Example](https://speakerdeck.com/yamano357/tokyor51-lt)
     The word2vec tool takes a text corpus as input and produces the word vectors as output. More information can be found [here](https://code.google.com/p/word2vec/).  
     [T Mikolov, K Chen, G Corrado, J Dean . "Efficient estimation of word representations in vector space." arXiv preprint arXiv:1301.3781 (2013).](http://arxiv.org/pdf/1301.3781.pdf)  
     For word2vec also R-packages are available [tmcn (A Text mining toolkit especially for Chinese)](https://r-forge.r-project.org/R/?group_id=1571) and [wordVectors](https://github.com/bmschmidt/wordVectors). An example application of *wordVectors* can be found [here](http://yamano357.hatenadiary.com/entry/2015/11/04/000332).
     Furthermore it seems to be soon available in [h2o-3](https://github.com/h2oai/h2o-3/blob/master/h2o-r/h2o-package/R/word2vec.R).
-      
+
 
   + **PythonInR and Glove** [Example](https://gist.github.com/yamano357/8a31b2dc0c7a20a30d36)  
     GloVe is an unsupervised learning algorithm for obtaining vector representations for words. More information can be found [here](http://nlp.stanford.edu/projects/glove/).   
     [Jeffrey Pennington, Richard Socher, and Christopher D. Manning. "Glove: Global vectors for word representation." Proceedings of the Empiricial Methods in Natural Language Processing (EMNLP 2014) 12 (2014): 1532-1543.](http://nlp.stanford.edu/pubs/glove.pdf)
-      
-      
+
+
   + **PythonInR and TensorFlow** [Example](http://qiita.com/yamano357/items/66272759fc29a5a2dd01)  
     TensorFlow is an open source software library for numerical computation using data flow graphs. More information can be found [here](http://www.tensorflow.org/).  
     [Martín Abadi, Ashish Agarwal, Paul Barham, Eugene Brevdo, Zhifeng Chen, Craig Citro, Greg S. Corrado, Andy Davis, Jeffrey Dean, Matthieu Devin, Sanjay Ghemawat, Ian Goodfellow, Andrew Harp, Geoffrey Irving, Michael Isard, Rafal Jozefowicz, Yangqing Jia, Lukasz Kaiser, Manjunath Kudlur, Josh Levenberg, Dan Mané, Mike Schuster, Rajat Monga, Sherry Moore, Derek Murray, Chris Olah, Jonathon Shlens, Benoit Steiner, Ilya Sutskever, Kunal Talwar, Paul Tucker, Vincent Vanhoucke, Vijay Vasudevan, Fernanda Viégas, Oriol Vinyals, Pete Warden, Martin Wattenberg, Martin Wicke, Yuan Yu, and Xiaoqiang Zheng. "TensorFlow: Large-scale machine learning on heterogeneous systems." (2015).](http://download.tensorflow.org/paper/whitepaper2015.pdf)
