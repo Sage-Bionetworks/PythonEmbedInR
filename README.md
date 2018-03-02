@@ -222,7 +222,7 @@ More information can be found [here](http://www.diveintopython3.net/strings.html
 
 # Wrapping python packages
 
-While using the original PythonInR to wrap a python package in R, automatically generates R functions and documentation, we added a few helper functions in out version of PythonEmbedInR:
+The following tools help generate R functions wrapping Python functions along with reference documentation (.Rd files) for the wrapper functions, the documentation being generated from the Sphinx-based Python doc-strings.
 
 ## Determine args and kwargs (determineArgsAndKwArgs)
 
