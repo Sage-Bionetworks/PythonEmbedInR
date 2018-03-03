@@ -224,26 +224,154 @@ More information can be found [here](http://www.diveintopython3.net/strings.html
 
 The following tools help generate R functions wrapping Python functions along with reference documentation (.Rd files) for the wrapper functions, the documentation being generated from the Sphinx-based Python doc-strings.
 
-## Determine args and kwargs (determineArgsAndKwArgs)
+Preconditions:
+* The Python package is downloaded and installed
+* The Python package is available on python search path
 
-There are many ways to wrap a Python function in R. To create an R wrapper on top of the Python function without making any changes in the function signature, we need to figure out the user's input and pass them along to the Python function. This helper function is used to determine the parameters to pass to the underlying Python function.
+A Python package may have multiple modules, each with its namespace. Each module has its own functions, classes, and variables. Each function or class has its own local namespace. In R, all functions and classes within the same package share a package namespace. To avoid the namespace collisions and allow customization to the wrapping package, we provide the following functions to help you pick which modules, functions, and classes to expose in R:
 
-| example                                             | output                                                      |
-| `determineArgsAndKwArgs()`                          | `list(args=list(), kwargs=list())`                          |
-| `determineArgsAndKwArgs("foo", "bar")`              | `list(args=list("foo", "bar"), kwargs=list())`              |
-| `determineArgsAndKwArgs("foo", "bar", x="baz")`     | `list(args=list("foo", "bar"), kwargs=list(x="baz"))`       |
-| `determineArgsAndKwArgs(a="foo", b="bar", c="baz")` | `list(args=list(), kwargs=list(a="foo", b="bar", c="baz"))` |
+* `generateRWrappers`
+* `generateRdFiles`
 
-## Clean up stack trace (cleanUpStackTrace)
+These functions should be called with the same params to ensure that all R wrapped functions have corresponsing reference documentation.
 
-While executing a R function that wraps Python function, the underlying Python function may throw an exception. We want to show the informative message from the exception. However, the message is buried in the distracting hybrid Python/R stack trace. This function helps clean up that stack trace and display just the message.
+## Examples:
 
-Examples:
-```r
-cleanUpStackTrace(myFunction, myParams)
+In this example, I will demonstrate how we generate `synapser` and `synapserutils` packages by wrapping Python package `synapsePythonClient`.
+
+`synapsePythonClient` has the following structure:
+```
+synapsePythonClient package
+    module: synapseclient
+        module: client
+            class: Synapse
+                function: get
+                function: login
+        module: entity
+            class: Entity
+                function: get
+                function: privateGet
+            class: File
+                function: get
+                function: privateGet
+            class: Folder
+                function: get
+                function: privateGet
+        module: table
+            function: Table
+            function: column_ids
+            class: Column
+            class: CsvFileTable
+        module: cache
+            function: set
+    module: synapseutils
+        module: copy
+            function: copy
+            function: copyWiki
+            function: copyFileHandles
+        module: sync
+            function: syncToSynapse
+            function: syncFromSynapse
+        module: monitor
+            function: notifyMe
 ```
 
-## Generate Rd Files (autoGenerateRdFiles)
+### Expose all functions and classes within a Python module
+
+For the R package `synapserutils`, our first attempt is to exposing all functions under `synapseutils` module.
+
+```r
+generateRWrappers(synapseutils)
+generateRdFiles(synapseutils)
+```
+
+### Expose a subset of functions within a Python module
+
+For many reasons, some Python functions are only meaningful to Python users. We would not want to expose those functions in our R package.
+
+Let's omit the following functions:
+* `copyFileHandles`
+* `notifyMe`
+
+```r
+toOmit <- c("copyFileHandles", "notifyMe")
+selectFunctions <- function(functionInfo) {
+    if (any(functionInfo$name==toOmit)) {
+        return(NULL)
+    }
+}
+
+generateRWrappers("synapseutils", modifyFunctions = selectFunctions)
+generateRdFiles("synapseutils", modifyFunctions = selectFunctions)
+```
+
+### Expose a subset of classes within a Python module
+
+Now let's try a more complicated example where we want to expose the following functions and classes in `synapser` package:
+```
+  class: File
+      function: get
+  class: Folder
+      function: get
+```
+
+Note that we do not want the following from the `synapseclient.entity` module:
+* `function: privateGet` from any of the class above
+* `class:Entity`
+
+```r
+methodsToOmit <- "privateGet"
+classToSkip <- "Entity"
+selectClasses <- function(classInfo) {
+    if (any(classInfo$name==classToSkip)) {
+        return(NULL)
+    }
+    if (!is.null(clasInfo$methods)) {
+        culledMethods <- lapply(X = clasInfo$methods, function(x) {
+            if (any(x$name == methodsToOmit)) NULL else x;
+        })
+        # Now remove the nulls
+        nullIndices <- sapply(culledMethods, is.null)
+        if (any(nullIndices)) {
+            clasInfo$methods <- culledMethods[-which(nullIndices)]
+        }
+    }
+}
+
+generateRWrappers("synapseclient.entity", modifyClasses = selectClasses)
+generateRdFiles("synapseclient.entity", modifyClasses = selectClasses)
+```
+
+### Expose functions within a singleton object
+
+In rare cases, we want to expose Python functions under `synapseclient.client.Synapse` without exposing the `Synapse` object itself.
+
+In a Python session, we would do the following:
+```
+  syn=synapseclient.Synapse()
+  syn.login()
+  syn.get()
+```
+
+And in R, users would not need to know about the `Synapse` object:
+```
+  synLogin()
+  synGet()
+```
+
+Note that all functions calls in R access the same underlying Python object `Synapse`. 
+
+```r
+createSynapse <- function() {
+    pyImport("synapseclient")
+    pyExec("syn=synapseclient.Synapse()")
+}
+
+generateRWrappers("synapseclient.client.Synapse", createObject = createSynapse, pyObjectName = "syn", functionPrefix="syn")
+generateRdFiles("synapseclient.client.Synapse", createObject = createSynapse, pyObjectName = "syn", functionPrefix="syn")
+```
+
+### Notes on `generateRdFiles`
 
 This helper function can be used to convert Python [Sphinx](http://www.sphinx-doc.org/en/master/) docs into Rd files. It only supports a subset of Sphinx tags, including:
 - title
@@ -253,16 +381,6 @@ This helper function can be used to convert Python [Sphinx](http://www.sphinx-do
 - value
 - examples
 
-Examples:
-```r
-pyImport(inspect)
-pyImport(myPythonPkg)
-pyExec("functionInfo = inspect.getmembers(myPyModule, isFunctionOrRoutine)")
-functionInfo <- pyGet("functionInfo")
-pyExec("classInfo = inspect.getmembers(myPyModule, inspect.isClass)")
-classInfo <- pyGet("classInfo")
-autoGenerateRdFiles(mySrcDir, functionInfo, classInfo)
-```
 
 # Usage Examples
 ## Dynamic Documents
