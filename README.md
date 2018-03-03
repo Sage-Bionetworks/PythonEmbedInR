@@ -233,7 +233,7 @@ A Python package may have multiple modules, each with its namespace. Each module
 * `generateRWrappers`
 * `generateRdFiles`
 
-These functions should be called with the same params to ensure that all R wrapped functions have corresponsing reference documentation.
+These functions should be called with the same params to ensure that all R wrapped functions have corresponding reference documentation.
 
 ## Examples:
 
@@ -289,14 +289,14 @@ generateRdFiles(synapseutils)
 
 For many reasons, some Python functions are only meaningful to Python users. We would not want to expose those functions in our R package.
 
-Let's omit the following functions:
+Let's omit the following functions from `synapseutils` module:
 * `copyFileHandles`
 * `notifyMe`
 
 ```r
 toOmit <- c("copyFileHandles", "notifyMe")
 selectFunctions <- function(functionInfo) {
-    if (any(functionInfo$name==toOmit)) {
+    if (any(functionInfo$name == toOmit)) {
         return(NULL)
     }
 }
@@ -307,7 +307,7 @@ generateRdFiles("synapseutils", modifyFunctions = selectFunctions)
 
 ### Expose a subset of classes within a Python module
 
-Now let's try a more complicated example where we want to expose the following functions and classes in `synapser` package:
+Now let's try a more complicated example where we want to expose the following functions and classes from `synapseclient.entity` module:
 ```
   class: File
       function: get
@@ -316,24 +316,24 @@ Now let's try a more complicated example where we want to expose the following f
 ```
 
 Note that we do not want the following from the `synapseclient.entity` module:
-* `function: privateGet` from any of the class above
-* `class:Entity`
+* `function: privateGet` from any of the class
+* `class: Entity`
 
 ```r
 methodsToOmit <- "privateGet"
 classToSkip <- "Entity"
 selectClasses <- function(classInfo) {
-    if (any(classInfo$name==classToSkip)) {
+    if (any(classInfo$name == classToSkip)) {
         return(NULL)
     }
-    if (!is.null(clasInfo$methods)) {
-        culledMethods <- lapply(X = clasInfo$methods, function(x) {
+    if (!is.null(classInfo$methods)) {
+        culledMethods <- lapply(X = classInfo$methods, function(x) {
             if (any(x$name == methodsToOmit)) NULL else x;
         })
         # Now remove the nulls
         nullIndices <- sapply(culledMethods, is.null)
         if (any(nullIndices)) {
-            clasInfo$methods <- culledMethods[-which(nullIndices)]
+            classInfo$methods <- culledMethods[-which(nullIndices)]
         }
     }
 }
@@ -348,7 +348,7 @@ In rare cases, we want to expose Python functions under `synapseclient.client.Sy
 
 In a Python session, we would do the following:
 ```
-  syn=synapseclient.Synapse()
+  syn = synapseclient.Synapse()
   syn.login()
   syn.get()
 ```
@@ -364,7 +364,7 @@ Note that all functions calls in R access the same underlying Python object `Syn
 ```r
 createSynapse <- function() {
     pyImport("synapseclient")
-    pyExec("syn=synapseclient.Synapse()")
+    pyExec("syn = synapseclient.Synapse()")
 }
 
 generateRWrappers("synapseclient.client.Synapse", createObject = createSynapse, pyObjectName = "syn", functionPrefix="syn")
