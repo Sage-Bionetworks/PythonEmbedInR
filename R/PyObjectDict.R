@@ -8,6 +8,7 @@
 PythonInR_Dict <-
   R6Class(
     "PythonInR_Dict",
+    lock_class = FALSE,
     portable = TRUE,
     inherit = PythonInR_Object,
     public = list(
@@ -65,6 +66,7 @@ PythonInR_Dict <-
 
 PythonInR_DictNoFinalizer <-
     R6Class("PythonInR_Dict",
+            lock_class = FALSE,
             portable = TRUE,
             inherit = PythonInR_Dict,
             public = list(
