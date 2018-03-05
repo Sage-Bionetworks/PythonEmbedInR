@@ -1,5 +1,4 @@
 import inspect
-import synapseclient
 import gateway
 
 def isFunctionOrRoutine(member):
