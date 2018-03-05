@@ -4,15 +4,104 @@
 #
 # ------------------------------------------------------------------------------
 
-#' Determines args and kwargs
-#'
-#' This function takes the list of arguments passed to an R function and groups them
-#'  into the (1) unnamed / positional arguments and the (2) the named / keyword arguments
-#'  to pass to the corresponding Python function.
-#'
-#' @param ... the list of arguments passed to an R function
-#' @return The grouping of arguments into 'args' (the unnamed or positional arguments) and
-#'  'kwargs' (the named or keyword arguments) to be passed to the corresponding Python function.
+defineConstructor <- function(module, name) {
+  force(name)
+  assign(sprintf(".%s", name), function(...) {
+    pyModule <- pyGet(module)
+    argsAndKwArgs <- determineArgsAndKwArgs(...)
+    functionAndArgs <- append(list(pyModule, name), argsAndKwArgs$args)
+    cleanUpStackTrace(pyCall, list("gateway.invoke", args = functionAndArgs, kwargs = argsAndKwArgs$kwargs, simplify = F))
+  })
+  setGeneric(
+    name = name,
+    def = function(...) {
+      do.call(sprintf(".%s", name), args = list(...))
+    }
+  )
+}
+
+autoGenerateClasses <- function(classInfo) {
+  for (c in classInfo) {
+    defineConstructor(c$containerName, c$name)
+  }
+}
+
+defineFunction <- function(rName, pyName, functionContainerName, transformReturnObject = NULL) {
+  pyImport("gateway")
+  force(rName)
+  force(pyName)
+  force(functionContainerName)
+  assign(sprintf(".%s", rName), function(...) {
+    functionContainer <- pyGet(functionContainerName, simplify = FALSE)
+    argsAndKwArgs <- determineArgsAndKwArgs(...)
+    functionAndArgs <- append(list(functionContainer, pyName), argsAndKwArgs$args)
+    returnedObject <- cleanUpStackTrace(pyCall, list("gateway.invoke", args = functionAndArgs, kwargs = argsAndKwArgs$kwargs, simplify = F))
+    if(!is.null(transformReturnObject)) {
+      transformReturnObject(returnedObject)
+    } else {
+      returnedObject
+    }
+  })
+  setGeneric(
+    name = rName,
+    def = function(...) {
+      do.call(sprintf(".%s", rName), args = list(...))
+    }
+  )
+}
+
+autoGenerateFunctions <- function(functionInfo) {
+  for (f in functionInfo) {
+    defineFunction(f$rName, f$pyName, f$functionContainerName)
+  }
+}
+
+addPrefix <- function(name, prefix) {
+  paste(prefix, toupper(substring(name, 1, 1)), substring(name, 2, nchar(name)), sep = "")
+}
+
+getFuntionInfo <- function(module, modifyFunctions = NULL, functionPrefix = NULL) {
+  pyImport("functionInfo")
+  pyExec(paste0("functionInfo = pyPkgInfo.getFunctionInfo(%s)", module), simplify = TRUE)
+  functionInfo <- pyGet("functionInfo")
+  if (!is.null(modifyFunctions)) {
+    functionInfo <- lapply(X = functionInfo, modifyFunctions)
+  }
+  # scrub the nulls
+  functionInfo <- functionInfo[-which(sapply(functionInfo, is.null))]
+  functionInfo <- lapply(X = functionInfo, function(x){
+    if (!is.null(functionPrefix)) {
+      rName <- .addPrefix(x$name)
+    }
+    list(pyName = x$name, rName = rName, functionContainerName = module, args = x$args, doc = x$doc, title = rName)
+  })
+  functionInfo
+}
+
+getClassInfo <- function(module, modifyClasses = NULL) {
+  pyImport("classInfo")
+  pyExec(paste0("classInfo = pyPkgInfo.getClassInfo(%s)", module), simplify = TRUE)
+  classInfo <- pyGet("classInfo")
+  if (!is.null(modifyClasses)) {
+    classInfo <- lapply(X = classInfo, modifyClasses)
+  }
+  # scrub the nulls
+  classInfo <- classInfo[-which(sapply(classInfo, is.null))]
+  classInfo <- lapply(X = classInfo, function(x){
+    list(name = x$name, containerName = module)
+  })
+  classInfo
+}
+
+# Determines args and kwargs
+#
+# This function takes the list of arguments passed to an R function and groups them
+#  into the (1) unnamed / positional arguments and the (2) the named / keyword arguments
+#  to pass to the corresponding Python function.
+#
+# @param ... the list of arguments passed to an R function
+# @return The grouping of arguments into 'args' (the unnamed or positional arguments) and
+#  'kwargs' (the named or keyword arguments) to be passed to the corresponding Python function.
 determineArgsAndKwArgs <- function(...) {
   values <- list(...)
   valuenames <- names(values)
@@ -51,14 +140,14 @@ determineArgsAndKwArgs <- function(...) {
   list(args = args, kwargs = kwargs)
 }
 
-#' The purpose of this function is to remove the Python stack trace from an error message
-#'  generated when calling Python from R. This makes the command line response more readable
-#'  when an error occurs. To support debugging the stack trace truncation can be overridden
-#'  by setting the global option 'verbose' to TRUE.
-#'
-#' @param callable the function to be called
-#' @param args the arguments to be passed to the function 'callable'
-#' @return the result of calling the given function with the given arguments
+# The purpose of this function is to remove the Python stack trace from an error message
+#  generated when calling Python from R. This makes the command line response more readable
+#  when an error occurs. To support debugging the stack trace truncation can be overridden
+#  by setting the global option 'verbose' to TRUE.
+#
+# @param callable the function to be called
+# @param args the arguments to be passed to the function 'callable'
+# @return the result of calling the given function with the given arguments
 cleanUpStackTrace <- function(callable, args) {
   conn <- textConnection("outputCapture", open = "w", local=TRUE)
   sink(conn)
@@ -83,6 +172,14 @@ cleanUpStackTrace <- function(callable, args) {
   )
 }
 
+generateRWrappers <- function(module, modifyFunctions = NULL, modifyClasses = NULL, functionPrefix = NULL) {
+  functionInfo <- getFunctionInfo(module, modifyFunctions, functionPrefix)
+  classInfo <- getClassInfo(module, modifyClasses)
+  
+  autoGenerateFunctions(functionInfo)
+  autoGenerateClasses(classInfo)
+}
+
 # ------------------------------------------------------------------------------
 #
 #   Helpers for generating R docs from python docs
@@ -94,16 +191,16 @@ initAutoGenerateRdFiles<-function(templateDir) {
   dictDocString<<-getDictDocString(templateDir)	
 }
 
-#' This function generates R documentation (.Rd) files
-#'  (https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Rd-format) from
-#'  Python doc-strings using Sphinx tags (http://www.sphinx-doc.org). The files are
-#'  written to the directory /auto-man, allowing manual touch up prior to copying to
-#'  man/ (the standard location for R documentation).
-#' 
-#' @param srcRootDir is the root directory for the code base (i.e., prior to installation)
-#' @param functionInfo list of functions for which to generate doc's
-#' @param classInfo list of classes for which to generate doc's
-#' @param templateDir (optional) custom templates for the docs
+# This function generates R documentation (.Rd) files
+#  (https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Rd-format) from
+#  Python doc-strings using Sphinx tags (http://www.sphinx-doc.org). The files are
+#  written to the directory /auto-man, allowing manual touch up prior to copying to
+#  man/ (the standard location for R documentation).
+# 
+# @param srcRootDir is the root directory for the code base (i.e., prior to installation)
+# @param functionInfo list of functions for which to generate doc's
+# @param classInfo list of classes for which to generate doc's
+# @param templateDir (optional) custom templates for the docs
 autoGenerateRdFiles<-function(srcRootDir, functionInfo, classInfo, templateDir = NULL) {
   if (!file.exists(srcRootDir)) {
     stop(sprintf("%s does not exist.", srcRootDir))
@@ -121,7 +218,7 @@ autoGenerateRdFiles<-function(srcRootDir, functionInfo, classInfo, templateDir =
   
   # create a list for the constructors that's structured the same as the info for the functions
   constructorInfo<-lapply(X=classInfo, function(x){
-    list(synName=x$name, 
+    list(rName=x$name, 
          args=x$constructorArgs, 
          doc=x$doc, 
          title=sprintf("Constructor for objects of type %s", x$name),
@@ -130,12 +227,12 @@ autoGenerateRdFiles<-function(srcRootDir, functionInfo, classInfo, templateDir =
   })
   # create doc's for all functions and constructors
   for (f in c(functionInfo, constructorInfo)) { 
-    name<-f$synName
-    args<-f$args
-    doc<-f$doc
-    title<-f$title
+    name <- f$rName
+    args <- f$args
+    doc <- f$doc
+    title <- f$title
     if (is.null(f$returned)) {
-      returned<-getReturned(doc)
+      returned <- getReturned(doc)
     } else {
       returned = f$returned
     }
@@ -447,3 +544,11 @@ writeContent<-function(content, className, targetFolder) {
   writeChar("\n", connection, eos=NULL)
   close(connection)
 }
+
+generateRdFiles <- function(srcRootDir, module, modifyFunctions = NULL, modifyClasses = NULL, functionPrefix = NULL) {
+  functionInfo <- getFunctionInfo(module, modifyFunctions, functionPrefix)
+  classInfo <- getClassInfo(module, modifyClasses)
+  
+  autoGenerateRdFiles(srcRootDir, functionInfo, classInfo)
+}
+

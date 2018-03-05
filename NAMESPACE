@@ -44,6 +44,5 @@ export(autodetectPython,
        pyTuple,
        pyOptions,
        BEGIN.Python,
-       determineArgsAndKwArgs,
-       cleanUpStackTrace,
-       autoGenerateRdFiles)
+       generateRWrappers,
+       generateRdFiles)
