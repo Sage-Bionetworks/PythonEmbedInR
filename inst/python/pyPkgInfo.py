@@ -21,7 +21,7 @@ def methodAttributes(name, method):
     cleaneddoc = getCleanedDoc(method)
     return({'name':name, 'args':args, 'doc':cleaneddoc, 'module':method.__module__})
 
-def functionInfo(module):
+def getFunctionInfo(module):
     result = []
     for member in inspect.getmembers(module, isFunctionOrRoutine):
         name = member[0]
@@ -31,14 +31,11 @@ def functionInfo(module):
         result.append(methodAttributes(name, method))
     return result
 
-def classInfo(module):
+def getClassInfo(module):
     result = []
     for member in inspect.getmembers(module, inspect.isclass):
         name = member[0]
-        if name=="Synapse":
-            continue
         classdefinition = member[1]
-
         constructorArgs=None
         methods = []
         # let's go through all the functions
@@ -51,16 +48,12 @@ def classInfo(module):
                 methodArgs = argspecContent(inspect.getargspec(classmember[1]))
                 methodDescription = getCleanedDoc(classmember[1])
                 methods.append({'name':methodName, 'doc':methodDescription, 'args':methodArgs})
-                
         if constructorArgs is None:
-            raise Exception("Cannot find constructor for "+name)
-        
+            print("skiping ", name)
+            continue
         cleaneddoc = getCleanedDoc(classdefinition)
-       
         # insert the constructor itself as the first thing in the list
         methods.insert(0, {'name':name, 'doc':cleaneddoc, 'args':constructorArgs})
-            
         result.append({'name':name, 'constructorArgs':constructorArgs, 'doc':cleaneddoc, 'methods':methods})
-        
     return result
 

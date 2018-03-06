@@ -60,33 +60,43 @@ addPrefix <- function(name, prefix) {
   paste(prefix, toupper(substring(name, 1, 1)), substring(name, 2, nchar(name)), sep = "")
 }
 
-getFuntionInfo <- function(module, modifyFunctions = NULL, functionPrefix = NULL) {
-  pyImport("functionInfo")
-  pyExec(paste0("functionInfo = pyPkgInfo.getFunctionInfo(%s)", module), simplify = TRUE)
-  functionInfo <- pyGet("functionInfo")
+getFunctionInfo <- function(pyPkg, module, modifyFunctions = NULL, functionPrefix = NULL) {
+  pyImport("pyPkgInfo")
+  pyImport(pyPkg)
+  pyExec(sprintf("functionInfo = pyPkgInfo.getFunctionInfo(%s)", module))
+  functionInfo <- pyGet("functionInfo", simplify = F)
   if (!is.null(modifyFunctions)) {
     functionInfo <- lapply(X = functionInfo, modifyFunctions)
   }
   # scrub the nulls
-  functionInfo <- functionInfo[-which(sapply(functionInfo, is.null))]
+  nullIndices <- sapply(functionInfo, is.null)
+  if (any(nullIndices)) {
+    functionInfo <- functionInfo[-which(nullIndices)]
+  }
   functionInfo <- lapply(X = functionInfo, function(x){
     if (!is.null(functionPrefix)) {
-      rName <- .addPrefix(x$name)
+      rName <- addPrefix(x$name)
+    } else {
+      rName <- x$name
     }
     list(pyName = x$name, rName = rName, functionContainerName = module, args = x$args, doc = x$doc, title = rName)
   })
   functionInfo
 }
 
-getClassInfo <- function(module, modifyClasses = NULL) {
-  pyImport("classInfo")
-  pyExec(paste0("classInfo = pyPkgInfo.getClassInfo(%s)", module), simplify = TRUE)
-  classInfo <- pyGet("classInfo")
+getClassInfo <- function(pyPkg, module, modifyClasses = NULL) {
+  pyImport("pyPkgInfo")
+  pyImport(pyPkg)
+  pyExec(sprintf("classInfo = pyPkgInfo.getClassInfo(%s)", module))
+  classInfo <- pyGet("classInfo", simplify = F)
   if (!is.null(modifyClasses)) {
     classInfo <- lapply(X = classInfo, modifyClasses)
   }
   # scrub the nulls
-  classInfo <- classInfo[-which(sapply(classInfo, is.null))]
+  nullIndices <- sapply(classInfo, is.null)
+  if (any(nullIndices)) {
+    classInfo <- classInfo[-which(nullIndices)]
+  }
   classInfo <- lapply(X = classInfo, function(x){
     list(name = x$name, containerName = module)
   })
@@ -172,9 +182,9 @@ cleanUpStackTrace <- function(callable, args) {
   )
 }
 
-generateRWrappers <- function(module, modifyFunctions = NULL, modifyClasses = NULL, functionPrefix = NULL) {
-  functionInfo <- getFunctionInfo(module, modifyFunctions, functionPrefix)
-  classInfo <- getClassInfo(module, modifyClasses)
+generateRWrappers <- function(pyPkg, module, modifyFunctions = NULL, modifyClasses = NULL, functionPrefix = NULL) {
+  functionInfo <- getFunctionInfo(pyPkg, module, modifyFunctions, functionPrefix)
+  classInfo <- getClassInfo(pyPkg, module, modifyClasses)
   
   autoGenerateFunctions(functionInfo)
   autoGenerateClasses(classInfo)
@@ -545,9 +555,9 @@ writeContent<-function(content, className, targetFolder) {
   close(connection)
 }
 
-generateRdFiles <- function(srcRootDir, module, modifyFunctions = NULL, modifyClasses = NULL, functionPrefix = NULL) {
-  functionInfo <- getFunctionInfo(module, modifyFunctions, functionPrefix)
-  classInfo <- getClassInfo(module, modifyClasses)
+generateRdFiles <- function(srcRootDir, pyPkg, module, modifyFunctions = NULL, modifyClasses = NULL, functionPrefix = NULL) {
+  functionInfo <- getFunctionInfo(pyPkg, module, modifyFunctions, functionPrefix)
+  classInfo <- getClassInfo(pyPkg, module, modifyClasses)
   
   autoGenerateRdFiles(srcRootDir, functionInfo, classInfo)
 }
