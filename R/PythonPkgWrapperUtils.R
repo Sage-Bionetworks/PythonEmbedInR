@@ -20,18 +20,20 @@ defineConstructor <- function(module, name) {
   )
 }
 
-autoGenerateClasses <- function(classInfo) {
+autoGenerateClasses <- function(containerName, classInfo) {
   for (c in classInfo) {
-    defineConstructor(c$containerName, c$name)
+    defineConstructor(containerName, c$name)
   }
 }
 
-defineFunction <- function(rName, pyName, functionContainerName, transformReturnObject = NULL) {
+defineFunction <- function(rName, pyName, functionContainerName, transformReturnObject) {
   pyImport("gateway")
   force(rName)
   force(pyName)
   force(functionContainerName)
-  assign(sprintf(".%s", rName), function(...) {
+  rWrapperName <- sprintf(".%s", rName)
+
+  assign(rWrapperName, function(...) {
     functionContainer <- pyGet(functionContainerName, simplify = FALSE)
     argsAndKwArgs <- determineArgsAndKwArgs(...)
     functionAndArgs <- append(list(functionContainer, pyName), argsAndKwArgs$args)
@@ -45,14 +47,14 @@ defineFunction <- function(rName, pyName, functionContainerName, transformReturn
   setGeneric(
     name = rName,
     def = function(...) {
-      do.call(sprintf(".%s", rName), args = list(...))
+      do.call(rWrapperName, args = list(...))
     }
   )
 }
 
-autoGenerateFunctions <- function(functionInfo) {
+autoGenerateFunctions <- function(module, functionInfo, transformReturnObject) {
   for (f in functionInfo) {
-    defineFunction(f$rName, f$pyName, f$functionContainerName)
+    defineFunction(f$rName, f$pyName, module, transformReturnObject)
   }
 }
 
@@ -65,6 +67,7 @@ getFunctionInfo <- function(pyPkg, module, modifyFunctions = NULL, functionPrefi
   pyImport(pyPkg)
   pyExec(sprintf("functionInfo = pyPkgInfo.getFunctionInfo(%s)", module))
   functionInfo <- pyGet("functionInfo", simplify = F)
+
   if (!is.null(modifyFunctions)) {
     functionInfo <- lapply(X = functionInfo, modifyFunctions)
   }
@@ -73,13 +76,14 @@ getFunctionInfo <- function(pyPkg, module, modifyFunctions = NULL, functionPrefi
   if (any(nullIndices)) {
     functionInfo <- functionInfo[-which(nullIndices)]
   }
+
   functionInfo <- lapply(X = functionInfo, function(x){
     if (!is.null(functionPrefix)) {
-      rName <- addPrefix(x$name)
+      rName <- addPrefix(x$name, functionPrefix)
     } else {
       rName <- x$name
     }
-    list(pyName = x$name, rName = rName, functionContainerName = module, args = x$args, doc = x$doc, title = rName)
+    list(pyName = x$name, rName = rName, args = x$args, doc = x$doc, title = rName)
   })
   functionInfo
 }
@@ -97,9 +101,6 @@ getClassInfo <- function(pyPkg, module, modifyClasses = NULL) {
   if (any(nullIndices)) {
     classInfo <- classInfo[-which(nullIndices)]
   }
-  classInfo <- lapply(X = classInfo, function(x){
-    list(name = x$name, containerName = module)
-  })
   classInfo
 }
 
@@ -182,12 +183,12 @@ cleanUpStackTrace <- function(callable, args) {
   )
 }
 
-generateRWrappers <- function(pyPkg, module, modifyFunctions = NULL, modifyClasses = NULL, functionPrefix = NULL) {
+generateRWrappers <- function(pyPkg, module, modifyFunctions = NULL, modifyClasses = NULL, functionPrefix = NULL, transformReturnObject = NULL) {
   functionInfo <- getFunctionInfo(pyPkg, module, modifyFunctions, functionPrefix)
   classInfo <- getClassInfo(pyPkg, module, modifyClasses)
   
-  autoGenerateFunctions(functionInfo)
-  autoGenerateClasses(classInfo)
+  autoGenerateFunctions(module, functionInfo, transformReturnObject)
+  autoGenerateClasses(module, classInfo)
 }
 
 # ------------------------------------------------------------------------------
@@ -558,7 +559,7 @@ writeContent<-function(content, className, targetFolder) {
 generateRdFiles <- function(srcRootDir, pyPkg, module, modifyFunctions = NULL, modifyClasses = NULL, functionPrefix = NULL) {
   functionInfo <- getFunctionInfo(pyPkg, module, modifyFunctions, functionPrefix)
   classInfo <- getClassInfo(pyPkg, module, modifyClasses)
-  
+
   autoGenerateRdFiles(srcRootDir, functionInfo, classInfo)
 }
 

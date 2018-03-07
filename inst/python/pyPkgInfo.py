@@ -49,7 +49,6 @@ def getClassInfo(module):
                 methodDescription = getCleanedDoc(classmember[1])
                 methods.append({'name':methodName, 'doc':methodDescription, 'args':methodArgs})
         if constructorArgs is None:
-            print("skiping ", name)
             continue
         cleaneddoc = getCleanedDoc(classdefinition)
         # insert the constructor itself as the first thing in the list
