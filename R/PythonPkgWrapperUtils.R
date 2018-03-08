@@ -4,7 +4,7 @@
 #
 # ------------------------------------------------------------------------------
 
-defineConstructor <- function(module, name) {
+defineConstructor <- function(module, setGenericCallback, name) {
   force(name)
   assign(sprintf(".%s", name), function(...) {
     pyModule <- pyGet(module)
@@ -12,21 +12,21 @@ defineConstructor <- function(module, name) {
     functionAndArgs <- append(list(pyModule, name), argsAndKwArgs$args)
     cleanUpStackTrace(pyCall, list("gateway.invoke", args = functionAndArgs, kwargs = argsAndKwArgs$kwargs, simplify = F))
   })
-  setGeneric(
-    name = name,
-    def = function(...) {
+  setGenericCallback(
+    name,
+    function(...) {
       do.call(sprintf(".%s", name), args = list(...))
     }
   )
 }
 
-autoGenerateClasses <- function(containerName, classInfo) {
+autoGenerateClasses <- function(containerName, setGenericCallback, classInfo) {
   for (c in classInfo) {
-    defineConstructor(containerName, c$name)
+    defineConstructor(containerName, setGenericCallback, c$name)
   }
 }
 
-defineFunction <- function(rName, pyName, functionContainerName, transformReturnObject) {
+defineFunction <- function(rName, pyName, functionContainerName, setGenericCallback, transformReturnObject) {
   pyImport("gateway")
   force(rName)
   force(pyName)
@@ -44,17 +44,17 @@ defineFunction <- function(rName, pyName, functionContainerName, transformReturn
       returnedObject
     }
   })
-  setGeneric(
-    name = rName,
-    def = function(...) {
+  setGenericCallback(
+    rName,
+    function(...) {
       do.call(rWrapperName, args = list(...))
     }
   )
 }
 
-autoGenerateFunctions <- function(module, functionInfo, transformReturnObject) {
+autoGenerateFunctions <- function(setGenericCallback, functionInfo, transformReturnObject) {
   for (f in functionInfo) {
-    defineFunction(f$rName, f$pyName, module, transformReturnObject)
+    defineFunction(f$rName, f$pyName, f$functionContainerName, setGenericCallback, transformReturnObject)
   }
 }
 
@@ -62,7 +62,7 @@ addPrefix <- function(name, prefix) {
   paste(prefix, toupper(substring(name, 1, 1)), substring(name, 2, nchar(name)), sep = "")
 }
 
-getFunctionInfo <- function(pyPkg, module, modifyFunctions = NULL, functionPrefix = NULL) {
+getFunctionInfo <- function(pyPkg, module, modifyFunctions = NULL, functionPrefix = NULL, pyObjectName = NULL) {
   pyImport("pyPkgInfo")
   pyImport(pyPkg)
   pyExec(sprintf("functionInfo = pyPkgInfo.getFunctionInfo(%s)", module))
@@ -77,13 +77,18 @@ getFunctionInfo <- function(pyPkg, module, modifyFunctions = NULL, functionPrefi
     functionInfo <- functionInfo[-which(nullIndices)]
   }
 
+  functionContainerName <- module
+  if (!is.null(pyObjectName)) {
+    functionContainerName <- pyObjectName
+  }
+
   functionInfo <- lapply(X = functionInfo, function(x){
     if (!is.null(functionPrefix)) {
       rName <- addPrefix(x$name, functionPrefix)
     } else {
       rName <- x$name
     }
-    list(pyName = x$name, rName = rName, args = x$args, doc = x$doc, title = rName)
+    list(pyName = x$name, rName = rName, functionContainerName = functionContainerName, args = x$args, doc = x$doc, title = rName)
   })
   functionInfo
 }
@@ -183,12 +188,19 @@ cleanUpStackTrace <- function(callable, args) {
   )
 }
 
-generateRWrappers <- function(pyPkg, module, modifyFunctions = NULL, modifyClasses = NULL, functionPrefix = NULL, transformReturnObject = NULL) {
-  functionInfo <- getFunctionInfo(pyPkg, module, modifyFunctions, functionPrefix)
+generateRWrappers <- function(pyPkg,
+                              module,
+                              setGenericCallback,
+                              modifyFunctions = NULL,
+                              modifyClasses = NULL,
+                              functionPrefix = NULL,
+                              transformReturnObject = NULL,
+                              pyObjectName = NULL) {
+  functionInfo <- getFunctionInfo(pyPkg, module, modifyFunctions, functionPrefix, pyObjectName)
   classInfo <- getClassInfo(pyPkg, module, modifyClasses)
   
-  autoGenerateFunctions(module, functionInfo, transformReturnObject)
-  autoGenerateClasses(module, classInfo)
+  autoGenerateFunctions(setGenericCallback, functionInfo, transformReturnObject)
+  autoGenerateClasses(module, setGenericCallback, classInfo)
 }
 
 # ------------------------------------------------------------------------------
