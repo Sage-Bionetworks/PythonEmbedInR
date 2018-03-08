@@ -224,7 +224,7 @@ initAutoGenerateRdFiles<-function(templateDir) {
 # @param functionInfo list of functions for which to generate doc's
 # @param classInfo list of classes for which to generate doc's
 # @param templateDir (optional) custom templates for the docs
-autoGenerateRdFiles<-function(srcRootDir, functionInfo, classInfo, templateDir = NULL) {
+autoGenerateRdFiles<-function(srcRootDir, functionInfo, classInfo, keepContent, templateDir) {
   if (!file.exists(srcRootDir)) {
     stop(sprintf("%s does not exist.", srcRootDir))
   }
@@ -234,11 +234,13 @@ autoGenerateRdFiles<-function(srcRootDir, functionInfo, classInfo, templateDir =
   }
   initAutoGenerateRdFiles(templateDir)
 
-  # start from a clean slate
   targetFolder<-file.path(srcRootDir, "auto-man")
-  unlink(targetFolder, recursive=T, force=T)
-  dir.create(targetFolder)
-  
+  if ((!keepContent) || (!file.exists(targetFolder))){
+    # start from a clean slate
+    unlink(targetFolder, recursive=T, force=T)
+    dir.create(targetFolder)
+  }
+
   # create a list for the constructors that's structured the same as the info for the functions
   constructorInfo<-lapply(X=classInfo, function(x){
     list(rName=x$name, 
@@ -249,7 +251,7 @@ autoGenerateRdFiles<-function(srcRootDir, functionInfo, classInfo, templateDir =
     )
   })
   # create doc's for all functions and constructors
-  for (f in c(functionInfo, constructorInfo)) { 
+  for (f in c(functionInfo, constructorInfo)) {
     name <- f$rName
     args <- f$args
     doc <- f$doc
@@ -560,18 +562,25 @@ createClassRdContent<-function(templateDir, alias, title, description, methods) 
   content
 }
 
-writeContent<-function(content, className, targetFolder) {
-  filePath<-file.path(targetFolder, sprintf("%s.Rd", className))
+writeContent<-function(content, name, targetFolder) {
+  filePath<-file.path(targetFolder, sprintf("%s.Rd", name))
   connection<-file(filePath, open="w")
   writeChar(content, connection, eos=NULL)
   writeChar("\n", connection, eos=NULL)
   close(connection)
 }
 
-generateRdFiles <- function(srcRootDir, pyPkg, module, modifyFunctions = NULL, modifyClasses = NULL, functionPrefix = NULL) {
+generateRdFiles <- function(srcRootDir,
+                            pyPkg,
+                            module,
+                            modifyFunctions = NULL,
+                            modifyClasses = NULL,
+                            functionPrefix = NULL,
+                            keepContent = FALSE,
+                            templateDir = NULL) {
   functionInfo <- getFunctionInfo(pyPkg, module, modifyFunctions, functionPrefix)
   classInfo <- getClassInfo(pyPkg, module, modifyClasses)
 
-  autoGenerateRdFiles(srcRootDir, functionInfo, classInfo)
+  autoGenerateRdFiles(srcRootDir, functionInfo, classInfo, keepContent, templateDir)
 }
 
