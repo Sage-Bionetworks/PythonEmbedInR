@@ -31,14 +31,14 @@ pyExecp <- function(code){
     if (nchar(code) > 0){
         if ( pyConnectionCheck() ) return(invisible(NULL))
         if (pyOptions("winPython364")){
-            ret <- try(.Call("py_run_string_single_input", code), silent = TRUE)
+            ret <- try(.Call("py_run_string_single_input", code, PACKAGE="PythonEmbedInR"), silent = TRUE)
             cat(pyGetSimple("__getStdout()")) ## print stdout
             if (ret == -1 || class(ret)=="try-error"){
                 msg <- makeErrorMsg()
                 stop(msg)
             }
         }else{
-            ret <- .Call("py_run_string_single_input", code)
+            ret <- .Call("py_run_string_single_input", code, PACKAGE="PythonEmbedInR")
             if (ret == -1) stop("An error has occurred while executing Python code.",
                                 " See traceback above.")
         }
@@ -72,14 +72,14 @@ pyExec <- function(code){
     if (nchar(code) > 0){
         if ( pyConnectionCheck() ) return(invisible(NULL))
         if (pyOptions("winPython364")){
-            ret <- try(.Call("py_run_simple_string", code), silent = TRUE)
+            ret <- try(.Call("py_run_simple_string", code, PACKAGE="PythonEmbedInR"), silent = TRUE)
             cat(pyGetSimple("__getStdout()")) ## print stdout
             if (ret == -1 || class(ret)=="try-error"){
                 msg <- makeErrorMsg()
                 stop(msg)
             }
         }else{
-            ret <- .Call("py_run_simple_string", code)
+            ret <- .Call("py_run_simple_string", code, PACKAGE="PythonEmbedInR")
             if (ret == -1) stop("An error has occurred while executing Python code.",
                                 " See traceback above.")
         }
@@ -202,13 +202,13 @@ except:
     if (pyOptions("winPython364")){
         ret_val <- try(.Call("PythonInR_Run_String", code, 257L, autoTypecast,
                              mergeNamespaces, override, returnToR, 
-                             simplify), silent = TRUE)
+                             simplify, PACKAGE="PythonEmbedInR"), silent = TRUE)
         cat(pyGetSimple("__getStdout()")) ## print stdout
         msg <- makeErrorMsg()
         if (!is.null(msg) || class(ret_val)=="try-error") stop(msg)
     }else{
         ret_val <- .Call("PythonInR_Run_String", code, 257L, autoTypecast,
-                         mergeNamespaces, override, returnToR, simplify)
+                         mergeNamespaces, override, returnToR, simplify, PACKAGE="PythonEmbedInR")
     }
     # NOTE: the flag returnToR makes also a difference at the c level
     #       if it is FALSE only NULL get's returned!
