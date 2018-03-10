@@ -39,12 +39,12 @@ pyCall <- function(callableObj, args=NULL, kwargs=NULL, autoTypecast=TRUE, simpl
     check_string(callableObj)
     
     if (pyOptions("winPython364")){
-        returnValue <- try(.Call("py_call_obj", callableObj, args, kwargs, simplify, autoTypecast), 
+        returnValue <- try(.Call("py_call_obj", callableObj, args, kwargs, simplify, autoTypecast, PACKAGE="PythonEmbedInR"), 
                            silent=TRUE)
         msg <- makeErrorMsg()
         if (!is.null(msg) || class(returnValue)=="try-error") stop(msg)
     }else{
-        returnValue <- .Call("py_call_obj", callableObj, args, kwargs, simplify, autoTypecast)
+        returnValue <- .Call("py_call_obj", callableObj, args, kwargs, simplify, autoTypecast, PACKAGE="PythonEmbedInR")
     }
     return(pyTransformReturn(returnValue))
 }

@@ -75,7 +75,7 @@ pySet <- function(key, value, namespace = "__main__",
 # ===========
 # create new generic functions by using the function PythonEmbedInR:::pySetSimple
 pySetSimple <- function(key, value, namespace="__main__"){
-    .Call("r_set_py", namespace, key, value)
+    .Call("r_set_py", namespace, key, value, PACKAGE="PythonEmbedInR")
 }
 
 # pySetPoly is a polymorphic function
