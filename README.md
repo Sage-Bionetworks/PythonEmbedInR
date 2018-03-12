@@ -295,7 +295,7 @@ generateRWrappers(pyPkg = "synapseclient",
                   module = "synapseclient.synapseutils",
                   setGenericCallback = callback)
 ```
-For the R wrappers to be available in `synapserutils` package namespace, `setGeneric` must be defined in the `synapserutils` package. Therefore, we need to define it and pass it through `generateRWrappers`.
+For the R wrappers to be available in `synapserutils` package namespace, `setGeneric` must be defined in the `synapserutils` package. Therefore, we need to define it in `synapserutils` and pass it through `generateRWrappers`.
 
 
 ### Expose a subset of functions within a Python module
@@ -306,7 +306,7 @@ Let's omit the following functions from `synapseutils` module:
 * `copyFileHandles`
 * `notifyMe`
 
-You would need to specify a function like `selectFunctions` below in a shared R file:
+You would need to specify a function like `selectFunctions` below in a shared .R file:
 ```r
 toOmit <- c("copyFileHandles", "notifyMe")
 selectFunctions <- function(functionInfo) {
@@ -346,7 +346,7 @@ Note that we do not want the following from the `synapseclient.entity` module:
 * `function: privateGet` from any of the class
 * `class: Entity`
 
-First, define your `selectClasses` in the shared R file:
+First, define your `selectClasses` in the shared .R file:
 ```r
 methodsToOmit <- "privateGet"
 classToSkip <- "Entity"
@@ -409,14 +409,14 @@ generateRdFiles(srcRootDir,
                 pyPkg = "synapseclient",
                 module = "synapseclient.client.Synapse",
                 pyObjectName = "syn",
-                functionPrefix="syn")
+                functionPrefix = "syn")
 ```
 ```r
 generateRWrappers(pyPkg = "synapseclient",
                   module = "synapseclient.client.Synapse",
                   setGenericCallback = callback,
                   pyObjectName = "syn",
-                  functionPrefix="syn")
+                  functionPrefix = "syn")
 ```
 
 Then in the same `.onLoad`, create the Python object:
@@ -438,10 +438,10 @@ objectDefinitionHelper <- function(object) {
 
 generateRWrappers(pyPkg = "synapseclient",
                   module = "synapseclient.client.Synapse",
-                  setGenericCallback = .callback,
+                  setGenericCallback = callback,
                   functionPrefix = "syn",
-                  transformReturnObject = objectDefinitionHelper,
-                  pyObjectName = "syn")
+                  pyObjectName = "syn",
+                  transformReturnObject = objectDefinitionHelper)
 ```
 
 ### Notes on `generateRdFiles`
