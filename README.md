@@ -281,8 +281,8 @@ synapsePythonClient package
 For the R package `synapserutils`, our first attempt is to exposing all functions under `synapseutils` module. In `.configure` file, we execute an R script that calls `generateRdFiles` as following:
 ```r
 generateRdFiles(srcRootDir,
-                pyPkg = "synapseclient",
-                module = "synapseclient.synapseutils")
+                pyPkg = "synapseutils",
+                module = "synapseutils")
 ```
 Where `srcRootDir` is the path to `synapserutils` directory. 
 
@@ -291,8 +291,8 @@ Then in `.onLoad` under `synapserutils/R/zzz.R`, we add the following:
 callback <- function(name, def) {
   setGeneric(name, def)
 }
-generateRWrappers(pyPkg = "synapseclient",
-                  module = "synapseclient.synapseutils",
+generateRWrappers(pyPkg = "synapseutils",
+                  module = "synapseutils",
                   setGenericCallback = callback)
 ```
 For the R wrappers to be available in `synapserutils` package namespace, `setGeneric` must be defined in the `synapserutils` package. Therefore, we need to define it in `synapserutils` and pass it through `generateRWrappers`.
@@ -309,25 +309,26 @@ Let's omit the following functions from `synapseutils` module:
 You would need to specify a function like `selectFunctions` below in a shared .R file:
 ```r
 toOmit <- c("copyFileHandles", "notifyMe")
-selectFunctions <- function(functionInfo) {
-    if (any(functionInfo$name == toOmit)) {
+selectFunctions <- function(x) {
+    if (any(x$name == toOmit)) {
         return(NULL)
     }
+    x
 }
 ```
 
 Then from the R script that generates .Rd files, update `generateRdFiles` as following:
 ```r
 generateRdFiles(srcRootDir,
-                pyPkg = "synapseclient",
-                module = "synapseclient.synapseutils",
+                pyPkg = "synapseutils",
+                module = "synapseutils",
                 modifyFunctions = selectFunctions)
 ```
 
 And in your `.onLoad`, update `generateRWrappers` as following:
 ```r
-generateRWrappers(pyPkg = "synapseclient",
-                  module = "synapseclient.synapseutils",
+generateRWrappers(pyPkg = "synapseutils",
+                  module = "synapseutils",
                   setGenericCallback = callback,
                   modifyFunctions = selectFunctions)
 ```
@@ -350,20 +351,21 @@ First, define your `selectClasses` in the shared .R file:
 ```r
 methodsToOmit <- "privateGet"
 classToSkip <- "Entity"
-selectClasses <- function(classInfo) {
-    if (any(classInfo$name == classToSkip)) {
+selectClasses <- function(class) {
+    if (any(class$name == classToSkip)) {
         return(NULL)
     }
-    if (!is.null(classInfo$methods)) {
-        culledMethods <- lapply(X = classInfo$methods, function(x) {
+    if (!is.null(class$methods)) {
+        culledMethods <- lapply(X = class$methods, function(x) {
             if (any(x$name == methodsToOmit)) NULL else x;
         })
         # Now remove the nulls
         nullIndices <- sapply(culledMethods, is.null)
         if (any(nullIndices)) {
-            classInfo$methods <- culledMethods[-which(nullIndices)]
+            class$methods <- culledMethods[-which(nullIndices)]
         }
     }
+    class
 }
 ```
 
