@@ -10,7 +10,11 @@ defineConstructor <- function(module, setGenericCallback, name) {
     pyModule <- pyGet(module)
     argsAndKwArgs <- determineArgsAndKwArgs(...)
     functionAndArgs <- append(list(pyModule, name), argsAndKwArgs$args)
-    cleanUpStackTrace(pyCall, list("gateway.invoke", args = functionAndArgs, kwargs = argsAndKwArgs$kwargs, simplify = F))
+    cleanUpStackTrace(pyCall,
+                      list("gateway.invoke",
+                           args = functionAndArgs,
+                           kwargs = argsAndKwArgs$kwargs,
+                           simplify = F))
   })
   setGenericCallback(
     name,
@@ -26,7 +30,12 @@ autoGenerateClasses <- function(containerName, setGenericCallback, classInfo) {
   }
 }
 
-defineFunction <- function(rName, pyName, functionContainerName, setGenericCallback, transformReturnObject) {
+defineFunction <- function(rName,
+                           pyName,
+                           functionContainerName,
+                           setGenericCallback,
+                           transformReturnObject = NULL,
+                           replaceParam = NULL) {
   pyImport("gateway")
   force(rName)
   force(pyName)
@@ -36,33 +45,67 @@ defineFunction <- function(rName, pyName, functionContainerName, setGenericCallb
   assign(rWrapperName, function(...) {
     functionContainer <- pyGet(functionContainerName, simplify = FALSE)
     argsAndKwArgs <- determineArgsAndKwArgs(...)
-    functionAndArgs <- append(list(functionContainer, pyName), argsAndKwArgs$args)
-    returnedObject <- cleanUpStackTrace(pyCall, list("gateway.invoke", args = functionAndArgs, kwargs = argsAndKwArgs$kwargs, simplify = F))
+    functionAndArgs <- append(list(functionContainer, pyName),
+                              argsAndKwArgs$args)
+    returnedObject <- cleanUpStackTrace(pyCall,
+                                        list("gateway.invoke",
+                                             args = functionAndArgs,
+                                             kwargs = argsAndKwArgs$kwargs,
+                                             simplify = F))
     if(!is.null(transformReturnObject)) {
       transformReturnObject(returnedObject)
     } else {
       returnedObject
     }
   })
-  setGenericCallback(
-    rName,
-    function(...) {
+  if (!is.null(replaceParam)) {
+    fdef <- function(...) {
+      do.call(rWrapperName, args = list(pyGet(replaceParam), ...))
+    }
+  } else {
+    fdef <- function(...) {
       do.call(rWrapperName, args = list(...))
     }
-  )
+  }
+  setGenericCallback(rName, fdef)
 }
 
-autoGenerateFunctions <- function(setGenericCallback, functionInfo, transformReturnObject) {
+autoGenerateFunctions <- function(setGenericCallback,
+                                  functionInfo,
+                                  transformReturnObject = NULL,
+                                  replaceParam = NULL) {
   for (f in functionInfo) {
-    defineFunction(f$rName, f$pyName, f$functionContainerName, setGenericCallback, transformReturnObject)
+    defineFunction(f$rName,
+                   f$pyName,
+                   f$functionContainerName,
+                   setGenericCallback,
+                   transformReturnObject,
+                   replaceParam)
   }
 }
 
 addPrefix <- function(name, prefix) {
-  paste(prefix, toupper(substring(name, 1, 1)), substring(name, 2, nchar(name)), sep = "")
+  paste(prefix,
+        toupper(substring(name, 1, 1)),
+        substring(name, 2, nchar(name)),
+        sep = "")
 }
 
-getFunctionInfo <- function(pyPkg, module, modifyFunctions = NULL, functionPrefix = NULL, pyObjectName = NULL) {
+removeNulls <- function(x) {
+  nullIndices <- sapply(x, is.null)
+  if (any(nullIndices)) {
+    x <- x[-which(nullIndices)]
+  }
+  x
+}
+
+getFunctionInfo <- function(pyPkg,
+                            module,
+                            modifyFunctions = NULL,
+                            functionPrefix = NULL,
+                            pyObjectName = NULL,
+                            replaceParam = NULL) {
+
   pyImport("pyPkgInfo")
   pyImport(pyPkg)
   pyExec(sprintf("functionInfo = pyPkgInfo.getFunctionInfo(%s)", module))
@@ -72,10 +115,7 @@ getFunctionInfo <- function(pyPkg, module, modifyFunctions = NULL, functionPrefi
     functionInfo <- lapply(X = functionInfo, modifyFunctions)
   }
   # scrub the nulls
-  nullIndices <- sapply(functionInfo, is.null)
-  if (any(nullIndices)) {
-    functionInfo <- functionInfo[-which(nullIndices)]
-  }
+  functionInfo <- removeNulls(functionInfo)
 
   functionContainerName <- module
   if (!is.null(pyObjectName)) {
@@ -88,9 +128,31 @@ getFunctionInfo <- function(pyPkg, module, modifyFunctions = NULL, functionPrefi
     } else {
       rName <- x$name
     }
-    list(pyName = x$name, rName = rName, functionContainerName = functionContainerName, args = x$args, doc = x$doc, title = rName)
+    if (!is.null(replaceParam)) {
+      funArgs <- replace(x$args, replaceParam)
+    } else {
+      funArgs <- x$args
+    }
+    list(pyName = x$name,
+         rName = rName,
+         functionContainerName = functionContainerName,
+         args = funArgs,
+         doc = x$doc,
+         title = rName)
   })
   functionInfo
+}
+
+replace <- function(args, replaceParam) {
+  args$args <- lapply(X = args$args, function(x){
+    if (any(x == replaceParam)) {
+      NULL
+    } else {
+      x
+    }
+  })
+  args$args <- removeNulls(args$args)
+  args
 }
 
 getClassInfo <- function(pyPkg, module, modifyClasses = NULL) {
@@ -102,11 +164,7 @@ getClassInfo <- function(pyPkg, module, modifyClasses = NULL) {
     classInfo <- lapply(X = classInfo, modifyClasses)
   }
   # scrub the nulls
-  nullIndices <- sapply(classInfo, is.null)
-  if (any(nullIndices)) {
-    classInfo <- classInfo[-which(nullIndices)]
-  }
-  classInfo
+  removeNulls(classInfo)
 }
 
 # Determines args and kwargs
@@ -127,7 +185,9 @@ determineArgsAndKwArgs <- function(...) {
   if (n > 0) {
     positionalArgument <- TRUE
     for (i in 1:n) {
-      if (is.null(valuenames) || length(valuenames[[i]]) == 0 || nchar(valuenames[[i]]) == 0) {
+      if (is.null(valuenames) ||
+          length(valuenames[[i]]) == 0 ||
+          nchar(valuenames[[i]]) == 0) {
         # it's a positional argument
         if (!positionalArgument) {
           stop("positional argument follows keyword argument")
@@ -180,7 +240,10 @@ cleanUpStackTrace <- function(callable, args) {
     errorToReport <- paste(c(outputCapture, e$message), collapse = "\n")
     if (!getOption("verbose")) {
       # extract the error message
-      splitArray <- strsplit(errorToReport, "exception-message-boundary", fixed = TRUE)[[1]]
+      splitArray <- strsplit(errorToReport,
+                             "exception-message-boundary",
+                             fixed = TRUE
+                             )[[1]]
       if (length(splitArray) >= 2) errorToReport <- splitArray[2]
     }
     stop(errorToReport)
@@ -194,13 +257,26 @@ generateRWrappers <- function(pyPkg,
                               modifyFunctions = NULL,
                               modifyClasses = NULL,
                               functionPrefix = NULL,
+                              pyObjectName = NULL,
                               transformReturnObject = NULL,
-                              pyObjectName = NULL) {
-  functionInfo <- getFunctionInfo(pyPkg, module, modifyFunctions, functionPrefix, pyObjectName)
-  classInfo <- getClassInfo(pyPkg, module, modifyClasses)
+                              replaceParam = NULL) {
+  functionInfo <- getFunctionInfo(pyPkg,
+                                  module,
+                                  modifyFunctions,
+                                  functionPrefix,
+                                  pyObjectName,
+                                  replaceParam)
+  classInfo <- getClassInfo(pyPkg,
+                            module,
+                            modifyClasses)
   
-  autoGenerateFunctions(setGenericCallback, functionInfo, transformReturnObject)
-  autoGenerateClasses(module, setGenericCallback, classInfo)
+  autoGenerateFunctions(setGenericCallback,
+                        functionInfo,
+                        transformReturnObject,
+                        replaceParam)
+  autoGenerateClasses(module,
+                      setGenericCallback,
+                      classInfo)
 }
 
 # ------------------------------------------------------------------------------
@@ -224,7 +300,11 @@ initAutoGenerateRdFiles<-function(templateDir) {
 # @param functionInfo list of functions for which to generate doc's
 # @param classInfo list of classes for which to generate doc's
 # @param templateDir (optional) custom templates for the docs
-autoGenerateRdFiles<-function(srcRootDir, functionInfo, classInfo, keepContent, templateDir) {
+autoGenerateRdFiles<-function(srcRootDir,
+                              functionInfo,
+                              classInfo,
+                              keepContent,
+                              templateDir = NULL) {
   if (!file.exists(srcRootDir)) {
     stop(sprintf("%s does not exist.", srcRootDir))
   }
@@ -264,12 +344,16 @@ autoGenerateRdFiles<-function(srcRootDir, functionInfo, classInfo, keepContent, 
     tryCatch({
       argDescriptionsFromDoc<-parseArgDescriptionsFromDetails(doc)
       argNames<-args$args
-      formatArgsResult<-formatArgsForArgumentSection(argNames, argDescriptionsFromDoc)
+      formatArgsResult<-formatArgsForArgumentSection(argNames,
+                                                     argDescriptionsFromDoc)
       content<-createFunctionRdContent(templateDir=templateDir,
                                        alias=name,
                                        title=title,
                                        description=doc,
-                                       usage=usage(name, args, argDescriptionsFromDoc),
+                                       usage=usage(name,
+                                                   args,
+                                                   argDescriptionsFromDoc
+                                                   ),
                                        argument = formatArgsResult,
                                        returned=returned
       )
@@ -290,9 +374,13 @@ autoGenerateRdFiles<-function(srcRootDir, functionInfo, classInfo, keepContent, 
                                     alias=paste0(c$name, "-class"),
                                     title=c$name,
                                     description=c$doc,
-                                    methods=lapply(X=c$methods, function(x){
-                                      argDescriptionsFromDoc<-parseArgDescriptionsFromDetails(x$doc)
-                                      list(name=x$name,description=x$doc,args=x$args, argDescriptionsFromDoc=argDescriptionsFromDoc)
+                                    methods=lapply(X=c$methods,
+                                                   function(x){
+                                      argDescriptionsFromDoc <- parseArgDescriptionsFromDetails(x$doc)
+                                      list(name = x$name,
+                                           description = x$doc,
+                                           args = x$args,
+                                           argDescriptionsFromDoc = argDescriptionsFromDoc)
                                     })
       )
       p<-regexpr("##(alias|title|description|methods)##", content)[1]
