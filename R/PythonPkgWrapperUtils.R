@@ -4,6 +4,11 @@
 #
 # ------------------------------------------------------------------------------
 
+# Define an R wrapper for a object constructor in Python
+#
+# @param module the python module
+# @param setGenericCallback the callback to setGeneric defined in the target R package
+# @param name the class name
 defineConstructor <- function(module, setGenericCallback, name) {
   force(name)
   assign(sprintf(".%s", name), function(...) {
@@ -24,12 +29,25 @@ defineConstructor <- function(module, setGenericCallback, name) {
   )
 }
 
-autoGenerateClasses <- function(containerName, setGenericCallback, classInfo) {
+# Helper function to generate R wrappers for classes in a python module
+#
+# @param module the python module
+# @param setGenericCallback the callback to setGeneric defined in the target R package
+# @param classInfo the classes to generate R wrappers for
+autoGenerateClasses <- function(module, setGenericCallback, classInfo) {
   for (c in classInfo) {
-    defineConstructor(containerName, setGenericCallback, c$name)
+    defineConstructor(module, setGenericCallback, c$name)
   }
 }
 
+# Define an R wrappers for a function in a python module
+#
+# @param rName the R function name
+# @param pyName the Python function name
+# @param functionContainerName the function container name in Python
+# @param setGenericCallback the callback to setGeneric defined in the target R package
+# @param transformReturnObject optional function to change returned values in R
+# @param replaceParam optional function to replace a function param
 defineFunction <- function(rName,
                            pyName,
                            functionContainerName,
@@ -70,6 +88,12 @@ defineFunction <- function(rName,
   setGenericCallback(rName, fdef)
 }
 
+# Helper function to generate R wrappers for functions in a python module
+#
+# @param setGenericCallback the callback to setGeneric defined in the target R package
+# @param functionInfo the functions to generate R wrappers for
+# @param transformReturnObject optional function to change returned values in R
+# @param replaceParam optional function to replace a function param
 autoGenerateFunctions <- function(setGenericCallback,
                                   functionInfo,
                                   transformReturnObject = NULL,
@@ -84,6 +108,10 @@ autoGenerateFunctions <- function(setGenericCallback,
   }
 }
 
+# Helper function to add prefix to a name
+#
+# @param name the name to add prefix to
+# @param prefix the prefix to add
 addPrefix <- function(name, prefix) {
   paste(prefix,
         toupper(substring(name, 1, 1)),
@@ -91,6 +119,9 @@ addPrefix <- function(name, prefix) {
         sep = "")
 }
 
+# Helper function to remove NULL in a list
+#
+# @param x the list to remove NULL
 removeNulls <- function(x) {
   nullIndices <- sapply(x, is.null)
   if (any(nullIndices)) {
@@ -99,6 +130,14 @@ removeNulls <- function(x) {
   x
 }
 
+# Helper function to get a list of Python functions in a given module
+#
+# @param pyPkg the Python package name
+# @param module the Python module
+# @param modifyFunctions optional function to modify the returned functions
+# @param functionPrefix optional text to add to the name of the functions
+# @param pyObjectName optional singleton object in python
+# @param replaceParam optional function to replace a function param
 getFunctionInfo <- function(pyPkg,
                             module,
                             modifyFunctions = NULL,
@@ -129,7 +168,7 @@ getFunctionInfo <- function(pyPkg,
       rName <- x$name
     }
     if (!is.null(replaceParam)) {
-      funArgs <- replace(x$args, replaceParam)
+      funArgs <- remove(x$args, replaceParam)
     } else {
       funArgs <- x$args
     }
@@ -143,7 +182,11 @@ getFunctionInfo <- function(pyPkg,
   functionInfo
 }
 
-replace <- function(args, replaceParam) {
+# Search and remove any argument with NULL if it matchs replaceParam
+#
+# @param args the argument to search and remove
+# @param replaceParam the param to check
+remove <- function(args, replaceParam) {
   args$args <- lapply(X = args$args, function(x){
     if (any(x == replaceParam)) {
       NULL
@@ -155,6 +198,11 @@ replace <- function(args, replaceParam) {
   args
 }
 
+# Helper function to get a list of Python classes in a given module
+#
+# @param pyPkg the Python package name
+# @param module the Python module
+# @param modifyClasses optional function to modify the returned classes
 getClassInfo <- function(pyPkg, module, modifyClasses = NULL) {
   pyImport("pyPkgInfo")
   pyImport(pyPkg)
@@ -251,6 +299,17 @@ cleanUpStackTrace <- function(callable, args) {
   )
 }
 
+#' Generate R wrappers for Python classes and functions in a Python module
+#'
+#' @param pyPkg the Python package name
+#' @param module the Python module
+#' @param setGenericCallback the callback to setGeneric defined in the target R package
+#' @param modifyFunctions optional function to modify the returned functions
+#' @param modifyClasses optional function to modify the returned classes
+#' @param functionPrefix optional text to add to the name of the functions
+#' @param pyObjectName optional singleton object in python
+#' @param transformReturnObject optional function to change returned values in R
+#' @param replaceParam optional function to replace a function param
 generateRWrappers <- function(pyPkg,
                               module,
                               setGenericCallback,
@@ -658,6 +717,17 @@ writeContent<-function(content, name, targetFolder) {
   close(connection)
 }
 
+#' Generate .Rd files for Python classes and functions in a Python module
+#'
+#' @param srcRootDir the directory of the R package
+#' @param pyPkg the Python package name
+#' @param module the Python module
+#' @param modifyFunctions optional function to modify the returned functions
+#' @param modifyClasses optional function to modify the returned classes
+#' @param functionPrefix optional text to add to the name of the functions
+#' @param keepContent optional wheather the existing files at the target directory
+#' should be kept
+#' @param templateDir optional path to a template directory
 generateRdFiles <- function(srcRootDir,
                             pyPkg,
                             module,
