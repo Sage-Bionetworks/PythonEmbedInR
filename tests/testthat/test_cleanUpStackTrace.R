@@ -41,7 +41,7 @@ test_that("multiple parallel calls work", {
   writeLines("this is a test", conn)
   tryCatch(
     {
-      .cleanUpStackTrace(function(x){x}, list(x=123))
+      cleanUpStackTrace(function(x){x}, list(x=123))
     },
     finally = {
       close(conn)
