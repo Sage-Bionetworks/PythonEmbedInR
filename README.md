@@ -284,6 +284,7 @@ generateRdFiles(srcRootDir,
                 pyPkg = "synapseutils",
                 module = "synapseutils")
 ```
+
 Where `srcRootDir` is the path to `synapserutils` directory, `pyPkg` is the name of the Python package, and `module` is the name of the Python module. In this case, `pyPkg` and `module` has the same name. In later examples, we will use different names for `pyPkg` and `module`.
 
 Then in `.onLoad` under `synapserutils/R/zzz.R`, we add the following:

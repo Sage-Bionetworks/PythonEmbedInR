@@ -299,7 +299,9 @@ cleanUpStackTrace <- function(callable, args) {
   )
 }
 
-#' Generate R wrappers for Python classes and functions in a Python module
+#' @title Generate R wrappers for Python classes and functions
+#' @description This function generate R wrappers for Python classes and functions
+#'  in the given Python module
 #'
 #' @param pyPkg the Python package name
 #' @param module the Python module
@@ -310,6 +312,18 @@ cleanUpStackTrace <- function(callable, args) {
 #' @param pyObjectName optional singleton object in python
 #' @param transformReturnObject optional function to change returned values in R
 #' @param replaceParam optional function to replace a function param
+#' @details generateRdFiles and generateRWrappers should be called with similar
+#'  params to ensure all R wrappers has sufficient documentation.
+#' @note generateRWrappers should be called in .onLoad()
+#' @examples
+#' \dontshow{
+#' callback <- function(name, def) {
+#'  setGeneric(name, def)
+#' }
+#' PythonEmbedInR::generateRWrappers(pyPkg = "pyPackageName",
+#'  module = "aModuleInPyPackageName",
+#'  setGenericCallback = callback)
+#' }
 generateRWrappers <- function(pyPkg,
                               module,
                               setGenericCallback,
@@ -717,7 +731,9 @@ writeContent<-function(content, name, targetFolder) {
   close(connection)
 }
 
-#' Generate .Rd files for Python classes and functions in a Python module
+#' @title Generate .Rd files for Python classes and functions
+#' @description This function generate .Rd files for Python classes and functions
+#'  for a given Python module.
 #'
 #' @param srcRootDir the directory of the R package
 #' @param pyPkg the Python package name
@@ -726,8 +742,17 @@ writeContent<-function(content, name, targetFolder) {
 #' @param modifyClasses optional function to modify the returned classes
 #' @param functionPrefix optional text to add to the name of the functions
 #' @param keepContent optional wheather the existing files at the target directory
-#' should be kept
+#'  should be kept
 #' @param templateDir optional path to a template directory
+#' @details generateRdFiles and generateRWrappers should be called with similar
+#'  params to ensure all R wrappers has sufficient documentation.
+#' @note The generated .Rd files is localed in srcRootDir/auto-man. One must copy
+#'  all .Rd files to their man folder and make sure that the language being used in
+#'  these documents are friendly to R users.
+#' @examples
+#' \dontshow{PythonEmbedInR::generateRdFiles(srcRootDir = "path/to/R/pkg",
+#'  pyPkg = "pyPackageName",
+#'  module = "aModuleInPyPackageName")}
 generateRdFiles <- function(srcRootDir,
                             pyPkg,
                             module,
