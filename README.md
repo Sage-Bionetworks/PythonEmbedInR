@@ -278,13 +278,13 @@ synapsePythonClient package
 
 ### Expose all functions and classes within a Python module
 
-For the R package `synapserutils`, our first attempt is to exposing all functions under `synapseutils` module. In `.configure` file, we execute an R script that calls `generateRdFiles` as following:
+For the R package `synapserutils`, our first attempt is to exposing all functions under `synapseutils` Python module. In `.configure` file, we execute an R script that calls `generateRdFiles` as following:
 ```r
 generateRdFiles(srcRootDir,
                 pyPkg = "synapseutils",
                 module = "synapseutils")
 ```
-Where `srcRootDir` is the path to `synapserutils` directory. 
+Where `srcRootDir` is the path to `synapserutils` directory, `pyPkg` is the name of the Python package, and `module` is the name of the Python module. In this case, `pyPkg` and `module` has the same name. In later examples, we will use different names for `pyPkg` and `module`.
 
 Then in `.onLoad` under `synapserutils/R/zzz.R`, we add the following:
 ```r
@@ -297,6 +297,10 @@ generateRWrappers(pyPkg = "synapseutils",
 ```
 For the R wrappers to be available in `synapserutils` package namespace, `setGeneric` must be defined in the `synapserutils` package. Therefore, we need to define it in `synapserutils` and pass it through `generateRWrappers`.
 
+For more information about how to use `setGeneric`, please view its reference documentation by:
+```r
+?setGeneric
+```
 
 ### Expose a subset of functions within a Python module
 
