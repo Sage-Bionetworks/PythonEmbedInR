@@ -133,6 +133,13 @@ fi
 R -e ".libPaths('../RLIB');\
   setwd(sprintf('%s/tests', getwd()));\
   source('testthat.R')"
+  
+# test that load works after detach
+R -e ".libPaths('../RLIB');\
+  library(PythonEmbedInR);\
+  detach("package:PythonEmbedInR", unload=TRUE);\
+  library(PythonEmbedInR)"
+   
 
 ## clean up the temporary R library dir
 rm -rf ../RLIB
