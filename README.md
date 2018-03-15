@@ -233,7 +233,7 @@ A Python package may have multiple modules, each with its own namespace. Each mo
 * `generateRWrappers`
 * `generateRdFiles`
 
-The .Rd file generation must happen at the time the package is built, not at the time the package is loaded. The R function and contructor wrappers must happen at the time the package is loaded. These functions should be called with the similar params to ensure that all R wrapped functions have corresponding reference documentation.
+The .Rd file generation must happen at the time the package is built, not at the time the package is loaded. The R function and constructor wrappers must happen at the time the package is loaded. These functions should be called with the similar parameters to ensure that all R wrapped functions have corresponding reference documentation.
 
 ## Examples:
 
