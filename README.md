@@ -220,15 +220,15 @@ More information can be found [here](http://www.diveintopython3.net/strings.html
 | pyVersion        | Returns the version of Python                      | `pyVersion()`                                                        |
 
 
-# Wrapping python packages
+# Wrapping Python packages
 
-The following tools help generate R functions wrapping Python functions along with reference documentation (.Rd files) for the wrapper functions, the documentation being generated from the Sphinx-based Python doc-strings.
+The following tools help generate R functions that wrap Python functions along with reference documentation (.Rd files) for the wrapper functions. The R documentation is generated from the Sphinx-based Python docstrings.
 
-Preconditions:
+Prequisites:
 * The Python package is downloaded and installed on the machine
-* The Python package is available on python search path
+* The Python package is available on Python search path
 
-A Python package may have multiple modules, each with its namespace. Each module has its own functions, classes, and variables. Each function or class has its own local namespace. In R, all functions and classes within the same package share a package namespace. To avoid the namespace collisions and allow customization to the wrapping package, we provide the following functions to help you pick which modules, functions, and classes to expose in R:
+A Python package may have multiple modules, each with its own namespace. Each module has its own functions, classes, and variables. Each function or class has its own local namespace. In R, all functions and classes within the same package share a package namespace. To avoid the namespace collisions and allow customization to the wrapping package, we provide the following functions to help you pick which modules, functions, and classes to expose in R:
 
 * `generateRWrappers`
 * `generateRdFiles`
@@ -237,33 +237,10 @@ The .Rd file generation must happen at the time the package is built, not at the
 
 ## Examples:
 
-In this example, I will demonstrate how we generate `synapser` and `synapserutils` packages by wrapping Python package `synapsePythonClient`.
+In this example, I will demonstrate how we generate [synapser](https://github.com/Sage-Bionetworks/synapser) and [synapserutils](https://github.com/Sage-Bionetworks/synapserutils) packages by wrapping Python package [synapsePythonClient](https://github.com/Sage-Bionetworks/synapsePythonClient).
 
-`synapsePythonClient` has the following structure:
+The `synapseutils` module in `synapsePythonClient` package has the following structure:
 ```
-synapsePythonClient package
-    module: synapseclient
-        module: client
-            class: Synapse
-                function: get
-                function: login
-        module: entity
-            class: Entity
-                function: get
-                function: privateGet
-            class: File
-                function: get
-                function: privateGet
-            class: Folder
-                function: get
-                function: privateGet
-        module: table
-            function: Table
-            function: column_ids
-            class: Column
-            class: CsvFileTable
-        module: cache
-            function: set
     module: synapseutils
         module: copy
             function: copy
@@ -278,17 +255,29 @@ synapsePythonClient package
 
 ### Expose all functions and classes within a Python module
 
-For the R package `synapserutils`, our first attempt is to exposing all functions under `synapseutils` Python module. In `.configure` file, we execute an R script that calls `generateRdFiles` as following:
+#### Generate .Rd files
+
+To generate the R package `synapserutils`, our first attempt is to exposing all functions under `synapseutils` Python module. In `.configure` file, we execute an R script that calls `generateRdFiles` as following:
 ```r
 generateRdFiles(srcRootDir,
                 pyPkg = "synapseutils",
                 module = "synapseutils")
 ```
 
-Where `srcRootDir` is the path to `synapserutils` directory, `pyPkg` is the name of the Python package, and `module` is the name of the Python module. In this case, `pyPkg` and `module` has the same name. In later examples, we will use different names for `pyPkg` and `module`.
+Where:
+* `srcRootDir` is the path to `synapserutils` directory. The directory must exist prior to this call. `generateRdFiles` will create a folder `auto-man` and write the generated .Rd files in this folder.
+* `pyPkg` is the name of the Python package that needs to be imported, and
+* `module` is the name of the Python module to be wrapped.
 
-Then in `.onLoad` under `synapserutils/R/zzz.R`, we add the following:
+#### Generate R wrappers
+
+To generate R wrappers for Python functions and constructors, we need to add an `.onLoad` hook in the R package. This hook is defined in `synapserutils/R/zzz.R` file. 
+
+In the `.onLoad` function, we add the following:
 ```r
+# For the R wrappers to be available in `synapserutils` package namespace,
+# `setGeneric` must be defined in the `synapserutils` package. Therefore,
+# we need to define it in `synapserutils` and pass it through `generateRWrappers`.
 callback <- function(name, def) {
   setGeneric(name, def)
 }
@@ -296,7 +285,6 @@ generateRWrappers(pyPkg = "synapseutils",
                   module = "synapseutils",
                   setGenericCallback = callback)
 ```
-For the R wrappers to be available in `synapserutils` package namespace, `setGeneric` must be defined in the `synapserutils` package. Therefore, we need to define it in `synapserutils` and pass it through `generateRWrappers`.
 
 For more information about how to use `setGeneric`, please view its reference documentation by:
 ```r
@@ -305,7 +293,7 @@ For more information about how to use `setGeneric`, please view its reference do
 
 ### Expose a subset of functions within a Python module
 
-For many reasons, some Python functions are only meaningful to Python users. We would not want to expose those functions in our R package.
+For many reasons, some Python functions are meant to be used internally, and these do not need to be exposed the R package. For example, `notifyMe` is a Python decorator, and can only be used for other Python functions.
 
 Let's omit the following functions from `synapseutils` module:
 * `copyFileHandles`
@@ -339,6 +327,25 @@ generateRWrappers(pyPkg = "synapseutils",
 ```
 
 ### Expose a subset of classes within a Python module
+
+The `synapseclient` module in `synapsePythonClient` has the following structure:
+```
+    module: synapseclient
+        module: client
+            class: Synapse
+                function: get
+                function: login
+        module: entity
+            class: Entity
+                function: get
+                function: privateGet
+            class: File
+                function: get
+                function: privateGet
+            class: Folder
+                function: get
+                function: privateGet
+```
 
 Now let's try a more complicated example where we want to expose the following functions and classes from `synapseclient.entity` module:
 ```
@@ -437,6 +444,7 @@ pyExec("syn = synapseclient.Synapse()")
 For many reasons, a returned object from an R wrapper function does not have the R-friendly bahaviors. As an author of an R package, one may want to modify the returned object. Here is a simple example using `transformReturnObject` param:
 ```r
 objectDefinitionHelper <- function(object) {
+  # change returned object name from "GeneratorWrapper.<some function name>" to "GeneratorWrapper"
   if (grepl("^GeneratorWrapper", class(object)[1])) {
     class(object)[1] <- "GeneratorWrapper"
   }
