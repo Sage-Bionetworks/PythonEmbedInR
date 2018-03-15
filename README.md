@@ -356,7 +356,7 @@ Now let's try a more complicated example where we want to expose the following f
 ```
 
 Note that we do not want the following from the `synapseclient.entity` module:
-* `function: privateGet` from any of the class
+* `function: privateGet` from any of the classes
 * `class: Entity`
 
 First, define your `selectClasses` in the shared .R file:
@@ -441,7 +441,7 @@ pyExec("syn = synapseclient.Synapse()")
 
 ### Overwrite the returned object in R
 
-For many reasons, a returned object from an R wrapper function does not have the R-friendly bahaviors. As an author of an R package, one may want to modify the returned object. Here is a simple example using `transformReturnObject` param:
+For many reasons, a returned object from an R wrapper function does not have the R-friendly bahaviors. As an author of an R package, one may want to modify the returned object. Here is a simple example using `transformReturnObject` parameter:
 ```r
 objectDefinitionHelper <- function(object) {
   # change returned object name from "GeneratorWrapper.<some function name>" to "GeneratorWrapper"
