@@ -50,13 +50,11 @@ autoGenerateClasses <- function(module, setGenericCallback, classInfo) {
 # @param functionContainerName the function container name in Python
 # @param setGenericCallback the callback to setGeneric defined in the target R package
 # @param transformReturnObject optional function to change returned values in R
-# @param replaceParam optional function to replace a function param
 defineFunction <- function(rName,
                            pyName,
                            functionContainerName,
                            setGenericCallback,
-                           transformReturnObject = NULL,
-                           replaceParam = NULL) {
+                           transformReturnObject = NULL) {
   pyImport("gateway")
   force(rName)
   force(pyName)
@@ -84,16 +82,9 @@ defineFunction <- function(rName,
       returnedObject
     }
   })
-  if (!is.null(replaceParam)) {
-    fdef <- function(...) {
-      do.call(rWrapperName, args = list(pyGet(replaceParam), ...))
-    }
-  } else {
-    fdef <- function(...) {
-      do.call(rWrapperName, args = list(...))
-    }
-  }
-  setGenericCallback(rName, fdef)
+  setGenericCallback(rName, function(...) {
+    do.call(rWrapperName, args = list(...))
+  })
 }
 
 # Helper function to generate R wrappers for functions in a python module
@@ -101,19 +92,16 @@ defineFunction <- function(rName,
 # @param setGenericCallback the callback to setGeneric defined in the target R package
 # @param functionInfo the functions to generate R wrappers for
 # @param transformReturnObject optional function to change returned values in R
-# @param replaceParam optional function to replace a function param
 autoGenerateFunctions <- function(setGenericCallback,
                                   functionInfo,
-                                  transformReturnObject = NULL,
-                                  replaceParam = NULL) {
+                                  transformReturnObject = NULL) {
   for (f in functionInfo) {
     defineFunction(
       f$rName,
       f$pyName,
       f$functionContainerName,
       setGenericCallback,
-      transformReturnObject,
-      replaceParam
+      transformReturnObject
     )
   }
 }
@@ -148,13 +136,11 @@ removeNulls <- function(x) {
 # @param modifyFunctions optional function to modify the returned functions
 # @param functionPrefix optional text to add to the name of the functions
 # @param pyObjectName optional singleton object in python
-# @param replaceParam optional function to replace a function param
 getFunctionInfo <- function(pyPkg,
                             module,
                             modifyFunctions = NULL,
                             functionPrefix = NULL,
-                            pyObjectName = NULL,
-                            replaceParam = NULL) {
+                            pyObjectName = NULL) {
   pyImport("pyPkgInfo")
   pyImport(pyPkg)
   pyExec(sprintf("functionInfo = pyPkgInfo.getFunctionInfo(%s)", module))
@@ -177,37 +163,16 @@ getFunctionInfo <- function(pyPkg,
     } else {
       rName <- x$name
     }
-    if (!is.null(replaceParam)) {
-      funArgs <- remove(x$args, replaceParam)
-    } else {
-      funArgs <- x$args
-    }
     list(
       pyName = x$name,
       rName = rName,
       functionContainerName = functionContainerName,
-      args = funArgs,
+      args = x$args,
       doc = x$doc,
       title = rName
     )
   })
   functionInfo
-}
-
-# Search and remove any argument with NULL if it matchs replaceParam
-#
-# @param args the argument to search and remove
-# @param replaceParam the param to check
-remove <- function(args, replaceParam) {
-  args$args <- lapply(X = args$args, function(x) {
-    if (any(x == replaceParam)) {
-      NULL
-    } else {
-      x
-    }
-  })
-  args$args <- removeNulls(args$args)
-  args
 }
 
 # Helper function to get a list of Python classes in a given module
@@ -323,7 +288,6 @@ cleanUpStackTrace <- function(callable, args) {
 #' @param functionPrefix optional text to add to the name of the functions
 #' @param pyObjectName optional singleton object in python
 #' @param transformReturnObject optional function to change returned values in R
-#' @param replaceParam optional function to replace a function param
 #' @details generateRdFiles and generateRWrappers should be called with similar
 #'  params to ensure all R wrappers has sufficient documentation.
 #' @note generateRWrappers should be called in .onLoad()
@@ -343,15 +307,13 @@ generateRWrappers <- function(pyPkg,
                               modifyClasses = NULL,
                               functionPrefix = NULL,
                               pyObjectName = NULL,
-                              transformReturnObject = NULL,
-                              replaceParam = NULL) {
+                              transformReturnObject = NULL) {
   functionInfo <- getFunctionInfo(
     pyPkg,
     module,
     modifyFunctions,
     functionPrefix,
-    pyObjectName,
-    replaceParam
+    pyObjectName
   )
   classInfo <- getClassInfo(
     pyPkg,
@@ -362,8 +324,7 @@ generateRWrappers <- function(pyPkg,
   autoGenerateFunctions(
     setGenericCallback,
     functionInfo,
-    transformReturnObject,
-    replaceParam
+    transformReturnObject
   )
   autoGenerateClasses(
     module,
