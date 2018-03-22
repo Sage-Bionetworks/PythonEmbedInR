@@ -52,19 +52,6 @@ test_that("defineFunction with transform return object", {
   expect_equal(myFun(4), 5)
 })
 
-test_that("defineFunction with replace param", {
-  pyImport("test")
-  pyImport("gateway")
-  pyExec("x = test.MyObj()")
-  PythonEmbedInR:::defineFunction(rName = "incObj",
-                                  pyName = "incObj",
-                                  functionContainerName = "test",
-                                  setGenericCallback = callback,
-                                  replaceParam = "x")
-  expect_equal(incObj(), 1)
-  expect_equal(incObj(), 2)
-})
-
 test_that("generateRWrappers", {
   removeIncObj <- function(x) {
     if (any(x$name == "incObj")) {
