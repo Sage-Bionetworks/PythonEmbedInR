@@ -5,8 +5,10 @@ library(PythonEmbedInR)
 package_dir <- gsub("(PythonEmbedInR).*", "\\1", getwd())
 testthat_dir <- file.path(package_dir, "tests", "testthat")
 
-# add testthat to python search path
 pyImport("sys")
+# clean up sys.path to ensure that testthat does not use user's installed packages
+pyExec(sprintf("sys.path = [x for x in sys.path if x.startswith(\"%s\") or \"PythonEmbedInR\" in x]", package_dir))
+# add testthat to python search path
 pyExec(sprintf("sys.path.insert(0, \"%s\")", testthat_dir))
 
 test_check("PythonEmbedInR")
