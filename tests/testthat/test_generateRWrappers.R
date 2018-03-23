@@ -1,5 +1,7 @@
 context("testPyPkgWrapper generate R wrappers")
 
+pyExecp("sys.path")
+
 callback <- function(name, def) {
   setGeneric(name, def)
 }
