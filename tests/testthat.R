@@ -7,7 +7,7 @@ testthat_dir <- file.path(package_dir, "tests", "testthat")
 
 # add testthat to python search path
 pyImport("sys")
-pyExec(sprintf("sys.path.append(\"%s\")", testthat_dir))
+pyExec(sprintf("sys.path.insert(0, \"%s\")", testthat_dir))
 
 test_check("PythonEmbedInR")
 

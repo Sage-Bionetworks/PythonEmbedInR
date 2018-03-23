@@ -1,13 +1,13 @@
-context("test generate R wrappers")
+context("testPyPkgWrapper generate R wrappers")
 
 callback <- function(name, def) {
   setGeneric(name, def)
 }
 
 test_that("defineConstructor", {
-  pyImport("test")
+  pyImport("testPyPkgWrapperPyPkgWrapper")
   pyImport("gateway")
-  PythonEmbedInR:::defineConstructor(module = "test",
+  PythonEmbedInR:::defineConstructor(module = "testPyPkgWrapper",
                                      setGenericCallback = callback,
                                      name = "MyObj")
   obj <- MyObj()
@@ -16,36 +16,36 @@ test_that("defineConstructor", {
 })
 
 test_that("defineFunction with same name", {
-  pyImport("test")
+  pyImport("testPyPkgWrapper")
   pyImport("gateway")
   PythonEmbedInR:::defineFunction(rName = "myFun",
                                   pyName = "myFun",
-                                  functionContainerName = "test",
+                                  functionContainerName = "testPyPkgWrapper",
                                   setGenericCallback = callback)
   expect_equal(myFun(-4), 4)
   expect_equal(myFun(4), 4)
 })
 
 test_that("defineFunction with different name", {
-  pyImport("test")
+  pyImport("testPyPkgWrapper")
   pyImport("gateway")
   PythonEmbedInR:::defineFunction(rName = "myRFunc",
                                   pyName = "myFun",
-                                  functionContainerName = "test",
+                                  functionContainerName = "testPyPkgWrapper",
                                   setGenericCallback = callback)
   expect_equal(myRFunc(-4), 4)
   expect_equal(myRFunc(4), 4)
 })
 
 test_that("defineFunction with transform return object", {
-  pyImport("test")
+  pyImport("testPyPkgWrapper")
   pyImport("gateway")
   inc <- function(x) {
     x + 1
   }
   PythonEmbedInR:::defineFunction(rName = "myFun",
                                   pyName = "myFun",
-                                  functionContainerName = "test",
+                                  functionContainerName = "testPyPkgWrapper",
                                   setGenericCallback = callback,
                                   transformReturnObject = inc)
   expect_equal(myFun(-4), 5)
@@ -59,8 +59,8 @@ test_that("generateRWrappers", {
     }
     x
   }
-  generateRWrappers(pyPkg = "test",
-                    module = "test",
+  generateRWrappers(pyPkg = "testPyPkgWrapper",
+                    module = "testPyPkgWrapper",
                     setGenericCallback = callback,
                     modifyFunctions = removeIncObj,
                     functionPrefix = "test")
