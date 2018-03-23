@@ -5,7 +5,7 @@ callback <- function(name, def) {
 }
 
 test_that("defineConstructor", {
-  pyImport("testPyPkgWrapperPyPkgWrapper")
+  pyImport("testPyPkgWrapper")
   pyImport("gateway")
   PythonEmbedInR:::defineConstructor(module = "testPyPkgWrapper",
                                      setGenericCallback = callback,
