@@ -7,9 +7,11 @@ set -e
 mkdir -p ../RLIB
 
 ## Install required R libraries
- R -e "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson');\
-new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,'Package'])];\
-if(length(new.packages)) install.packages(new.packages, repos='http://cran.fhcrc.org')"
+echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson');" > installReqPkgs.R
+echo "new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,'Package'])];" >> installReqPkgs.R
+echo "if(length(new.packages)) install.packages(new.packages, repos='http://cran.fhcrc.org')" >> installReqPkgs.R
+R --vanilla < installReqPkgs.R
+rm installReqPkgs.R
 
 ## export the jenkins-defined environment variables
 export label
@@ -130,16 +132,19 @@ else
   exit 1
 fi
 
-R -e ".libPaths('../RLIB');\
-  setwd(sprintf('%s/tests', getwd()));\
-  source('testthat.R')"
+echo ".libPaths('../RLIB');" > runTestthat.R
+echo "setwd(sprintf('%s/tests', getwd()));" >> runTestthat.R
+echo "source('testthat.R')" >> runTestthat.R
+R --vanilla < runTestthat.R
+rm runTestthat.R
   
 # test that load works after detach
-R -e ".libPaths('../RLIB');\
-  library(PythonEmbedInR);\
-  detach("package:PythonEmbedInR", unload=TRUE);\
-  library(PythonEmbedInR)"
-   
+echo ".libPaths('../RLIB');" > testDetach.R
+echo "library(PythonEmbedInR);" >> testDetach.R
+echo "detach(\"package:PythonEmbedInR\", unload=TRUE);" >> testDetach.R
+echo "library(PythonEmbedInR)" >> testDetach.R
+R --vanilla < testDetach.R
+rm testDetach.R
 
 ## clean up the temporary R library dir
 rm -rf ../RLIB
