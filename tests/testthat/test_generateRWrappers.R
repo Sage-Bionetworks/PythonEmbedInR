@@ -1,5 +1,9 @@
 context("testPyPkgWrapper generate R wrappers")
 
+pyImport("sys")
+pyExecp("sys.path")
+# insert current dir to python search path
+pyExec("sys.path.insert(0, \".\")")
 pyExecp("sys.path")
 
 callback <- function(name, def) {
