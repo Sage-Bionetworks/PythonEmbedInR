@@ -1,10 +1,8 @@
 context("testPyPkgWrapper generate R wrappers")
 
-pyImport("sys")
-pyExecp("sys.path")
 # insert current dir to python search path
+pyImport("sys")
 pyExec("sys.path.insert(0, \".\")")
-pyExecp("sys.path")
 
 callback <- function(name, def) {
   setGeneric(name, def)
@@ -74,4 +72,61 @@ test_that("generateRWrappers", {
   expect_equal(obj$print(), 0)
   expect_equal(obj$inc(), 1)
   expect_equal(testMyFun(-4), 4)
+})
+
+test_that("generateRdFiles", {
+  dir <- getwd()
+  generateRdFiles(srcRootDir = dir,
+                  pyPkg = "testPyPkgWrapper",
+                  module = "testPyPkgWrapper")
+  expect_true(file.exists(file.path(dir, "auto-man")))
+  expect_true(file.exists(file.path(dir, "auto-man", "incObj.Rd")))
+  expect_true(file.exists(file.path(dir, "auto-man", "myFun.Rd")))
+  expect_true(file.exists(file.path(dir, "auto-man", "MyObj-class.Rd")))
+  expect_true(file.exists(file.path(dir, "auto-man", "MyObj.Rd")))
+})
+
+test_that("generateRdFiles with prefix", {
+  dir <- getwd()
+  generateRdFiles(srcRootDir = dir,
+                  pyPkg = "testPyPkgWrapper",
+                  module = "testPyPkgWrapper",
+                  functionPrefix = "test")
+  expect_true(file.exists(file.path(dir, "auto-man")))
+  expect_true(file.exists(file.path(dir, "auto-man", "testIncObj.Rd")))
+  expect_true(file.exists(file.path(dir, "auto-man", "testMyFun.Rd")))
+  expect_true(file.exists(file.path(dir, "auto-man", "MyObj-class.Rd")))
+  expect_true(file.exists(file.path(dir, "auto-man", "MyObj.Rd")))
+})
+
+test_that("generateRdFiles with keep content", {
+  dir <- getwd()
+  selectMyObj <- function(x) {
+    if (any(x$name == "MyObj")) x else NULL
+  }
+  selectmyFun<- function(x) {
+    if (any(x$name == "myFun")) x else NULL
+  }
+  remove <- function(x) NULL
+  # first select MyObj class only
+  generateRdFiles(srcRootDir = dir,
+                  pyPkg = "testPyPkgWrapper",
+                  module = "testPyPkgWrapper",
+                  modifyFunctions = remove,
+                  modifyClasses = selectMyObj)
+  expect_true(file.exists(file.path(dir, "auto-man")))
+  expect_false(file.exists(file.path(dir, "auto-man", "myFun.Rd")))
+  expect_true(file.exists(file.path(dir, "auto-man", "MyObj-class.Rd")))
+  expect_true(file.exists(file.path(dir, "auto-man", "MyObj.Rd")))
+  # now select myFun only, but do not wipe out MyObj
+  generateRdFiles(srcRootDir = dir,
+                  pyPkg = "testPyPkgWrapper",
+                  module = "testPyPkgWrapper",
+                  modifyFunctions = selectmyFun,
+                  modifyClasses = remove,
+                  keepContent = TRUE)
+  expect_true(file.exists(file.path(dir, "auto-man")))
+  expect_true(file.exists(file.path(dir, "auto-man", "myFun.Rd")))
+  expect_true(file.exists(file.path(dir, "auto-man", "MyObj-class.Rd")))
+  expect_true(file.exists(file.path(dir, "auto-man", "MyObj.Rd")))
 })
