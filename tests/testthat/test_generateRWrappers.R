@@ -74,6 +74,18 @@ test_that("generateRWrappers", {
   expect_equal(testMyFun(-4), 4)
 })
 
+test_that("generateRWrappers with singleton object", {
+  generateRWrappers(pyPkg = "testPyPkgWrapper",
+                    module = "testPyPkgWrapper.MyObj",
+                    setGenericCallback = callback,
+                    pySingletonName = myObj,
+                    functionPrefix = "myObj")
+  pyImport("testPyPkgWrapper")
+  pyExec("myObj = testPyPkgWrapper.MyObj()")
+  expect_equal(print(), 0)
+  expect_equal(inc(), 1)
+})
+
 test_that("generateRdFiles", {
   dir <- getwd()
   generateRdFiles(srcRootDir = dir,
