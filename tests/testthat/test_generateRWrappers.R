@@ -78,8 +78,7 @@ test_that("generateRWrappers with singleton object", {
   generateRWrappers(pyPkg = "testPyPkgWrapper",
                     module = "testPyPkgWrapper.MyObj",
                     setGenericCallback = callback,
-                    pySingletonName = myObj,
-                    functionPrefix = "myObj")
+                    pySingletonName = "myObj")
   pyImport("testPyPkgWrapper")
   pyExec("myObj = testPyPkgWrapper.MyObj()")
   expect_equal(print(), 0)
