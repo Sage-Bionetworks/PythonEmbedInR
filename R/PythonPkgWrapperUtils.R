@@ -297,7 +297,7 @@ cleanUpStackTrace <- function(callable, args) {
 #' The value that is passed to `module` parameter must be a fully qualified name.
 #'
 #' `setGeneric` function must be defined in the same environment that `generateRWrappers` is called.
-#' \dontshow{
+#' 
 #'   callback <- function(name, def) {
 #'     setGeneric(name, def)
 #'   }
@@ -307,32 +307,32 @@ cleanUpStackTrace <- function(callable, args) {
 #'                       module = "myModule",
 #'                       setGenericCallback = callback)
 #'   }
-#' }
+#' 
 #'
 #' `modifyFunctions` and `modifyClasses` are optional function defined by the caller.
 #' `modifyFunctions` takes an object with the following schema
 #' {'name', 'args', 'doc', 'module'}
 #' and modifies the list of functions found under `module`.
 #' For example, to remove function "myFun" under `module`, one would pass a function as follows:
-#' \dontshow{
+#' 
 #'   myModifyFunctions <- function(x) {
 #'     if (any(x$name == "myFun")) NULL else x
 #'   }
-#' }
+#' 
 #'
 #' `modifyClasses` takes an object with the following schema
 #' {'name', 'constructorArgs', 'doc', 'methods'}
 #' and modifies the list of classes found under `module`.
 #' For example, to remove class "MyObj" under `module`, one would pass a function as follows:
-#' \dontshow{
+#' 
 #'   myModifyClasses <- function(x) {
 #'     if (any(x$name == "MyObj")) NULL else x
 #'   }
-#' }
+#' 
 #'
 #' `pySingletonName` is used to expose a set Python functions which are an object's methods,
 #' but without exposing the object itself. For example:
-#' \dontshow{
+#' 
 #'   .onLoad <- function(libname, pkgname) {
 #'     pyImport("synapseclient")
 #'     pyExec("syn = synapseclient.Synapse()")
@@ -342,30 +342,30 @@ cleanUpStackTrace <- function(callable, args) {
 #'                       setGenericCallback = callback,
 #'                       pySingletonName = "syn")
 #'   }
-#' }
+#' 
 #' `pySingletonName` must be the name of the object defined in Python.
 #'
 #' `transformReturnObject` is used to intercept and modify the values
 #' returned by the auto-generated R functions. It takes an R6 object,
 #' and returned the modified R6 object. For example:
-#' \dontshow{
+#' 
 #'   myTranform <- function(x) {
 #'     # replace the object name
 #'     class(x) <- "newName"
 #'   }
-#' }
+#' 
 #'
 #'
 #' @note generateRWrappers should be called in .onLoad()
 #' @examples
-#' \dontshow{
+#' 
 #' callback <- function(name, def) {
 #'  setGeneric(name, def)
 #' }
 #' PythonEmbedInR::generateRWrappers(pyPkg = "pyPackageName",
 #'  module = "aModuleInPyPackageName",
 #'  setGenericCallback = callback)
-#' }
+#' 
 generateRWrappers <- function(pyPkg,
                               module,
                               setGenericCallback,
@@ -819,7 +819,7 @@ writeContent <- function(content, name, targetFolder) {
 #' The value that is passed to `module` parameter must be a fully qualified name.
 #'
 #' `setGeneric` function must be defined in the same environment that `generateRWrappers` is called.
-#' \dontshow{
+#' 
 #'   callback <- function(name, def) {
 #'     setGeneric(name, def)
 #'   }
@@ -829,37 +829,38 @@ writeContent <- function(content, name, targetFolder) {
 #'                       module = "myModule",
 #'                       setGenericCallback = callback)
 #'   }
-#' }
+#' 
 #'
 #' `modifyFunctions` and `modifyClasses` are optional function defined by the caller.
 #' `modifyFunctions` takes an object with the following schema
 #' {'name', 'args', 'doc', 'module'}
 #' and modifies the list of functions found under `module`.
 #' For example, to remove function "myFun" under `module`, one would pass a function as follows:
-#' \dontshow{
+#' 
 #'   myModifyFunctions <- function(x) {
 #'     if (any(x$name == "myFun")) NULL else x
 #'   }
-#' }
+#' 
 #'
 #' `modifyClasses` takes an object with the following schema
 #' {'name', 'constructorArgs', 'doc', 'methods'}
 #' and modifies the list of classes found under `module`.
 #' For example, to remove class "MyObj" under `module`, one would pass a function as follows:
-#' \dontshow{
+#' 
 #'   myModifyClasses <- function(x) {
 #'     if (any(x$name == "MyObj")) NULL else x
 #'   }
-#' }
+#' 
 #'
 #'
 #' @note The generated .Rd files is localed in srcRootDir/auto-man. One must copy
 #'  all .Rd files to their man folder and make sure that the language being used in
 #'  these documents are friendly to R users.
 #' @examples
-#' \dontshow{PythonEmbedInR::generateRdFiles(srcRootDir = "path/to/R/pkg",
-#'  pyPkg = "pyPackageName",
-#'  module = "aModuleInPyPackageName")}
+#' PythonEmbedInR::generateRdFiles(
+#'   srcRootDir = "path/to/R/pkg",
+#'   pyPkg = "pyPackageName",
+#'   module = "aModuleInPyPackageName")
 generateRdFiles <- function(srcRootDir,
                             pyPkg,
                             module,

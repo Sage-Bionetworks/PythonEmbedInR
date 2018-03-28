@@ -31,8 +31,44 @@ This function generate .Rd files for Python classes and functions
  for a given Python module.
 }
 \details{
-generateRdFiles and generateRWrappers should be called with similar
+`generateRdFiles` and `generateRWrappers` should be called with similar
  params to ensure all R wrappers has sufficient documentation.
+
+`module` can have the same value as `pyPkg` or a module within the Python package.
+The value that is passed to `module` parameter must be a fully qualified name.
+
+`setGeneric` function must be defined in the same environment that `generateRWrappers` is called.
+
+  callback <- function(name, def) {
+    setGeneric(name, def)
+  }
+
+  .onLoad <- function(libname, pkgname) {
+    generateRWrappers(pyPkg = "myPythonPackage",
+                      module = "myModule",
+                      setGenericCallback = callback)
+  }
+
+
+`modifyFunctions` and `modifyClasses` are optional function defined by the caller.
+`modifyFunctions` takes an object with the following schema
+{'name', 'args', 'doc', 'module'}
+and modifies the list of functions found under `module`.
+For example, to remove function "myFun" under `module`, one would pass a function as follows:
+
+  myModifyFunctions <- function(x) {
+    if (any(x$name == "myFun")) NULL else x
+  }
+
+
+`modifyClasses` takes an object with the following schema
+{'name', 'constructorArgs', 'doc', 'methods'}
+and modifies the list of classes found under `module`.
+For example, to remove class "MyObj" under `module`, one would pass a function as follows:
+
+  myModifyClasses <- function(x) {
+    if (any(x$name == "MyObj")) NULL else x
+  }
 }
 \note{
 The generated .Rd files is localed in srcRootDir/auto-man. One must copy
@@ -40,7 +76,8 @@ The generated .Rd files is localed in srcRootDir/auto-man. One must copy
  these documents are friendly to R users.
 }
 \examples{
-\dontshow{PythonEmbedInR::generateRdFiles(srcRootDir = "path/to/R/pkg",
- pyPkg = "pyPackageName",
- module = "aModuleInPyPackageName")}
+PythonEmbedInR::generateRdFiles(
+  srcRootDir = "path/to/R/pkg",
+  pyPkg = "pyPackageName",
+  module = "aModuleInPyPackageName")
 }
