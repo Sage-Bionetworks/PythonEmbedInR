@@ -9,66 +9,41 @@ generateRdFiles(srcRootDir, pyPkg, module, modifyFunctions = NULL,
   templateDir = NULL)
 }
 \arguments{
-\item{srcRootDir}{the directory of the R package}
+\item{srcRootDir}{The directory of the R package}
 
-\item{pyPkg}{the Python package name}
+\item{pyPkg}{The Python package name}
 
-\item{module}{the Python module}
+\item{module}{The Python module}
 
-\item{modifyFunctions}{optional function to modify the returned functions}
+\item{modifyFunctions}{Optional function to modify the returned functions}
 
-\item{modifyClasses}{optional function to modify the returned classes}
+\item{modifyClasses}{Optional function to modify the returned classes}
 
-\item{functionPrefix}{optional text to add to the name of the functions}
+\item{functionPrefix}{Optional text to add to the name of the functions}
 
-\item{keepContent}{optional wheather the existing files at the target directory
+\item{keepContent}{Optional wheather the existing files at the target directory
 should be kept}
 
-\item{templateDir}{optional path to a template directory}
+\item{templateDir}{Optional path to a template directory}
 }
 \description{
 This function generate .Rd files for Python classes and functions
- for a given Python module.
+  for a given Python module.
 }
 \details{
-`generateRdFiles` and `generateRWrappers` should be called with similar
- params to ensure all R wrappers has sufficient documentation.
+* `generateRdFiles` and `generateRWrappers` should be called with similar
+  params to ensure all R wrappers has sufficient documentation.
+  
+* `module` can have the same value as `pyPkg` or a module within the Python package.
+  The value that is passed to `module` parameter must be a fully qualified name.
+  
+* `modifyFunctions` and `modifyClasses` are optional function defined by the caller.
 
-`module` can have the same value as `pyPkg` or a module within the Python package.
-The value that is passed to `module` parameter must be a fully qualified name.
-
-`setGeneric` function must be defined in the same environment that `generateRWrappers` is called.
-
-  callback <- function(name, def) {
-    setGeneric(name, def)
-  }
-
-  .onLoad <- function(libname, pkgname) {
-    generateRWrappers(pyPkg = "myPythonPackage",
-                      module = "myModule",
-                      setGenericCallback = callback)
-  }
-
-
-`modifyFunctions` and `modifyClasses` are optional function defined by the caller.
-`modifyFunctions` takes an object with the following schema
-{'name', 'args', 'doc', 'module'}
-and modifies the list of functions found under `module`.
-For example, to remove function "myFun" under `module`, one would pass a function as follows:
-
-  myModifyFunctions <- function(x) {
-    if (any(x$name == "myFun")) NULL else x
-  }
-
-
-`modifyClasses` takes an object with the following schema
-{'name', 'constructorArgs', 'doc', 'methods'}
-and modifies the list of classes found under `module`.
-For example, to remove class "MyObj" under `module`, one would pass a function as follows:
-
-  myModifyClasses <- function(x) {
-    if (any(x$name == "MyObj")) NULL else x
-  }
+* `modifyFunctions` takes an object with the schema: ('name', 'args', 'doc', 'module')
+  and modifies the list of functions found under `module`. See example 2.
+  
+* `modifyClasses` takes an object with the schema: ('name', 'constructorArgs', 'doc', 'methods')
+  and modifies the list of classes found under `module`. See example 3.
 }
 \note{
 The generated .Rd files is localed in srcRootDir/auto-man. One must copy
@@ -76,8 +51,39 @@ The generated .Rd files is localed in srcRootDir/auto-man. One must copy
  these documents are friendly to R users.
 }
 \examples{
-PythonEmbedInR::generateRdFiles(
-  srcRootDir = "path/to/R/pkg",
-  pyPkg = "pyPackageName",
-  module = "aModuleInPyPackageName")
+1.
+```
+.onLoad <- function(libname, pkgname) {
+  PythonEmbedInR::generateRdFiles(
+    srcRootDir = "path/to/R/pkg",
+    pyPkg = "pyPackageName",
+    module = "aModuleInPyPackageName")
+}
+```
+2.
+```
+myModifyFunctions <- function(x) {
+  if (any(x$name == "myFun")) NULL else x
+}
+.onLoad <- function(libname, pkgname) {
+  PythonEmbedInR::generateRdFiles(
+    srcRootDir = "path/to/R/pkg",
+    pyPkg = "pyPackageName",
+    module = "aModuleInPyPackageName",
+    modifyFunctions = myModifyFunctions)
+}
+```
+3.
+```
+myModifyClasses <- function(x) {
+  if (any(x$name == "MyObj")) NULL else x
+}
+.onLoad <- function(libname, pkgname) {
+  PythonEmbedInR::generateRdFiles(
+    srcRootDir = "path/to/R/pkg",
+    pyPkg = "pyPackageName",
+    module = "aModuleInPyPackageName",
+    modifyClasses = myModifyClasses)
+}
+```
 }
