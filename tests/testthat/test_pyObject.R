@@ -22,7 +22,7 @@ def myFunc():
 
   # test that r_class is an environment
   expect_true(is.environment(r_class))
-  expect_false(environmentIsLocked(r_class))
+  expect_true(environmentIsLocked(r_class))
   expect_true(exists("increment", r_class))
 
   # test that r_object is initialized
