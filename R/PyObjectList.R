@@ -7,7 +7,6 @@
 
 PythonInR_List <-
     R6Class("PythonInR_List",
-            lock_objects = FALSE,
             portable = TRUE,
             inherit = PythonInR_Object,
             public = list(
@@ -50,7 +49,6 @@ PythonInR_List <-
 
 PythonInR_ListNoFinalizer <-
     R6Class("PythonInR_List",
-            lock_objects = FALSE,
             portable = TRUE,
             inherit = PythonInR_List,
             public = list(

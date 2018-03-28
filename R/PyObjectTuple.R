@@ -8,7 +8,6 @@
 
 PythonInR_Tuple <-
     R6Class("PythonInR_Tuple",
-            lock_objects = FALSE,
             portable = TRUE,
             inherit = PythonInR_Object,
             public = list(
@@ -23,7 +22,6 @@ PythonInR_Tuple <-
 
 PythonInR_TupleNoFinalizer <-
     R6Class("PythonInR_Tuple",
-            lock_objects = FALSE,
             portable = TRUE,
             inherit = PythonInR_Tuple,
             public = list(
