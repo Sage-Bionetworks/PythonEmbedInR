@@ -284,16 +284,16 @@ cleanUpStackTrace <- function(callable, args) {
 #' @param module The fully qualified name of the Python module or class to be wrapped
 #' @param setGenericCallback The callback to setGeneric defined in the target R package
 #' @param functionFilter Optional function to intercept and modify the auto-generated function metadata.
-#'   Default NULL.
+#'   
 #' @param classFilter Optional function to intercept and modify the auto-generated class metadata.
-#'   Default NULL.
+#'   
 #' @param functionPrefix Optional text to add to the name of the wrapped functions.
-#'   Default NULL.
+#'   
 #' @param pySingletonName Optional parameter used to expose a set Python functions which are an object's
 #'   methods, but without exposing the object itself. If the `module` parameter is a class then this must
 #'   be the name of a Python variable referencing an instance of the class. If `module` parameter is not
-#'   a class then this must be NULL. Default NULL. See example 4.
-#' @param transformReturnObject Optional function to change returned values in R. Default NULL.
+#'   a class then this must be NULL.  See example 4.
+#' @param transformReturnObject Optional function to change returned values in R. 
 #' @details
 #' * `module` can take the same value as `pyPkg`, or can be a module within the Python package.
 #'   The value that is passed to `module` parameter must be a fully qualified name.
@@ -407,6 +407,7 @@ cleanUpStackTrace <- function(callable, args) {
 #'   setGenericCallback = callback,
 #'   transformReturnObject = myTranform)
 #' ```
+#' @md
 generateRWrappers <- function(pyPkg,
                               module,
                               setGenericCallback,
@@ -847,15 +848,15 @@ writeContent <- function(content, name, targetFolder) {
 #' @param pyPkg The Python package name
 #' @param module The fully qualified name of the Python module or class to be wrapped
 #' @param functionFilter Optional function to intercept and modify the auto-generated function metadata.
-#'   Default NULL.
+#'   
 #' @param classFilter Optional function to intercept and modify the auto-generated class metadata.
-#'   Default NULL.
+#'   
 #' @param functionPrefix Optional text to add to the name of the wrapped functions.
-#'   Default NULL.
+#'   
 #' @param keepContent Optional whether the existing files at the target directory should be kept.
 #'   Default FALSE.
 #' @param templateDir Optional path to a template directory. Set `templateDir` to NULL to use the default
-#'   templates in the `/templates/` folder. Default NULL.
+#'   templates in the `/templates/` folder. 
 #' @details
 #' * `module` can take the same value as `pyPkg`, or can be a module within the Python package.
 #'   The value that is passed to `module` parameter must be a fully qualified name.

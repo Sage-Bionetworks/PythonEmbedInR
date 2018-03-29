@@ -15,76 +15,68 @@ generateRWrappers(pyPkg, module, setGenericCallback, functionFilter = NULL,
 
 \item{setGenericCallback}{The callback to setGeneric defined in the target R package}
 
-\item{functionFilter}{Optional function to intercept and modify the auto-generated function metadata.
-Default NULL.}
+\item{functionFilter}{Optional function to intercept and modify the auto-generated function metadata.}
 
-\item{classFilter}{Optional function to intercept and modify the auto-generated class metadata.
-Default NULL.}
+\item{classFilter}{Optional function to intercept and modify the auto-generated class metadata.}
 
-\item{functionPrefix}{Optional text to add to the name of the wrapped functions.
-Default NULL.}
+\item{functionPrefix}{Optional text to add to the name of the wrapped functions.}
 
 \item{pySingletonName}{Optional parameter used to expose a set Python functions which are an object's
-methods, but without exposing the object itself. If the `module` parameter is a class then this must
-be the name of a Python variable referencing an instance of the class. If `module` parameter is not
-a class then this must be NULL. Default NULL. See example 4.}
+methods, but without exposing the object itself. If the \code{module} parameter is a class then this must
+be the name of a Python variable referencing an instance of the class. If \code{module} parameter is not
+a class then this must be NULL.  See example 4.}
 
-\item{transformReturnObject}{Optional function to change returned values in R. Default NULL.}
+\item{transformReturnObject}{Optional function to change returned values in R.}
 }
 \description{
 This function generates R wrappers for Python classes and functions
-  in the given Python module
+in the given Python module
 }
 \details{
-* `module` can take the same value as `pyPkg`, or can be a module within the Python package.
-  The value that is passed to `module` parameter must be a fully qualified name.
-  
-* `setGeneric` function must be defined in the same environment that `generateRWrappers`
-  is called. See example 1.
-  
-* `functionFilter` and `classFilter` are optional functions defined by the caller.
+\itemize{
+\item \code{module} can take the same value as \code{pyPkg}, or can be a module within the Python package.
+The value that is passed to \code{module} parameter must be a fully qualified name.
+\item \code{setGeneric} function must be defined in the same environment that \code{generateRWrappers}
+is called. See example 1.
+\item \code{functionFilter} and \code{classFilter} are optional functions defined by the caller.
+\item \code{functionFilter} takes as input the metadata for a generated function and either modifies it
+or returns NULL to omit it from the set of generated functions. The metadata object is a list
+having fields:\preformatted{'name': character
+'args': named list having fields:
+    'args': a list of the argument names (it may contain nested lists)
+    'varargs':  character
+    'keywords': character
+    'defaults': character
+'doc': character
+'module':character
+}
 
-* `functionFilter` takes as input the metadata for a generated function and either modifies it
-  or returns NULL to omit it from the set of generated functions. The metadata object is a list 
-  having fields:
-  ```
-  'name': character
-  'args': named list having fields:
-      'args': a list of the argument names (it may contain nested lists)
-      'varargs':  character
-      'keywords': character
-      'defaults': character
-  'doc': character
-  'module':character
-  ```
-  See example 2.
-  
-* `classFilter` takes as input the metadata for a generated class and either modifies it
-  or returns NULL to omit it from the set of generated classes The metadata object is a list 
-  having fields:
-  ```
-  'name': character
-  'constructorArgs': named list having fields:
-      'args': a list of the argument names (it may contain nested lists)
-      'varargs':  character
-      'keywords': character
-      'defaults': character
-  'doc': character
-  'methods':named list having fields:
-      'name': character
-      'doc': character
-      'args': named list having fields:
-          'args': a list of the argument names (it may contain nested lists)
-          'varargs':  character
-          'keywords': character
-          'defaults': character
-  ```
-  See example 3.
-  
-* `transformReturnObject` is used to intercept and modify the values returned by the
-  auto-generated R functions.`transformReturnObject` will be applied to the returned values
-  from all generated functions. The transformation cannot depend on the function which generated
-  the returned value. See example 5.
+See example 2.
+\item \code{classFilter} takes as input the metadata for a generated class and either modifies it
+or returns NULL to omit it from the set of generated classes The metadata object is a list
+having fields:\preformatted{'name': character
+'constructorArgs': named list having fields:
+    'args': a list of the argument names (it may contain nested lists)
+    'varargs':  character
+    'keywords': character
+    'defaults': character
+'doc': character
+'methods':named list having fields:
+    'name': character
+    'doc': character
+    'args': named list having fields:
+        'args': a list of the argument names (it may contain nested lists)
+        'varargs':  character
+        'keywords': character
+        'defaults': character
+}
+
+See example 3.
+\item \code{transformReturnObject} is used to intercept and modify the values returned by the
+auto-generated R functions.\code{transformReturnObject} will be applied to the returned values
+from all generated functions. The transformation cannot depend on the function which generated
+the returned value. See example 5.
+}
 }
 \examples{
 1. Generate R wrappers for all functions and classes in "pyPackageName.aModuleInPyPackageName"

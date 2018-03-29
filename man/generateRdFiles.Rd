@@ -16,20 +16,17 @@ the output, Rd files.}
 
 \item{module}{The fully qualified name of the Python module or class to be wrapped}
 
-\item{functionFilter}{Optional function to intercept and modify the auto-generated function metadata.
-Default NULL.}
+\item{functionFilter}{Optional function to intercept and modify the auto-generated function metadata.}
 
-\item{classFilter}{Optional function to intercept and modify the auto-generated class metadata.
-Default NULL.}
+\item{classFilter}{Optional function to intercept and modify the auto-generated class metadata.}
 
-\item{functionPrefix}{Optional text to add to the name of the wrapped functions.
-Default NULL.}
+\item{functionPrefix}{Optional text to add to the name of the wrapped functions.}
 
 \item{keepContent}{Optional whether the existing files at the target directory should be kept.
 Default FALSE.}
 
 \item{templateDir}{Optional path to a template directory. Set \code{templateDir} to NULL to use the default
-templates in the \code{/templates/} folder. Default NULL.}
+templates in the \code{/templates/} folder.}
 }
 \description{
 This function generates .Rd files for Python classes and functions
