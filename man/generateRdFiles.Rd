@@ -4,9 +4,9 @@
 \alias{generateRdFiles}
 \title{Generate .Rd files for Python classes and functions}
 \usage{
-generateRdFiles(srcRootDir, pyPkg, module = NULL, class = NULL,
-  functionFilter = NULL, classFilter = NULL, functionPrefix = NULL,
-  keepContent = FALSE, templateDir = NULL)
+generateRdFiles(srcRootDir, pyPkg, container, functionFilter = NULL,
+  classFilter = NULL, functionPrefix = NULL, keepContent = FALSE,
+  templateDir = NULL)
 }
 \arguments{
 \item{srcRootDir}{The root directory under which another directory, \code{auto-man/} is created to hold
@@ -14,9 +14,7 @@ the output, Rd files.}
 
 \item{pyPkg}{The Python package name}
 
-\item{module}{The fully qualified name of a Python module}
-
-\item{class}{The fully qualified name of a Python class}
+\item{container}{The fully qualified name of a Python module, or a Python class to be wrapped}
 
 \item{functionFilter}{Optional function to intercept and modify the auto-generated function metadata.}
 
@@ -31,13 +29,11 @@ templates in the \code{/templates/} folder.}
 }
 \description{
 This function generates .Rd files for Python classes and functions
-in a given Python module.
+in a given Python container
 }
 \details{
 \itemize{
-\item \code{module} can take the same value as \code{pyPkg}, or can be a module within the Python package.
-\item \code{class} must be fully qualified name of a class within the Python package. When the \code{class} parameter
-is present, the \code{module} parameter is ignored.
+\item \code{container} can take the same value as \code{pyPkg}, can be a module or a class within the Python package.
 \item \code{functionFilter} and \code{classFilter} are optional functions defined by the caller.
 \item \code{functionFilter} takes as input the metadata for a generated function and either modifies it
 or returns NULL to omit it from the set of generated functions. The metadata object is a list
@@ -85,7 +81,7 @@ that the language being used in these documents are friendly to R users.
 PythonEmbedInR::generateRdFiles(
   srcRootDir = "path/to/R/pkg",
   pyPkg = "pyPackageName",
-  module = "pyPackageName.aModuleInPyPackageName")
+  container = "pyPackageName.aModuleInPyPackageName")
   
 2. Generate docs for the module "pyPackageName.aModuleInPyPackageName", omitting the function "myFun"
 myfunctionFilter <- function(x) {
@@ -94,7 +90,7 @@ myfunctionFilter <- function(x) {
 PythonEmbedInR::generateRdFiles(
   srcRootDir = "path/to/R/pkg",
   pyPkg = "pyPackageName",
-  module = "pyPackageName.aModuleInPyPackageName",
+  container = "pyPackageName.aModuleInPyPackageName",
   functionFilter = myfunctionFilter)
   
 3.Generate docs for the module "pyPackageName.aModuleInPyPackageName", omitting the "MyObj" constructor
@@ -104,6 +100,6 @@ myclassFilter <- function(x) {
 PythonEmbedInR::generateRdFiles(
   srcRootDir = "path/to/R/pkg",
   pyPkg = "pyPackageName",
-  module = "pyPackageName.aModuleInPyPackageName",
+  container = "pyPackageName.aModuleInPyPackageName",
   classFilter = myclassFilter)
 }

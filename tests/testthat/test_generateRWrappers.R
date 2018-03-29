@@ -11,7 +11,7 @@ callback <- function(name, def) {
 test_that("defineConstructor", {
   pyImport("testPyPkgWrapper")
   pyImport("gateway")
-  PythonEmbedInR:::defineConstructor(module = "testPyPkgWrapper",
+  PythonEmbedInR:::defineConstructor(container = "testPyPkgWrapper",
                                      setGenericCallback = callback,
                                      name = "MyObj")
   obj <- MyObj()
@@ -64,7 +64,7 @@ test_that("generateRWrappers", {
     x
   }
   generateRWrappers(pyPkg = "testPyPkgWrapper",
-                    module = "testPyPkgWrapper",
+                    container = "testPyPkgWrapper",
                     setGenericCallback = callback,
                     functionFilter = removeIncObj,
                     functionPrefix = "test")
@@ -77,11 +77,11 @@ test_that("generateRWrappers", {
 
 test_that("generateRWrappers with mismatch params", {
   expect_error(generateRWrappers(pyPkg = "testPyPkgWrapper",
-                                 class = "testPyPkgWrapper.MyObj",
+                                 container = "testPyPkgWrapper.MyObj",
                                  setGenericCallback = callback
   ))
   expect_error(generateRWrappers(pyPkg = "testPyPkgWrapper",
-                                 module = "testPyPkgWrapper.MyObj",
+                                 container = "testPyPkgWrapper",
                                  setGenericCallback = callback,
                                  pySingletonName = "myObj"
   ))
@@ -90,7 +90,7 @@ test_that("generateRWrappers with mismatch params", {
 
 test_that("generateRWrappers with singleton object", {
   generateRWrappers(pyPkg = "testPyPkgWrapper",
-                    class = "testPyPkgWrapper.MyObj",
+                    container = "testPyPkgWrapper.MyObj",
                     setGenericCallback = callback,
                     pySingletonName = "myObj")
   pyImport("testPyPkgWrapper")
@@ -103,11 +103,11 @@ test_that("generateRdFiles", {
   dir <- getwd()
   generateRdFiles(srcRootDir = dir,
                   pyPkg = "testPyPkgWrapper",
-                  module = "testPyPkgWrapper")
+                  container = "testPyPkgWrapper")
   expect_true(file.exists(file.path(dir, "auto-man")))
   expect_true(file.exists(file.path(dir, "auto-man", "incObj.Rd")))
   expect_true(file.exists(file.path(dir, "auto-man", "myFun.Rd")))
-  expect_true(file.exists(file.path(dir, "auto-man", "MyObj-class.Rd")))
+  expect_true(file.exists(file.path(dir, "auto-man", "MyObj-container.Rd")))
   expect_true(file.exists(file.path(dir, "auto-man", "MyObj.Rd")))
 })
 
@@ -115,12 +115,12 @@ test_that("generateRdFiles with prefix", {
   dir <- getwd()
   generateRdFiles(srcRootDir = dir,
                   pyPkg = "testPyPkgWrapper",
-                  module = "testPyPkgWrapper",
+                  container = "testPyPkgWrapper",
                   functionPrefix = "test")
   expect_true(file.exists(file.path(dir, "auto-man")))
   expect_true(file.exists(file.path(dir, "auto-man", "testIncObj.Rd")))
   expect_true(file.exists(file.path(dir, "auto-man", "testMyFun.Rd")))
-  expect_true(file.exists(file.path(dir, "auto-man", "MyObj-class.Rd")))
+  expect_true(file.exists(file.path(dir, "auto-man", "MyObj-container.Rd")))
   expect_true(file.exists(file.path(dir, "auto-man", "MyObj.Rd")))
 })
 
@@ -133,25 +133,25 @@ test_that("generateRdFiles with keep content", {
     if (any(x$name == "myFun")) x else NULL
   }
   remove <- function(x) NULL
-  # first select MyObj class only
+  # first select MyObj container only
   generateRdFiles(srcRootDir = dir,
                   pyPkg = "testPyPkgWrapper",
-                  module = "testPyPkgWrapper",
+                  container = "testPyPkgWrapper",
                   functionFilter = remove,
-                  classFilter = selectMyObj)
+                  containerFilter = selectMyObj)
   expect_true(file.exists(file.path(dir, "auto-man")))
   expect_false(file.exists(file.path(dir, "auto-man", "myFun.Rd")))
-  expect_true(file.exists(file.path(dir, "auto-man", "MyObj-class.Rd")))
+  expect_true(file.exists(file.path(dir, "auto-man", "MyObj-container.Rd")))
   expect_true(file.exists(file.path(dir, "auto-man", "MyObj.Rd")))
   # now select myFun only, but do not wipe out MyObj
   generateRdFiles(srcRootDir = dir,
                   pyPkg = "testPyPkgWrapper",
-                  module = "testPyPkgWrapper",
+                  container = "testPyPkgWrapper",
                   functionFilter = selectmyFun,
-                  classFilter = remove,
+                  containerFilter = remove,
                   keepContent = TRUE)
   expect_true(file.exists(file.path(dir, "auto-man")))
   expect_true(file.exists(file.path(dir, "auto-man", "myFun.Rd")))
-  expect_true(file.exists(file.path(dir, "auto-man", "MyObj-class.Rd")))
+  expect_true(file.exists(file.path(dir, "auto-man", "MyObj-container.Rd")))
   expect_true(file.exists(file.path(dir, "auto-man", "MyObj.Rd")))
 })

@@ -278,25 +278,21 @@ cleanUpStackTrace <- function(callable, args) {
 
 #' @title Generate R wrappers for Python classes and functions
 #' @description This function generates R wrappers for Python classes and functions
-#'   in the given Python module
+#'   in the given Python container
 #'
 #' @param pyPkg The Python package name
-#' @param module The fully qualified name of a Python module
-#' @param class The fully qualified name of a Python class
+#' @param container The fully qualified name of a Python module or a Python class to be wrapped
 #' @param setGenericCallback The callback to setGeneric defined in the target R package
 #' @param functionFilter Optional function to intercept and modify the auto-generated function metadata.
 #' @param classFilter Optional function to intercept and modify the auto-generated class metadata.
 #' @param functionPrefix Optional text to add to the name of the wrapped functions.
 #' @param pySingletonName Optional parameter used to expose a set Python functions which are an object's
-#'   methods, but without exposing the object itself. If the `class` parameter is present then this must
+#'   methods, but without exposing the object itself. If the `container` parameter is a class then this must
 #'   be the name of a Python variable referencing an instance of the class. Otherwise, this must be NULL.
 #'   See example 4.
 #' @param transformReturnObject Optional function to change returned values in R. 
 #' @details
-#' * `module` can take the same value as `pyPkg`, or can be a module within the Python package.
-#' 
-#' * `class` must be fully qualified name of a class within the Python package. When the `class` parameter
-#'   is present, the `module` parameter is ignored.
+#' * `container` can take the same value as `pyPkg`, can be a module or class within the Python package.
 #'   
 #' * `setGeneric` function must be defined in the same environment that `generateRWrappers`
 #'   is called. See example 1.
@@ -357,7 +353,7 @@ cleanUpStackTrace <- function(callable, args) {
 #' }
 #' PythonEmbedInR::generateRWrappers(
 #'   pyPkg = "pyPackageName",
-#'   module = "pyPackageName.aModuleInPyPackageName",
+#'   container = "pyPackageName.aModuleInPyPackageName",
 #'   setGenericCallback = callback)
 #' 
 #' 2. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", omitting function "myFun"
@@ -367,7 +363,7 @@ cleanUpStackTrace <- function(callable, args) {
 #' }
 #' PythonEmbedInR::generateRWrappers(
 #'   pyPkg = "pyPackageName",
-#'   module = "pyPackageName.aModuleInPyPackageName",
+#'   container = "pyPackageName.aModuleInPyPackageName",
 #'   setGenericCallback = callback,
 #'   functionFilter = myfunctionFilter)
 #' 
@@ -378,23 +374,23 @@ cleanUpStackTrace <- function(callable, args) {
 #' }
 #' PythonEmbedInR::generateRWrappers(
 #'   pyPkg = "pyPackageName",
-#'   module = "pyPackageName.aModuleInPyPackageName",
+#'   container = "pyPackageName.aModuleInPyPackageName",
 #'   setGenericCallback = callback,
 #'   classFilter = myclassFilter)
 #' 
-#' 4. Generate R wrappers for module "synapseclient.client.Synapse" without exposing the "Synapse" object
+#' 4. Generate R wrappers for class "synapseclient.client.Synapse" without exposing the "Synapse" object
 #' 
 #' .onLoad <- function(libname, pkgname) {
 #'   pyImport("synapseclient")
 #'   pyExec("syn = synapseclient.Synapse()")
 #'   # `pySingletonName` must be the name of the object defined in Python.
 #'   generateRWrappers(pyPkg = "synapseclient",
-#'                     class = "synapseclient.client.Synapse",
+#'                     container = "synapseclient.client.Synapse",
 #'                     setGenericCallback = callback,
 #'                     pySingletonName = "syn")
 #' }
 #' 
-#' 5. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", tranforming all returned values,
+#' 5. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", transforming all returned values,
 #'   and setting each returned object class name to "newName"
 #'   
 #' myTransform <- function(x) {
@@ -403,13 +399,12 @@ cleanUpStackTrace <- function(callable, args) {
 #' }
 #' PythonEmbedInR::generateRWrappers(
 #'   pyPkg = "pyPackageName",
-#'   module = "pyPackageName.aModuleInPyPackageName",
+#'   container = "pyPackageName.aModuleInPyPackageName",
 #'   setGenericCallback = callback,
 #'   transformReturnObject = myTransform)
 #' @md
 generateRWrappers <- function(pyPkg,
-                              module = NULL,
-                              class = NULL,
+                              container,
                               setGenericCallback,
                               functionFilter = NULL,
                               classFilter = NULL,
@@ -417,25 +412,24 @@ generateRWrappers <- function(pyPkg,
                               pySingletonName = NULL,
                               transformReturnObject = NULL) {
   # validate the args
-  pyImport("pyPkgInfo")
+  pyImport("inspect")
   pyImport(pyPkg)
-  if (!is.null(class) && is.null(pySingletonName))
-    stop("`class` is specified, but `pySingtonName` is not specified.")
-  if (is.null(class) && !is.null(pySingletonName))
-    stop("`class` is not specified, but `pySingtonName` is specified.")
-  if (!is.null(class))
-    module <- class
+  isClass <- pyExecg("inspect.isclass(%s)", container)
+  if (!isClass && is.null(pySingletonName))
+    stop("`container` is a class, but `pySingtonName` is not specified.")
+  if (isClass && !is.null(pySingletonName))
+    stop("`container` is not a class, but `pySingtonName` is specified.")
 
   functionInfo <- getFunctionInfo(
     pyPkg,
-    module,
+    container,
     functionFilter,
     functionPrefix,
     pySingletonName
   )
   classInfo <- getClassInfo(
     pyPkg,
-    module,
+    container,
     classFilter
   )
 
@@ -445,7 +439,7 @@ generateRWrappers <- function(pyPkg,
     transformReturnObject
   )
   autoGenerateClasses(
-    module,
+    container,
     setGenericCallback,
     classInfo
   )
@@ -851,13 +845,12 @@ writeContent <- function(content, name, targetFolder) {
 
 #' @title Generate .Rd files for Python classes and functions
 #' @description This function generates .Rd files for Python classes and functions
-#'   in a given Python module.
+#'   in a given Python container
 #'
 #' @param srcRootDir The root directory under which another directory, `auto-man/` is created to hold
 #'   the output, Rd files.
 #' @param pyPkg The Python package name
-#' @param module The fully qualified name of a Python module
-#' @param class The fully qualified name of a Python class
+#' @param container The fully qualified name of a Python module, or a Python class to be wrapped
 #' @param functionFilter Optional function to intercept and modify the auto-generated function metadata.
 #' @param classFilter Optional function to intercept and modify the auto-generated class metadata.
 #' @param functionPrefix Optional text to add to the name of the wrapped functions.
@@ -865,10 +858,7 @@ writeContent <- function(content, name, targetFolder) {
 #' @param templateDir Optional path to a template directory. Set `templateDir` to NULL to use the default
 #'   templates in the `/templates/` folder. 
 #' @details
-#' * `module` can take the same value as `pyPkg`, or can be a module within the Python package.
-#' 
-#' * `class` must be fully qualified name of a class within the Python package. When the `class` parameter
-#'   is present, the `module` parameter is ignored.
+#' * `container` can take the same value as `pyPkg`, can be a module or a class within the Python package.
 #'   
 #' * `functionFilter` and `classFilter` are optional functions defined by the caller.
 #' 
@@ -918,7 +908,7 @@ writeContent <- function(content, name, targetFolder) {
 #' PythonEmbedInR::generateRdFiles(
 #'   srcRootDir = "path/to/R/pkg",
 #'   pyPkg = "pyPackageName",
-#'   module = "pyPackageName.aModuleInPyPackageName")
+#'   container = "pyPackageName.aModuleInPyPackageName")
 #'   
 #' 2. Generate docs for the module "pyPackageName.aModuleInPyPackageName", omitting the function "myFun"
 #' myfunctionFilter <- function(x) {
@@ -927,7 +917,7 @@ writeContent <- function(content, name, targetFolder) {
 #' PythonEmbedInR::generateRdFiles(
 #'   srcRootDir = "path/to/R/pkg",
 #'   pyPkg = "pyPackageName",
-#'   module = "pyPackageName.aModuleInPyPackageName",
+#'   container = "pyPackageName.aModuleInPyPackageName",
 #'   functionFilter = myfunctionFilter)
 #'   
 #' 3.Generate docs for the module "pyPackageName.aModuleInPyPackageName", omitting the "MyObj" constructor
@@ -937,22 +927,19 @@ writeContent <- function(content, name, targetFolder) {
 #' PythonEmbedInR::generateRdFiles(
 #'   srcRootDir = "path/to/R/pkg",
 #'   pyPkg = "pyPackageName",
-#'   module = "pyPackageName.aModuleInPyPackageName",
+#'   container = "pyPackageName.aModuleInPyPackageName",
 #'   classFilter = myclassFilter)
 #' @md
 generateRdFiles <- function(srcRootDir,
                             pyPkg,
-                            module = NULL,
-                            class = NULL,
+                            container,
                             functionFilter = NULL,
                             classFilter = NULL,
                             functionPrefix = NULL,
                             keepContent = FALSE,
                             templateDir = NULL) {
-  if (!is.null(class))
-    module <- class
-  functionInfo <- getFunctionInfo(pyPkg, module, functionFilter, functionPrefix)
-  classInfo <- getClassInfo(pyPkg, module, classFilter)
+  functionInfo <- getFunctionInfo(pyPkg, container, functionFilter, functionPrefix)
+  classInfo <- getClassInfo(pyPkg, container, classFilter)
 
   autoGenerateRdFiles(srcRootDir, functionInfo, classInfo, keepContent, templateDir)
 }

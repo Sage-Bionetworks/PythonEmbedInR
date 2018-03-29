@@ -275,13 +275,13 @@ args <- commandArgs(TRUE)
 srcRootDir <- args[1]
 generateRdFiles(srcRootDir,
                 pyPkg = "synapseutils",
-                module = "synapseutils")
+                container = "synapseutils")
 ```
 
 Where:
 * `srcRootDir` is the path to `synapserutils` directory. The directory must exist prior to this call. `generateRdFiles` will create a folder `auto-man` and write the generated .Rd files in this folder.
 * `pyPkg` is the name of the Python package that needs to be imported, and
-* `module` is the name of the Python module to be wrapped. This parameter can take the same value as `pyPkg` or a module within the Python package. The value that is passed to `module` must be a fully qualified name.
+* `container` is the name of the Python module, or class to be wrapped. This parameter can take the same value as `pyPkg`, a module or a class within the Python package. The value that is passed to `container` must be a fully qualified name.
 
 #### Generate R wrappers
 
@@ -296,12 +296,12 @@ callback <- function(name, def) {
 
 .onLoad <- function(libname, pkgname) {
   generateRWrappers(pyPkg = "synapseutils",
-                    module = "synapseutils",
+                    container = "synapseutils",
                     setGenericCallback = callback)
 }
 ```
 
-The values for `pyPkg` and `module` parameters to `generateRWrappers()` must match those parameters passed
+The values for `pyPkg` and `container` parameters to `generateRWrappers()` must match those parameters passed
 to `generateRdFiles()` so that the reference doc's match the generated R functions. 
 
 For more information about how to use `setGeneric`, please view its reference documentation by:
@@ -332,14 +332,14 @@ Then from the R script that generates .Rd files, `createRdFiles.R`, we update `g
 ```r
 generateRdFiles(srcRootDir,
                 pyPkg = "synapseutils",
-                module = "synapseutils",
+                container = "synapseutils",
                 functionFilter = selectFunctions)
 ```
 
 And from `zzz.R`, update `generateRWrappers` to maintain consistency as follows:
 ```r
 generateRWrappers(pyPkg = "synapseutils",
-                  module = "synapseutils",
+                  container = "synapseutils",
                   setGenericCallback = callback,
                   functionFilter = selectFunctions)
 ```
@@ -403,12 +403,12 @@ Then we call `generateRdFiles` and `generateRWrappers` as follows:
 ```r
 generateRdFiles(srcRootDir,
                 pyPkg = "synapseclient",
-                module = "synapseclient.entity",
+                container = "synapseclient.entity",
                 classFilter = selectClasses)
 ```
 ```r
 generateRWrappers(pyPkg = "synapseclient",
-                  module = "synapseclient.entity",
+                  container = "synapseclient.entity",
                   setGenericCallback = callback,
                   classFilter = selectClasses)
 ```
@@ -434,12 +434,11 @@ Note that:
 * All function calls in R access a common underlying Python object `Synapse`
 * In the following example, the function names in R will be prepended with a `syn` prefix.
 
-In this case, we use `class` parameter instead of `module` parameter.
 For generated .Rd files, we use `functionPrefix` parameter as follows:
 ```r
 generateRdFiles(srcRootDir,
                 pyPkg = "synapseclient",
-                class = "synapseclient.client.Synapse",
+                container = "synapseclient.client.Synapse",
                 functionPrefix = "syn")
 ```
 
@@ -451,15 +450,12 @@ To generate the R wrappers, we need to instantiate the Python object in `zzz.R` 
   pyExec("synapse = synapseclient.Synapse()")
 
   generateRWrappers(pyPkg = "synapseclient",
-                    class = "synapseclient.client.Synapse",
+                    container = "synapseclient.client.Synapse",
                     setGenericCallback = callback,
                     pySingletonName = "synapse",
                     functionPrefix = "syn")
 }
 ```
-Notes:
-* When using the `generateRWrappers` function, either both the `class` and the `pySingletonName` parameters are specified or they are both not specified.
-* When the `class` parameter is present, the `module` parameter is ignored.
 
 ### Override the returned object in R
 
@@ -474,7 +470,7 @@ objectDefinitionHelper <- function(object) {
 }
 
 generateRWrappers(pyPkg = "synapseclient",
-                  module = "synapseclient.client.Synapse",
+                  container = "synapseclient.client.Synapse",
                   setGenericCallback = callback,
                   transformReturnObject = objectDefinitionHelper)
 ```
