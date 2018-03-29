@@ -333,7 +333,7 @@ Then from the R script that generates .Rd files, `createRdFiles.R`, we update `g
 generateRdFiles(srcRootDir,
                 pyPkg = "synapseutils",
                 module = "synapseutils",
-                modifyFunctions = selectFunctions)
+                functionFilter = selectFunctions)
 ```
 
 And from `zzz.R`, update `generateRWrappers` to maintain consistency as follows:
@@ -341,7 +341,7 @@ And from `zzz.R`, update `generateRWrappers` to maintain consistency as follows:
 generateRWrappers(pyPkg = "synapseutils",
                   module = "synapseutils",
                   setGenericCallback = callback,
-                  modifyFunctions = selectFunctions)
+                  functionFilter = selectFunctions)
 ```
 
 ### Expose a subset of classes within a Python module
@@ -404,13 +404,13 @@ Then we call `generateRdFiles` and `generateRWrappers` as follows:
 generateRdFiles(srcRootDir,
                 pyPkg = "synapseclient",
                 module = "synapseclient.entity",
-                modifyClasses = selectClasses)
+                classFilter = selectClasses)
 ```
 ```r
 generateRWrappers(pyPkg = "synapseclient",
                   module = "synapseclient.entity",
                   setGenericCallback = callback,
-                  modifyClasses = selectClasses)
+                  classFilter = selectClasses)
 ```
 
 ### Expose functions within a singleton object
