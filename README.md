@@ -233,11 +233,11 @@ A Python package may have multiple modules, each with its own namespace. Each mo
 * `generateRWrappers`
 * `generateRdFiles`
 
-The .Rd file generation must happen at the time the package is built, not at the time the package is loaded. The R function and constructor wrappers must happen at the time the package is loaded. These functions should be called with the similar parameters to ensure that all R wrapped functions have corresponding reference documentation.
+The .Rd file generation must be invoked at the time the package is built, not at the time the package is loaded. The R function and constructor wrappers must be invoked at the time the package is loaded.
 
 ## Examples:
 
-In this example, I will demonstrate how we generate [synapser](https://github.com/Sage-Bionetworks/synapser) and [synapserutils](https://github.com/Sage-Bionetworks/synapserutils) packages by wrapping Python package [synapsePythonClient](https://github.com/Sage-Bionetworks/synapsePythonClient).
+In this example, I will demonstrate how we generate the [synapser](https://github.com/Sage-Bionetworks/synapser) and the [synapserutils](https://github.com/Sage-Bionetworks/synapserutils) packages by wrapping the Python package [synapsePythonClient](https://github.com/Sage-Bionetworks/synapsePythonClient).
 
 The `synapseutils` module in `synapsePythonClient` package has the following structure:
 ```
@@ -257,7 +257,7 @@ The `synapseutils` module in `synapsePythonClient` package has the following str
 
 #### Generate .Rd files
 
-To generate the R package `synapserutils`, our first attempt is to exposing all functions under `synapseutils` Python module. 
+To generate the R package `synapserutils`, our first attempt is to expose all functions under the `synapseutils` Python module. 
 
 In the `synapserutils` package, we add a `configure` file with the following content:
 ```
@@ -269,8 +269,10 @@ export PWD_FROM_R=${ALT_PWD-`pwd`}
 Rscript --vanilla path/to/createRdFiles.R $PWD_FROM_R
 ```
 
-Then in `createRdFiles.R`, we calls `generateRdFiles` as follows:
+Where `createRdFiles.R` is an R script we add to the package, containing the code to generate the .Rd documentation files. The script invokes `generateRdFiles` as shown below:
 ```r
+args <- commandArgs(TRUE)
+srcRootDir <- args[1]
 generateRdFiles(srcRootDir,
                 pyPkg = "synapseutils",
                 module = "synapseutils")
@@ -299,6 +301,9 @@ callback <- function(name, def) {
 }
 ```
 
+The values for `pyPkg` and `module` parameters to `generateRWrappers()` must match those parameters passed
+to `generateRdFiles()` so that the reference doc's match the generated R functions. 
+
 For more information about how to use `setGeneric`, please view its reference documentation by:
 ```r
 ?setGeneric
@@ -306,13 +311,13 @@ For more information about how to use `setGeneric`, please view its reference do
 
 ### Expose a subset of functions within a Python module
 
-For many reasons, some Python functions are meant to be used internally, and these do not need to be exposed the R package. For example, `notifyMe` is a Python decorator, and can only be used for other Python functions.
+For many reasons, some Python functions are meant to be used internally, and these do not need to be exposed in the R package. For example, `notifyMe` is a Python decorator, and can only be used for other Python functions.
 
 Let's omit the following functions from `synapseutils` module:
 * `copyFileHandles`
 * `notifyMe`
 
-You would need to specify a function like `selectFunctions` below in a shared .R file:
+We need to specify a function like `selectFunctions` below in `shared.R`, an .R script that can be accessed by both `zzz.R` and `createRdFiles.R`:
 ```r
 toOmit <- c("copyFileHandles", "notifyMe")
 selectFunctions <- function(x) {
@@ -323,7 +328,7 @@ selectFunctions <- function(x) {
 }
 ```
 
-Then from the R script that generates .Rd files, update `generateRdFiles` as follows:
+Then from the R script that generates .Rd files, `createRdFiles.R`, we update `generateRdFiles` as follows:
 ```r
 generateRdFiles(srcRootDir,
                 pyPkg = "synapseutils",
@@ -331,7 +336,7 @@ generateRdFiles(srcRootDir,
                 modifyFunctions = selectFunctions)
 ```
 
-And in your `.onLoad`, update `generateRWrappers` as follows:
+And from `zzz.R`, update `generateRWrappers` to maintain consistency as follows:
 ```r
 generateRWrappers(pyPkg = "synapseutils",
                   module = "synapseutils",
@@ -341,7 +346,7 @@ generateRWrappers(pyPkg = "synapseutils",
 
 ### Expose a subset of classes within a Python module
 
-The `synapseclient` module in `synapsePythonClient` has the following structure:
+The `synapseclient` module in the `synapsePythonClient` has the following structure:
 ```
     module: synapseclient
         module: client
@@ -360,7 +365,7 @@ The `synapseclient` module in `synapsePythonClient` has the following structure:
                 function: privateGet
 ```
 
-Now let's try a more complicated example where we want to expose the following functions and classes from `synapseclient.entity` module:
+Now let's try a more complicated example where we want to expose the following functions and classes from the `synapseclient.entity` module:
 ```
   class: File
       function: get
@@ -369,10 +374,10 @@ Now let's try a more complicated example where we want to expose the following f
 ```
 
 Note that we do not want the following from the `synapseclient.entity` module:
-* `function: privateGet` from any of the classes
+* `function: privateGet` from any of the classes, and
 * `class: Entity`
 
-First, define your `selectClasses` in the shared .R file:
+First, we define the `selectClasses` function in the `shared.R` file:
 ```r
 methodsToOmit <- "privateGet"
 classToSkip <- "Entity"
@@ -394,7 +399,7 @@ selectClasses <- function(class) {
 }
 ```
 
-Then call `generateRdFiles` and `generateRWrappers` as follows:
+Then we call `generateRdFiles` and `generateRWrappers` as follows:
 ```r
 generateRdFiles(srcRootDir,
                 pyPkg = "synapseclient",
@@ -410,7 +415,7 @@ generateRWrappers(pyPkg = "synapseclient",
 
 ### Expose functions within a singleton object
 
-In rare cases, we want to expose a set Python functions which are an object's methods, but without exposing the object itself. For example, in the `synapser` package we wish to make available the methods in `synapseclient.client.Synapse` without requiring the R user to instantiate the `Synapse` object. The following will create a singleton object at package load time and expose the object's methods to be called directly.
+In rare cases, we want to expose a set of Python functions which are an object's methods, but without exposing the object itself. For example, in the `synapser` package we wish to make available the methods in `synapseclient.client.Synapse` without requiring the R user to instantiate the `Synapse` object. The following will create a singleton object at package load time and expose the object's methods to be called directly.
 
 In a Python session, we would do the following:
 ```
@@ -442,19 +447,19 @@ To generate the R wrappers, we need to instantiate the Python object in `zzz.R` 
 ```r
 .onLoad <- function(libname, pkgname) {
   pyImport("synapseclient")
-  pyExec("syn = synapseclient.Synapse()")
+  pyExec("synapse = synapseclient.Synapse()")
 
   generateRWrappers(pyPkg = "synapseclient",
                     module = "synapseclient.client.Synapse",
                     setGenericCallback = callback,
-                    pySingletonName = "syn",
+                    pySingletonName = "synapse",
                     functionPrefix = "syn")
 }
 ```
 
 ### Override the returned object in R
 
-You may wish to intercept and modify the values returned by the auto-generated R functions. In the the following example we wish to intercept certain returned R6 objects and modify their class names.
+You may wish to intercept and modify the values returned by the auto-generated R functions. In the following example we wish to intercept certain returned R6 objects and modify their class names.
 ```r
 objectDefinitionHelper <- function(object) {
   # change returned object name from "GeneratorWrapper.<some function name>" to "GeneratorWrapper"
@@ -467,14 +472,14 @@ objectDefinitionHelper <- function(object) {
 generateRWrappers(pyPkg = "synapseclient",
                   module = "synapseclient.client.Synapse",
                   setGenericCallback = callback,
-                  functionPrefix = "syn",
-                  pyObjectName = "syn",
                   transformReturnObject = objectDefinitionHelper)
 ```
 
+Note: `transformReturnObject` will be applied to the returned values from all generated functions. The transformation cannot depend on the function which generated the returned value.
+
 ### Notes on `generateRdFiles`
 
-This helper function can be used to convert Python [Sphinx](http://www.sphinx-doc.org/en/master/) docs into Rd files. It only supports a subset of Sphinx tags, including:
+This function converts Python docstrings into .Rd files, recognizing a subset of [Sphinx](http://www.sphinx-doc.org/en/master/) tags:
 * :parameter:
 * :param:
 * :type:

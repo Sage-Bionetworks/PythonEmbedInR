@@ -133,12 +133,12 @@ removeNulls <- function(x) {
 #
 # @param pyPkg the Python package name
 # @param module the Python module
-# @param modifyFunctions optional function to modify the returned functions
+# @param functionFilter optional function to modify the returned functions
 # @param functionPrefix optional text to add to the name of the functions
 # @param pySingletonName optional singleton object in python
 getFunctionInfo <- function(pyPkg,
                             module,
-                            modifyFunctions = NULL,
+                            functionFilter = NULL,
                             functionPrefix = NULL,
                             pySingletonName = NULL) {
   pyImport("pyPkgInfo")
@@ -146,8 +146,8 @@ getFunctionInfo <- function(pyPkg,
   pyExec(sprintf("functionInfo = pyPkgInfo.getFunctionInfo(%s)", module))
   functionInfo <- pyGet("functionInfo", simplify = F)
 
-  if (!is.null(modifyFunctions)) {
-    functionInfo <- lapply(X = functionInfo, modifyFunctions)
+  if (!is.null(functionFilter)) {
+    functionInfo <- lapply(X = functionInfo, functionFilter)
   }
   # scrub the nulls
   functionInfo <- removeNulls(functionInfo)
@@ -179,14 +179,14 @@ getFunctionInfo <- function(pyPkg,
 #
 # @param pyPkg the Python package name
 # @param module the Python module
-# @param modifyClasses optional function to modify the returned classes
-getClassInfo <- function(pyPkg, module, modifyClasses = NULL) {
+# @param classFilter optional function to modify the returned classes
+getClassInfo <- function(pyPkg, module, classFilter = NULL) {
   pyImport("pyPkgInfo")
   pyImport(pyPkg)
   pyExec(sprintf("classInfo = pyPkgInfo.getClassInfo(%s)", module))
   classInfo <- pyGet("classInfo", simplify = F)
-  if (!is.null(modifyClasses)) {
-    classInfo <- lapply(X = classInfo, modifyClasses)
+  if (!is.null(classFilter)) {
+    classInfo <- lapply(X = classInfo, classFilter)
   }
   # scrub the nulls
   removeNulls(classInfo)
@@ -277,78 +277,112 @@ cleanUpStackTrace <- function(callable, args) {
 }
 
 #' @title Generate R wrappers for Python classes and functions
-#' @description This function generate R wrappers for Python classes and functions
+#' @description This function generates R wrappers for Python classes and functions
 #'   in the given Python module
 #'
 #' @param pyPkg The Python package name
-#' @param module The name of the Python module to be wrapped.
+#' @param module The fully qualified name of the Python module or class to be wrapped
 #' @param setGenericCallback The callback to setGeneric defined in the target R package
-#' @param modifyFunctions Optional function to modify the returned functions
-#' @param modifyClasses Optional function to modify the returned classes
-#' @param functionPrefix Optional text to add to the name of the functions
-#' @param pySingletonName Optional singleton object in python
-#' @param transformReturnObject Optional function to change returned values in R
+#' @param functionFilter Optional function to intercept and modify the auto-generated function metadata.
+#'   Default NULL.
+#' @param classFilter Optional function to intercept and modify the auto-generated class metadata.
+#'   Default NULL.
+#' @param functionPrefix Optional text to add to the name of the wrapped functions.
+#'   Default NULL.
+#' @param pySingletonName Optional parameter used to expose a set Python functions which are an object's
+#'   methods, but without exposing the object itself. If the `module` parameter is a class then this must
+#'   be the name of a Python variable referencing an instance of the class. If `module` parameter is not
+#'   a class then this must be NULL. Default NULL. See example 4.
+#' @param transformReturnObject Optional function to change returned values in R. Default NULL.
 #' @details
-#' * `generateRdFiles` and `generateRWrappers` should be called with similar
-#'   params to ensure all R wrappers has sufficient documentation.
-#'   
-#' * `module` can have the same value as `pyPkg` or a module within the Python package.
+#' * `module` can take the same value as `pyPkg`, or can be a module within the Python package.
 #'   The value that is passed to `module` parameter must be a fully qualified name.
 #'   
 #' * `setGeneric` function must be defined in the same environment that `generateRWrappers`
 #'   is called. See example 1.
 #'   
-#' * `modifyFunctions` and `modifyClasses` are optional function defined by the caller.
+#' * `functionFilter` and `classFilter` are optional functions defined by the caller.
 #' 
-#' * `modifyFunctions` takes an object with the schema: ('name', 'args', 'doc', 'module')
-#'   and modifies the list of functions found under `module`. See example 2.
+#' * `functionFilter` takes as input the metadata for a generated function and either modifies it
+#'   or returns NULL to omit it from the set of generated functions. The metadata object is a list 
+#'   having fields:
+#'   ```
+#'   'name': character
+#'   'args': named list having fields:
+#'       'args': a list of the argument names (it may contain nested lists)
+#'       'varargs':  character
+#'       'keywords': character
+#'       'defaults': character
+#'   'doc': character
+#'   'module':character
+#'   ```
+#'   See example 2.
 #'   
-#' * `modifyClasses` takes an object with the schema: ('name', 'constructorArgs', 'doc', 'methods')
-#'   and modifies the list of classes found under `module`. See example 3.
+#' * `classFilter` takes as input the metadata for a generated class and either modifies it
+#'   or returns NULL to omit it from the set of generated classes The metadata object is a list 
+#'   having fields:
+#'   ```
+#'   'name': character
+#'   'constructorArgs': named list having fields:
+#'       'args': a list of the argument names (it may contain nested lists)
+#'       'varargs':  character
+#'       'keywords': character
+#'       'defaults': character
+#'   'doc': character
+#'   'methods':named list having fields:
+#'       'name': character
+#'       'doc': character
+#'       'args': named list having fields:
+#'           'args': a list of the argument names (it may contain nested lists)
+#'           'varargs':  character
+#'           'keywords': character
+#'           'defaults': character
+#'   ```
+#'   See example 3.
 #'   
-#' * `pySingletonName` is used to expose a set Python functions which are an object's methods,
-#'   but without exposing the object itself. See example 4.
-#'   
-#' * `transformReturnObject` is used to intercept and modify the values
-#'   returned by the auto-generated R functions. It takes an R6 object,
-#'   and returned the modified R6 object. See example 5.
+#' * `transformReturnObject` is used to intercept and modify the values returned by the
+#'   auto-generated R functions.`transformReturnObject` will be applied to the returned values
+#'   from all generated functions. The transformation cannot depend on the function which generated
+#'   the returned value. See example 5.
 #' 
-#' @note generateRWrappers should be called in .onLoad()
-#' @seealso [generateRdFiles()]
+#' @notes
+#' * `generateRWrappers` should be called at load time.
+#' * `generateRWrappers` and `generateRdFiles` must be called with corresponding parameters to ensure
+#'    all R wrappers has sufficient documentation.
 #' @examples
-#' 1.
+#' 1. Generate R wrappers for all functions and classes in "pyPackageName.aModuleInPyPackageName"
 #' ```
 #' callback <- function(name, def) {
 #'   setGeneric(name, def)
 #' }
 #' PythonEmbedInR::generateRWrappers(
 #'   pyPkg = "pyPackageName",
-#'   module = "aModuleInPyPackageName",
+#'   module = "pyPackageName.aModuleInPyPackageName",
 #'   setGenericCallback = callback)
 #' ```
-#' 2.
+#' 2. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", omitting function "myFun"
 #' ```
-#' myModifyFunctions <- function(x) {
+#' myfunctionFilter <- function(x) {
 #'   if (any(x$name == "myFun")) NULL else x
 #' }
 #' PythonEmbedInR::generateRWrappers(
 #'   pyPkg = "pyPackageName",
-#'   module = "aModuleInPyPackageName",
+#'   module = "pyPackageName.aModuleInPyPackageName",
 #'   setGenericCallback = callback,
-#'   modifyFunctions = myModifyFunctions)
+#'   functionFilter = myfunctionFilter)
 #' ```
-#' 3.
+#' 3. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", omitting the "MyObj" class
 #' ```
-#' myModifyClasses <- function(x) {
-#'   if (any(x$name == "myFun")) NULL else x
+#' myclassFilter <- function(x) {
+#'   if (any(x$name == "MyObj")) NULL else x
 #' }
 #' PythonEmbedInR::generateRWrappers(
 #'   pyPkg = "pyPackageName",
-#'   module = "aModuleInPyPackageName",
+#'   module = "pyPackageName.aModuleInPyPackageName",
 #'   setGenericCallback = callback,
-#'   modifyClasses = myModifyClasses)
+#'   classFilter = myclassFilter)
 #' ```
-#' 4.
+#' 4. Generate R wrappers for module "synapseclient.client.Synapse" without exposing the "Synapse" object
 #' ```
 #' .onLoad <- function(libname, pkgname) {
 #'   pyImport("synapseclient")
@@ -360,7 +394,8 @@ cleanUpStackTrace <- function(callable, args) {
 #'                     pySingletonName = "syn")
 #' }
 #' ```
-#' 5.
+#' 5. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", tranforming all returned values,
+#'   and setting each returned object class name to "newName"
 #' ```
 #' myTranform <- function(x) {
 #'   # replace the object name
@@ -368,29 +403,29 @@ cleanUpStackTrace <- function(callable, args) {
 #' }
 #' PythonEmbedInR::generateRWrappers(
 #'   pyPkg = "pyPackageName",
-#'   module = "aModuleInPyPackageName",
+#'   module = "pyPackageName.aModuleInPyPackageName",
 #'   setGenericCallback = callback,
 #'   transformReturnObject = myTranform)
 #' ```
 generateRWrappers <- function(pyPkg,
                               module,
                               setGenericCallback,
-                              modifyFunctions = NULL,
-                              modifyClasses = NULL,
+                              functionFilter = NULL,
+                              classFilter = NULL,
                               functionPrefix = NULL,
                               pySingletonName = NULL,
                               transformReturnObject = NULL) {
   functionInfo <- getFunctionInfo(
     pyPkg,
     module,
-    modifyFunctions,
+    functionFilter,
     functionPrefix,
     pySingletonName
   )
   classInfo <- getClassInfo(
     pyPkg,
     module,
-    modifyClasses
+    classFilter
   )
 
   autoGenerateFunctions(
@@ -804,82 +839,111 @@ writeContent <- function(content, name, targetFolder) {
 }
 
 #' @title Generate .Rd files for Python classes and functions
-#' @description This function generate .Rd files for Python classes and functions
-#'   for a given Python module.
+#' @description This function generates .Rd files for Python classes and functions
+#'   in a given Python module.
 #'
-#' @param srcRootDir The directory of the R package
+#' @param srcRootDir The root directory under which another directory, `auto-man/` is created to hold
+#'   the output, Rd files.
 #' @param pyPkg The Python package name
-#' @param module The Python module
-#' @param modifyFunctions Optional function to modify the returned functions
-#' @param modifyClasses Optional function to modify the returned classes
-#' @param functionPrefix Optional text to add to the name of the functions
-#' @param keepContent Optional wheather the existing files at the target directory
-#'   should be kept
-#' @param templateDir Optional path to a template directory
+#' @param module The fully qualified name of the Python module or class to be wrapped
+#' @param functionFilter Optional function to intercept and modify the auto-generated function metadata.
+#'   Default NULL.
+#' @param classFilter Optional function to intercept and modify the auto-generated class metadata.
+#'   Default NULL.
+#' @param functionPrefix Optional text to add to the name of the wrapped functions.
+#'   Default NULL.
+#' @param keepContent Optional whether the existing files at the target directory should be kept.
+#'   Default FALSE.
+#' @param templateDir Optional path to a template directory. Set `templateDir` to NULL to use the default
+#'   templates in the `/templates/` folder. Default NULL.
 #' @details
-#' * `generateRdFiles` and `generateRWrappers` should be called with similar
-#'   params to ensure all R wrappers has sufficient documentation.
-#'   
-#' * `module` can have the same value as `pyPkg` or a module within the Python package.
+#' * `module` can take the same value as `pyPkg`, or can be a module within the Python package.
 #'   The value that is passed to `module` parameter must be a fully qualified name.
 #'   
-#' * `modifyFunctions` and `modifyClasses` are optional function defined by the caller.
+#' * `functionFilter` and `classFilter` are optional functions defined by the caller.
 #' 
-#' * `modifyFunctions` takes an object with the schema: ('name', 'args', 'doc', 'module')
-#'   and modifies the list of functions found under `module`. See example 2.
+#' * `functionFilter` takes as input the metadata for a generated function and either modifies it
+#'   or returns NULL to omit it from the set of generated functions. The metadata object is a list 
+#'   having fields:
+#'   ```
+#'   'name': character
+#'   'args': named list having fields:
+#'       'args': a list of the argument names (it may contain nested lists)
+#'       'varargs':  character
+#'       'keywords': character
+#'       'defaults': character
+#'   'doc': character
+#'   'module':character
+#'   ```
+#'   See example 2.
 #'   
-#' * `modifyClasses` takes an object with the schema: ('name', 'constructorArgs', 'doc', 'methods')
-#'   and modifies the list of classes found under `module`. See example 3.
+#' * `classFilter` takes as input the metadata for a generated class and either modifies it
+#'   or returns NULL to omit it from the set of generated classes The metadata object is a list 
+#'   having fields:
+#'   ```
+#'   'name': character
+#'   'constructorArgs': named list having fields:
+#'       'args': a list of the argument names (it may contain nested lists)
+#'       'varargs':  character
+#'       'keywords': character
+#'       'defaults': character
+#'   'doc': character
+#'   'methods':named list having fields:
+#'       'name': character
+#'       'doc': character
+#'       'args': named list having fields:
+#'           'args': a list of the argument names (it may contain nested lists)
+#'           'varargs':  character
+#'           'keywords': character
+#'           'defaults': character
+#'   ```
+#'   See example 3.
 #' 
-#' @note The generated .Rd files is localed in srcRootDir/auto-man. One must copy
-#'  all .Rd files to their man folder and make sure that the language being used in
-#'  these documents are friendly to R users.
+#' @note Python documentation may contains key words and terms that are only meaningful to Python users.
+#'   The generated .Rd files, localed in 'srcRootDir/auto-man', do not auto correct these terms, nor provide
+#'   examples in R. One must copy all auto-generated .Rd files to their package `/man` folder and make sure
+#'   that the language being used in these documents are friendly to R users.
 #' @examples
-#' 1.
+#' 1. Generate .Rd files for all functions and classes in "pyPackageName.aModuleInPyPackageName"
 #' ```
-#' .onLoad <- function(libname, pkgname) {
-#'   PythonEmbedInR::generateRdFiles(
-#'     srcRootDir = "path/to/R/pkg",
-#'     pyPkg = "pyPackageName",
-#'     module = "aModuleInPyPackageName")
-#' }
+#' PythonEmbedInR::generateRdFiles(
+#'   srcRootDir = "path/to/R/pkg",
+#'   pyPkg = "pyPackageName",
+#'   module = "pyPackageName.aModuleInPyPackageName")
 #' ```
-#' 2.
+#' 2. Generate docs for the module "pyPackageName.aModuleInPyPackageName", omitting the function "myFun"
 #' ```
-#' myModifyFunctions <- function(x) {
+#' myfunctionFilter <- function(x) {
 #'   if (any(x$name == "myFun")) NULL else x
 #' }
-#' .onLoad <- function(libname, pkgname) {
-#'   PythonEmbedInR::generateRdFiles(
-#'     srcRootDir = "path/to/R/pkg",
-#'     pyPkg = "pyPackageName",
-#'     module = "aModuleInPyPackageName",
-#'     modifyFunctions = myModifyFunctions)
-#' }
+#' PythonEmbedInR::generateRdFiles(
+#'   srcRootDir = "path/to/R/pkg",
+#'   pyPkg = "pyPackageName",
+#'   module = "pyPackageName.aModuleInPyPackageName",
+#'   functionFilter = myfunctionFilter)
 #' ```
-#' 3.
+#' 3.Generate docs for the module "pyPackageName.aModuleInPyPackageName", omitting the "MyObj" constructor
 #' ```
-#' myModifyClasses <- function(x) {
+#' myclassFilter <- function(x) {
 #'   if (any(x$name == "MyObj")) NULL else x
 #' }
-#' .onLoad <- function(libname, pkgname) {
-#'   PythonEmbedInR::generateRdFiles(
-#'     srcRootDir = "path/to/R/pkg",
-#'     pyPkg = "pyPackageName",
-#'     module = "aModuleInPyPackageName",
-#'     modifyClasses = myModifyClasses)
-#' }
+#' PythonEmbedInR::generateRdFiles(
+#'   srcRootDir = "path/to/R/pkg",
+#'   pyPkg = "pyPackageName",
+#'   module = "pyPackageName.aModuleInPyPackageName",
+#'   classFilter = myclassFilter)
 #' ```
+#' @md
 generateRdFiles <- function(srcRootDir,
                             pyPkg,
                             module,
-                            modifyFunctions = NULL,
-                            modifyClasses = NULL,
+                            functionFilter = NULL,
+                            classFilter = NULL,
                             functionPrefix = NULL,
                             keepContent = FALSE,
                             templateDir = NULL) {
-  functionInfo <- getFunctionInfo(pyPkg, module, modifyFunctions, functionPrefix)
-  classInfo <- getClassInfo(pyPkg, module, modifyClasses)
+  functionInfo <- getFunctionInfo(pyPkg, module, functionFilter, functionPrefix)
+  classInfo <- getClassInfo(pyPkg, module, classFilter)
 
   autoGenerateRdFiles(srcRootDir, functionInfo, classInfo, keepContent, templateDir)
 }
