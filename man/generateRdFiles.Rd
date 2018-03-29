@@ -80,14 +80,12 @@ that the language being used in these documents are friendly to R users.
 }
 \examples{
 1. Generate .Rd files for all functions and classes in "pyPackageName.aModuleInPyPackageName"
-```
 PythonEmbedInR::generateRdFiles(
   srcRootDir = "path/to/R/pkg",
   pyPkg = "pyPackageName",
   module = "pyPackageName.aModuleInPyPackageName")
-```
+  
 2. Generate docs for the module "pyPackageName.aModuleInPyPackageName", omitting the function "myFun"
-```
 myfunctionFilter <- function(x) {
   if (any(x$name == "myFun")) NULL else x
 }
@@ -96,9 +94,8 @@ PythonEmbedInR::generateRdFiles(
   pyPkg = "pyPackageName",
   module = "pyPackageName.aModuleInPyPackageName",
   functionFilter = myfunctionFilter)
-```
+  
 3.Generate docs for the module "pyPackageName.aModuleInPyPackageName", omitting the "MyObj" constructor
-```
 myclassFilter <- function(x) {
   if (any(x$name == "MyObj")) NULL else x
 }
@@ -107,5 +104,4 @@ PythonEmbedInR::generateRdFiles(
   pyPkg = "pyPackageName",
   module = "pyPackageName.aModuleInPyPackageName",
   classFilter = myclassFilter)
-```
 }

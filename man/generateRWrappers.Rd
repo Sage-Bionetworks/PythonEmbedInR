@@ -78,9 +78,15 @@ from all generated functions. The transformation cannot depend on the function w
 the returned value. See example 5.
 }
 }
+\note{
+\itemize{
+\item \code{generateRWrappers} should be called at load time.
+\item \code{generateRWrappers} and \code{generateRdFiles} must be called with corresponding parameters to ensure
+all R wrappers has sufficient documentation.
+}
+}
 \examples{
 1. Generate R wrappers for all functions and classes in "pyPackageName.aModuleInPyPackageName"
-```
 callback <- function(name, def) {
   setGeneric(name, def)
 }
@@ -88,9 +94,8 @@ PythonEmbedInR::generateRWrappers(
   pyPkg = "pyPackageName",
   module = "pyPackageName.aModuleInPyPackageName",
   setGenericCallback = callback)
-```
+
 2. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", omitting function "myFun"
-```
 myfunctionFilter <- function(x) {
   if (any(x$name == "myFun")) NULL else x
 }
@@ -99,9 +104,8 @@ PythonEmbedInR::generateRWrappers(
   module = "pyPackageName.aModuleInPyPackageName",
   setGenericCallback = callback,
   functionFilter = myfunctionFilter)
-```
+
 3. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", omitting the "MyObj" class
-```
 myclassFilter <- function(x) {
   if (any(x$name == "MyObj")) NULL else x
 }
@@ -110,9 +114,8 @@ PythonEmbedInR::generateRWrappers(
   module = "pyPackageName.aModuleInPyPackageName",
   setGenericCallback = callback,
   classFilter = myclassFilter)
-```
+
 4. Generate R wrappers for module "synapseclient.client.Synapse" without exposing the "Synapse" object
-```
 .onLoad <- function(libname, pkgname) {
   pyImport("synapseclient")
   pyExec("syn = synapseclient.Synapse()")
@@ -122,10 +125,9 @@ PythonEmbedInR::generateRWrappers(
                     setGenericCallback = callback,
                     pySingletonName = "syn")
 }
-```
+
 5. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", tranforming all returned values,
   and setting each returned object class name to "newName"
-```
 myTranform <- function(x) {
   # replace the object name
   class(x) <- "newName"
@@ -135,5 +137,4 @@ PythonEmbedInR::generateRWrappers(
   module = "pyPackageName.aModuleInPyPackageName",
   setGenericCallback = callback,
   transformReturnObject = myTranform)
-```
 }

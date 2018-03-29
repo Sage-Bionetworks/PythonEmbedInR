@@ -345,13 +345,12 @@ cleanUpStackTrace <- function(callable, args) {
 #'   from all generated functions. The transformation cannot depend on the function which generated
 #'   the returned value. See example 5.
 #' 
-#' @notes
+#' @note
 #' * `generateRWrappers` should be called at load time.
 #' * `generateRWrappers` and `generateRdFiles` must be called with corresponding parameters to ensure
 #'    all R wrappers has sufficient documentation.
 #' @examples
 #' 1. Generate R wrappers for all functions and classes in "pyPackageName.aModuleInPyPackageName"
-#' ```
 #' callback <- function(name, def) {
 #'   setGeneric(name, def)
 #' }
@@ -359,9 +358,8 @@ cleanUpStackTrace <- function(callable, args) {
 #'   pyPkg = "pyPackageName",
 #'   module = "pyPackageName.aModuleInPyPackageName",
 #'   setGenericCallback = callback)
-#' ```
+#' 
 #' 2. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", omitting function "myFun"
-#' ```
 #' myfunctionFilter <- function(x) {
 #'   if (any(x$name == "myFun")) NULL else x
 #' }
@@ -370,9 +368,8 @@ cleanUpStackTrace <- function(callable, args) {
 #'   module = "pyPackageName.aModuleInPyPackageName",
 #'   setGenericCallback = callback,
 #'   functionFilter = myfunctionFilter)
-#' ```
+#' 
 #' 3. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", omitting the "MyObj" class
-#' ```
 #' myclassFilter <- function(x) {
 #'   if (any(x$name == "MyObj")) NULL else x
 #' }
@@ -381,9 +378,8 @@ cleanUpStackTrace <- function(callable, args) {
 #'   module = "pyPackageName.aModuleInPyPackageName",
 #'   setGenericCallback = callback,
 #'   classFilter = myclassFilter)
-#' ```
+#' 
 #' 4. Generate R wrappers for module "synapseclient.client.Synapse" without exposing the "Synapse" object
-#' ```
 #' .onLoad <- function(libname, pkgname) {
 #'   pyImport("synapseclient")
 #'   pyExec("syn = synapseclient.Synapse()")
@@ -393,10 +389,9 @@ cleanUpStackTrace <- function(callable, args) {
 #'                     setGenericCallback = callback,
 #'                     pySingletonName = "syn")
 #' }
-#' ```
+#' 
 #' 5. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", tranforming all returned values,
 #'   and setting each returned object class name to "newName"
-#' ```
 #' myTranform <- function(x) {
 #'   # replace the object name
 #'   class(x) <- "newName"
@@ -406,7 +401,6 @@ cleanUpStackTrace <- function(callable, args) {
 #'   module = "pyPackageName.aModuleInPyPackageName",
 #'   setGenericCallback = callback,
 #'   transformReturnObject = myTranform)
-#' ```
 #' @md
 generateRWrappers <- function(pyPkg,
                               module,
@@ -906,14 +900,12 @@ writeContent <- function(content, name, targetFolder) {
 #'   that the language being used in these documents are friendly to R users.
 #' @examples
 #' 1. Generate .Rd files for all functions and classes in "pyPackageName.aModuleInPyPackageName"
-#' ```
 #' PythonEmbedInR::generateRdFiles(
 #'   srcRootDir = "path/to/R/pkg",
 #'   pyPkg = "pyPackageName",
 #'   module = "pyPackageName.aModuleInPyPackageName")
-#' ```
+#'   
 #' 2. Generate docs for the module "pyPackageName.aModuleInPyPackageName", omitting the function "myFun"
-#' ```
 #' myfunctionFilter <- function(x) {
 #'   if (any(x$name == "myFun")) NULL else x
 #' }
@@ -922,9 +914,8 @@ writeContent <- function(content, name, targetFolder) {
 #'   pyPkg = "pyPackageName",
 #'   module = "pyPackageName.aModuleInPyPackageName",
 #'   functionFilter = myfunctionFilter)
-#' ```
+#'   
 #' 3.Generate docs for the module "pyPackageName.aModuleInPyPackageName", omitting the "MyObj" constructor
-#' ```
 #' myclassFilter <- function(x) {
 #'   if (any(x$name == "MyObj")) NULL else x
 #' }
@@ -933,7 +924,6 @@ writeContent <- function(content, name, targetFolder) {
 #'   pyPkg = "pyPackageName",
 #'   module = "pyPackageName.aModuleInPyPackageName",
 #'   classFilter = myclassFilter)
-#' ```
 #' @md
 generateRdFiles <- function(srcRootDir,
                             pyPkg,
