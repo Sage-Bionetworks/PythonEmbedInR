@@ -7,7 +7,7 @@ def isFunctionOrRoutine(member):
 def argspecContent(argspec):
     return {'args':argspec.args, 'varargs':argspec.varargs,
         'keywords':argspec.keywords, 'defaults':argspec.defaults}
-    
+
 def getCleanedDoc(member):
     doc = inspect.getdoc(member)
     if doc is None:

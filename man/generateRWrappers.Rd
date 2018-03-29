@@ -4,14 +4,16 @@
 \alias{generateRWrappers}
 \title{Generate R wrappers for Python classes and functions}
 \usage{
-generateRWrappers(pyPkg, module, setGenericCallback, functionFilter = NULL,
-  classFilter = NULL, functionPrefix = NULL, pySingletonName = NULL,
-  transformReturnObject = NULL)
+generateRWrappers(pyPkg, module = NULL, class = NULL, setGenericCallback,
+  functionFilter = NULL, classFilter = NULL, functionPrefix = NULL,
+  pySingletonName = NULL, transformReturnObject = NULL)
 }
 \arguments{
 \item{pyPkg}{The Python package name}
 
-\item{module}{The fully qualified name of the Python module or class to be wrapped}
+\item{module}{The fully qualified name of a Python module}
+
+\item{class}{The fully qualified name of a Python class}
 
 \item{setGenericCallback}{The callback to setGeneric defined in the target R package}
 
@@ -22,9 +24,9 @@ generateRWrappers(pyPkg, module, setGenericCallback, functionFilter = NULL,
 \item{functionPrefix}{Optional text to add to the name of the wrapped functions.}
 
 \item{pySingletonName}{Optional parameter used to expose a set Python functions which are an object's
-methods, but without exposing the object itself. If the \code{module} parameter is a class then this must
-be the name of a Python variable referencing an instance of the class. If \code{module} parameter is not
-a class then this must be NULL.  See example 4.}
+methods, but without exposing the object itself. If the \code{class} parameter is present then this must
+be the name of a Python variable referencing an instance of the class. Otherwise, this must be NULL.
+See example 4.}
 
 \item{transformReturnObject}{Optional function to change returned values in R.}
 }
@@ -35,7 +37,8 @@ in the given Python module
 \details{
 \itemize{
 \item \code{module} can take the same value as \code{pyPkg}, or can be a module within the Python package.
-The value that is passed to \code{module} parameter must be a fully qualified name.
+\item \code{class} must be fully qualified name of a class within the Python package. When the \code{class} parameter
+is present, the \code{module} parameter is ignored.
 \item \code{setGeneric} function must be defined in the same environment that \code{generateRWrappers}
 is called. See example 1.
 \item \code{functionFilter} and \code{classFilter} are optional functions defined by the caller.
@@ -87,6 +90,7 @@ all R wrappers has sufficient documentation.
 }
 \examples{
 1. Generate R wrappers for all functions and classes in "pyPackageName.aModuleInPyPackageName"
+
 callback <- function(name, def) {
   setGeneric(name, def)
 }
@@ -96,6 +100,7 @@ PythonEmbedInR::generateRWrappers(
   setGenericCallback = callback)
 
 2. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", omitting function "myFun"
+
 myfunctionFilter <- function(x) {
   if (any(x$name == "myFun")) NULL else x
 }
@@ -106,6 +111,7 @@ PythonEmbedInR::generateRWrappers(
   functionFilter = myfunctionFilter)
 
 3. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", omitting the "MyObj" class
+
 myclassFilter <- function(x) {
   if (any(x$name == "MyObj")) NULL else x
 }
@@ -116,19 +122,21 @@ PythonEmbedInR::generateRWrappers(
   classFilter = myclassFilter)
 
 4. Generate R wrappers for module "synapseclient.client.Synapse" without exposing the "Synapse" object
+
 .onLoad <- function(libname, pkgname) {
   pyImport("synapseclient")
   pyExec("syn = synapseclient.Synapse()")
   # `pySingletonName` must be the name of the object defined in Python.
   generateRWrappers(pyPkg = "synapseclient",
-                    module = "synapseclient.client.Synapse",
+                    class = "synapseclient.client.Synapse",
                     setGenericCallback = callback,
                     pySingletonName = "syn")
 }
 
 5. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", tranforming all returned values,
   and setting each returned object class name to "newName"
-myTranform <- function(x) {
+  
+myTransform <- function(x) {
   # replace the object name
   class(x) <- "newName"
 }
@@ -136,5 +144,5 @@ PythonEmbedInR::generateRWrappers(
   pyPkg = "pyPackageName",
   module = "pyPackageName.aModuleInPyPackageName",
   setGenericCallback = callback,
-  transformReturnObject = myTranform)
+  transformReturnObject = myTransform)
 }

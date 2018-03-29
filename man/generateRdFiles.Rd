@@ -4,9 +4,9 @@
 \alias{generateRdFiles}
 \title{Generate .Rd files for Python classes and functions}
 \usage{
-generateRdFiles(srcRootDir, pyPkg, module, functionFilter = NULL,
-  classFilter = NULL, functionPrefix = NULL, keepContent = FALSE,
-  templateDir = NULL)
+generateRdFiles(srcRootDir, pyPkg, module = NULL, class = NULL,
+  functionFilter = NULL, classFilter = NULL, functionPrefix = NULL,
+  keepContent = FALSE, templateDir = NULL)
 }
 \arguments{
 \item{srcRootDir}{The root directory under which another directory, \code{auto-man/} is created to hold
@@ -14,7 +14,9 @@ the output, Rd files.}
 
 \item{pyPkg}{The Python package name}
 
-\item{module}{The fully qualified name of the Python module or class to be wrapped}
+\item{module}{The fully qualified name of a Python module}
+
+\item{class}{The fully qualified name of a Python class}
 
 \item{functionFilter}{Optional function to intercept and modify the auto-generated function metadata.}
 
@@ -22,8 +24,7 @@ the output, Rd files.}
 
 \item{functionPrefix}{Optional text to add to the name of the wrapped functions.}
 
-\item{keepContent}{Optional whether the existing files at the target directory should be kept.
-Default FALSE.}
+\item{keepContent}{Optional whether the existing files at the target directory should be kept.}
 
 \item{templateDir}{Optional path to a template directory. Set \code{templateDir} to NULL to use the default
 templates in the \code{/templates/} folder.}
@@ -35,7 +36,8 @@ in a given Python module.
 \details{
 \itemize{
 \item \code{module} can take the same value as \code{pyPkg}, or can be a module within the Python package.
-The value that is passed to \code{module} parameter must be a fully qualified name.
+\item \code{class} must be fully qualified name of a class within the Python package. When the \code{class} parameter
+is present, the \code{module} parameter is ignored.
 \item \code{functionFilter} and \code{classFilter} are optional functions defined by the caller.
 \item \code{functionFilter} takes as input the metadata for a generated function and either modifies it
 or returns NULL to omit it from the set of generated functions. The metadata object is a list

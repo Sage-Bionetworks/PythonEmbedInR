@@ -434,11 +434,12 @@ Note that:
 * All function calls in R access a common underlying Python object `Synapse`
 * In the following example, the function names in R will be prepended with a `syn` prefix.
 
-For generated .Rd files, we used `functionPrefix` parameter as follows:
+In this case, we use `class` parameter instead of `module` parameter.
+For generated .Rd files, we use `functionPrefix` parameter as follows:
 ```r
 generateRdFiles(srcRootDir,
                 pyPkg = "synapseclient",
-                module = "synapseclient.client.Synapse",
+                class = "synapseclient.client.Synapse",
                 functionPrefix = "syn")
 ```
 
@@ -450,12 +451,15 @@ To generate the R wrappers, we need to instantiate the Python object in `zzz.R` 
   pyExec("synapse = synapseclient.Synapse()")
 
   generateRWrappers(pyPkg = "synapseclient",
-                    module = "synapseclient.client.Synapse",
+                    class = "synapseclient.client.Synapse",
                     setGenericCallback = callback,
                     pySingletonName = "synapse",
                     functionPrefix = "syn")
 }
 ```
+Notes:
+* When using the `generateRWrappers` function, either both the `class` and the `pySingletonName` parameters are specified or they are both not specified.
+* When the `class` parameter is present, the `module` parameter is ignored.
 
 ### Override the returned object in R
 

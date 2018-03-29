@@ -66,7 +66,7 @@ test_that("generateRWrappers", {
   generateRWrappers(pyPkg = "testPyPkgWrapper",
                     module = "testPyPkgWrapper",
                     setGenericCallback = callback,
-                    modifyFunctions = removeIncObj,
+                    functionFilter = removeIncObj,
                     functionPrefix = "test")
   obj = MyObj()
   expect_equal(obj$print(), 0)
@@ -74,9 +74,23 @@ test_that("generateRWrappers", {
   expect_equal(testMyFun(-4), 4)
 })
 
+
+test_that("generateRWrappers with mismatch params", {
+  expect_error(generateRWrappers(pyPkg = "testPyPkgWrapper",
+                                 class = "testPyPkgWrapper.MyObj",
+                                 setGenericCallback = callback
+  ))
+  expect_error(generateRWrappers(pyPkg = "testPyPkgWrapper",
+                                 module = "testPyPkgWrapper.MyObj",
+                                 setGenericCallback = callback,
+                                 pySingletonName = "myObj"
+  ))
+})
+
+
 test_that("generateRWrappers with singleton object", {
   generateRWrappers(pyPkg = "testPyPkgWrapper",
-                    module = "testPyPkgWrapper.MyObj",
+                    class = "testPyPkgWrapper.MyObj",
                     setGenericCallback = callback,
                     pySingletonName = "myObj")
   pyImport("testPyPkgWrapper")
@@ -123,8 +137,8 @@ test_that("generateRdFiles with keep content", {
   generateRdFiles(srcRootDir = dir,
                   pyPkg = "testPyPkgWrapper",
                   module = "testPyPkgWrapper",
-                  modifyFunctions = remove,
-                  modifyClasses = selectMyObj)
+                  functionFilter = remove,
+                  classFilter = selectMyObj)
   expect_true(file.exists(file.path(dir, "auto-man")))
   expect_false(file.exists(file.path(dir, "auto-man", "myFun.Rd")))
   expect_true(file.exists(file.path(dir, "auto-man", "MyObj-class.Rd")))
@@ -133,8 +147,8 @@ test_that("generateRdFiles with keep content", {
   generateRdFiles(srcRootDir = dir,
                   pyPkg = "testPyPkgWrapper",
                   module = "testPyPkgWrapper",
-                  modifyFunctions = selectmyFun,
-                  modifyClasses = remove,
+                  functionFilter = selectmyFun,
+                  classFilter = remove,
                   keepContent = TRUE)
   expect_true(file.exists(file.path(dir, "auto-man")))
   expect_true(file.exists(file.path(dir, "auto-man", "myFun.Rd")))
