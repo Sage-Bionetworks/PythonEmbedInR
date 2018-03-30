@@ -146,6 +146,7 @@ pyObject <- function(key, regFinalizer = TRUE){
 
     if (regFinalizer){
         pyobject <- R6Class(className,
+                    lock_objects = FALSE,
                     portable = TRUE,
                     inherit = PythonInR_Object,
                     public = pyMethods,
@@ -153,6 +154,7 @@ pyObject <- function(key, regFinalizer = TRUE){
                     active = pyActive)
     }else{
         pyobject <- R6Class(className,
+                    lock_objects = FALSE,
                     portable = TRUE,
                     inherit = PythonInR_ObjectNoFinalizer,
                     public = pyMethods,
@@ -166,6 +168,7 @@ pyObject <- function(key, regFinalizer = TRUE){
 
 PythonInR_Object <- R6Class(
     "PythonInR_Object",
+    lock_objects = FALSE,
     portable=TRUE,
     private=list(
       py.objectName="",
@@ -187,6 +190,7 @@ PythonInR_Object <- R6Class(
 
 PythonInR_ObjectNoFinalizer <-
     R6Class("PythonInR_Object",
+            lock_objects = FALSE,
             portable = TRUE,
             inherit = PythonInR_Object,
             public = list(

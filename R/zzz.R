@@ -48,6 +48,8 @@ PYTHON_VERSION<-"3.5"
   }
 
   pyConnect()
+  pyImport("sys")
+  pyExec(sprintf("sys.path.insert(0, \"%s\")", file.path(packageRootDir, "python")))
   invisible(NULL)
 }
 
