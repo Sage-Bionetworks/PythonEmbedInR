@@ -39,24 +39,8 @@ rawString<-"Once that's done, you'll be able to load the library, create a :py:c
 expected<-"Once that's done, you'll be able to load the library, create a Synapse object and login"
 expect_equal(pyVerbiageToLatex(rawString), expected)
 
-rawString<-"See also: :py:func:`synapseclient.Synapse.chunkedQuery`"
-expected<-"See also: synChunkedQuery"
-expect_equal(pyVerbiageToLatex(rawString), expected)
-
-rawString<-"- :py:func:`Synapse.login`"
-expected<-"- synLogin"
-expect_equal(pyVerbiageToLatex(rawString), expected)
-
-rawString<-"See also: :py:func:`synapseclient.Synapse.chunkedQuery` ... More robust than :py:func:`synapseclient.Synapse.query`"
-expected<-"See also: synChunkedQuery ... More robust than synQuery"
-expect_equal(pyVerbiageToLatex(rawString), expected)
-
 rawString<-"See: :py:mod:`synapseclient.table.Column`"
 expected<-"See: Column"
-expect_equal(pyVerbiageToLatex(rawString), expected)
-
-rawString<-":py:meth:`synapseclient.Synapse.store`."
-expected<-"synStore."
 expect_equal(pyVerbiageToLatex(rawString), expected)
 
 rawString<-"foo dict() -> new empty dictionary\ndict(mapping) -> new dictionary initialized from a mapping object's\n    (key, value) pairs\ndict(iterable) -> new dictionary initialized as if via:\n    d = {}\n    for k, v in iterable:\n        d[k] = v\ndict(**kwargs) -> new dictionary initialized with the name=value pairs\n    in the keyword argument list.  For example:  dict(one=1, two=2) bar"

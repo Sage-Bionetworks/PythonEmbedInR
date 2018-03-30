@@ -713,8 +713,6 @@ pyVerbiageToLatex <- function(raw) {
 
   convertToUpper <- "##convertToUpper##" # marks character to convert
   result <- gsub(":py:mod:`(\\S+\\.)*(\\S+)`", paste0(convertToUpper, "\\2"), result)
-  result <- gsub(":py:(func|meth):`Synapse.(\\w+)`", paste0("syn", convertToUpper, "\\2"), result)
-  result <- gsub(":py:(func|meth):`synapseclient.Synapse.(\\w+)`", paste0("syn", convertToUpper, "\\2"), result)
   # anything else we simply leave in place for manual curation:
   result <- gsub(":py:(func|meth):`([^`]*)`", "\\2", result)
 
