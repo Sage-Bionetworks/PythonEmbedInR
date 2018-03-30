@@ -414,10 +414,11 @@ generateRWrappers <- function(pyPkg,
   # validate the args
   pyImport("inspect")
   pyImport(pyPkg)
-  isClass <- pyExecg("inspect.isclass(%s)", container)
-  if (!isClass && is.null(pySingletonName))
+  pyExec(sprintf("isClass = inspect.isclass(%s)", container))
+  isClass <- pyGet("isClass")
+  if (isClass && is.null(pySingletonName))
     stop("`container` is a class, but `pySingtonName` is not specified.")
-  if (isClass && !is.null(pySingletonName))
+  if (!isClass && !is.null(pySingletonName))
     stop("`container` is not a class, but `pySingtonName` is specified.")
 
   functionInfo <- getFunctionInfo(
