@@ -37,7 +37,7 @@ local({
     function(option, value) {
         if (missing(option)) return(options)
         if (missing(value)){
-            if (option == "intToLong") return(as.logical(.Call( "get_int_long_flag" )))
+            if (option == "intToLong") return(as.logical(.Call( "get_int_long_flag", PACKAGE="PythonEmbedInR" )))
             return(options[[option]])
         }else{
             sol <- NULL
@@ -45,7 +45,7 @@ local({
                 stop(sprintf('"%s" has to be "%s"', option, class(options[[option]])))
             }
             if (option == "intToLong") {
-                sol <- .Call( "set_int_long_flag", as.integer(value) )
+                sol <- .Call( "set_int_long_flag", as.integer(value), PACKAGE="PythonEmbedInR" )
             }
             options[[option]] <<- value
             return(invisible(sol))

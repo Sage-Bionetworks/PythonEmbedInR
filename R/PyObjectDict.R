@@ -8,6 +8,7 @@
 PythonInR_Dict <-
   R6Class(
     "PythonInR_Dict",
+    lock_objects = FALSE,
     portable = TRUE,
     inherit = PythonInR_Object,
     public = list(
@@ -65,6 +66,7 @@ PythonInR_Dict <-
 
 PythonInR_DictNoFinalizer <-
     R6Class("PythonInR_Dict",
+            lock_objects = FALSE,
             portable = TRUE,
             inherit = PythonInR_Dict,
             public = list(
@@ -82,7 +84,7 @@ PythonInR_DictNoFinalizer <-
 
 `[<-.PythonInR_Dict` <- function(x, i, value){
     if (length(i) > 1) class(i) <- "tuple"
-    success <- .Call("r_set_py_dict", x$py.variableName, i, value)
+    success <- .Call("r_set_py_dict", x$py.variableName, i, value, PACKAGE="PythonEmbedInR")
     x
 }
 

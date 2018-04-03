@@ -12,7 +12,7 @@ def errorGen():
  raise Exception("This is an error!")
 '
 
-isWindows<-.Call( "isDllVersion")
+isWindows<-.Call( "isDllVersion", PACKAGE="PythonEmbedInR")
 
 if (isWindows) {
 	setup(pyExec(mock__getStderr))
