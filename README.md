@@ -415,7 +415,7 @@ generateRWrappers(pyPkg = "synapseclient",
 
 ### Expose functions within a singleton object
 
-In rare cases, we want to expose a set of Python functions which are an object's methods, but without exposing the object itself. For example, in the `synapser` package we wish to make available the methods in `synapseclient.client.Synapse` without requiring the R user to instantiate the `Synapse` object. The following will create a singleton object at package load time and expose the object's methods to be called directly.
+In some cases, we want to expose a set of Python functions which are an object's methods, but without exposing the object itself. For example, in the `synapser` package we wish to make available the methods in `synapseclient.client.Synapse` without requiring the R user to instantiate the `Synapse` object. The following will create a singleton object at package load time and expose the object's methods to be called directly.
 
 In a Python session, we would do the following:
 ```
