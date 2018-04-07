@@ -26,7 +26,7 @@ def __getStderr():
     return(x)
 
 '
-ret <- .Call( "py_run_simple_string",  code)
+ret <- .Call( "py_run_simple_string",  code, PACKAGE="PythonEmbedInR")
 if ( ret == -1 ) warning("stdout redirection was not successful")
 return( invisible( ret ) )
 }
@@ -58,17 +58,17 @@ pyConnectWinDll <- function(dllName, dllDir, majorVersion,
     if (!is.null(pythonHome)){
         Sys.setenv(PYTHONHOME=pythonHome)
     }    
-    .Call( "py_set_major_version", majorVersion)
-    .Call( "py_connect", dllName, dllDir, as.integer(useAlteredSearchPath) )
-    .Call( "py_get_process_addresses" )
-    .Call( "py_set_program_name", "PythonEmbedInR" )
+    .Call( "py_set_major_version", majorVersion, PACKAGE="PythonEmbedInR")
+    .Call( "py_connect", dllName, dllDir, as.integer(useAlteredSearchPath), PACKAGE="PythonEmbedInR" )
+    .Call( "py_get_process_addresses", PACKAGE="PythonEmbedInR" )
+    .Call( "py_set_program_name", "PythonEmbedInR", PACKAGE="PythonEmbedInR" )
     if(useCstdout){
-        .Call( "py_import_append_logCatcher" ) # has to be before py_initialize
+        .Call( "py_import_append_logCatcher", PACKAGE="PythonEmbedInR" ) # has to be before py_initialize
     }
-    .Call( "py_initialize", 1 )
-    .Call( "py_init_py_values" )
+    .Call( "py_initialize", 1, PACKAGE="PythonEmbedInR" )
+    .Call( "py_init_py_values", PACKAGE="PythonEmbedInR" )
     if(useCstdout){
-        .Call( "py_init_redirect_stderrout" )
+        .Call( "py_init_redirect_stderrout", PACKAGE="PythonEmbedInR" )
     }
     # import define a alternative to execfile as sugested at various sources
     # http://www.diveintopython3.net/porting-code-to-python-3-with-2to3.html
@@ -82,7 +82,7 @@ pyConnectWinDll <- function(dllName, dllDir, majorVersion,
 }
 
 pyConnectStatic <- function(){
-    .Call( "py_connect", 1 )
+    .Call( "py_connect", 1, PACKAGE="PythonEmbedInR" )
 }
 
 pyCranConnect <- function(){
@@ -150,7 +150,7 @@ pyConnect <- function(dllDir=NULL, pythonHome=NULL){
     if(pyIsConnected()){
         cat("R is already connected to Python!\n")
     }else{
-        if (.Call( "isDllVersion")){
+        if (.Call( "isDllVersion", PACKAGE="PythonEmbedInR")){
             py <- autodetectPython()
             dllName <- py[['dllName']]
             if (is.null(dllDir)){
@@ -185,7 +185,7 @@ pyConnect <- function(dllDir=NULL, pythonHome=NULL){
 #' @examples
 #' pyIsConnected()
 #  -----------------------------------------------------------------------------
-pyIsConnected <- function() as.logical(.Call( "py_is_connected" ))
+pyIsConnected <- function() as.logical(.Call( "py_is_connected", PACKAGE="PythonEmbedInR" ))
 
 # Prints some information about the Python version R is connected to.
 # @examples
@@ -195,7 +195,7 @@ pyIsConnected <- function() as.logical(.Call( "py_is_connected" ))
 # now kind of useless.
 pyInfo <- function(){
     if ( pyConnectionCheck() ) return(invisible(NULL))
-    .Call( "py_get_info" )
+    .Call( "py_get_info", PACKAGE="PythonEmbedInR" )
 }
 
 #  -----------------------------------------------------------------------------
@@ -227,7 +227,7 @@ pyVersion <- function(){
 #  -----------------------------------------------------------------------------
 pyExit <- function(){
     if ( pyConnectionCheck() ) return(invisible(NULL))
-    .Call( "py_close" )
+    .Call( "py_close", PACKAGE="PythonEmbedInR" )
 }
 
 # Checks if Python is connected to Python and prints a warning

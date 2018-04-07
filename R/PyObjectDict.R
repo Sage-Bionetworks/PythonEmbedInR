@@ -82,7 +82,7 @@ PythonInR_DictNoFinalizer <-
 
 `[<-.PythonInR_Dict` <- function(x, i, value){
     if (length(i) > 1) class(i) <- "tuple"
-    success <- .Call("r_set_py_dict", x$py.variableName, i, value)
+    success <- .Call("r_set_py_dict", x$py.variableName, i, value, PACKAGE="PythonEmbedInR")
     x
 }
 

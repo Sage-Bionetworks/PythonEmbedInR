@@ -7,9 +7,11 @@ set -e
 mkdir -p ../RLIB
 
 ## Install required R libraries
- R -e "list.of.packages <- c('pack', 'R6', 'testthat');\
-new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,'Package'])];\
-if(length(new.packages)) install.packages(new.packages, repos='http://cran.fhcrc.org')"
+echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson');" > installReqPkgs.R
+echo "new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,'Package'])];" >> installReqPkgs.R
+echo "if(length(new.packages)) install.packages(new.packages, repos='http://cran.fhcrc.org')" >> installReqPkgs.R
+R --vanilla < installReqPkgs.R
+rm installReqPkgs.R
 
 ## export the jenkins-defined environment variables
 export label
@@ -130,9 +132,14 @@ else
   exit 1
 fi
 
-R -e ".libPaths('../RLIB');\
-  setwd(sprintf('%s/tests', getwd()));\
-  source('testthat.R')"
+echo ".libPaths('../RLIB');" > runTests.R
+echo "setwd(sprintf('%s/tests', getwd()));" >> runTests.R
+echo "source('testthat.R')" >> runTests.R
+echo "library(PythonEmbedInR);" >> runTests.R
+echo "detach(\"package:PythonEmbedInR\", unload=TRUE);" >> runTests.R
+echo "library(PythonEmbedInR)" >> runTests.R
+R --vanilla < runTests.R
+rm runTests.R
 
 ## clean up the temporary R library dir
 rm -rf ../RLIB

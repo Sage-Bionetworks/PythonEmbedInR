@@ -135,7 +135,7 @@ pyGet <- function(key, autoTypecast=TRUE, simplify=TRUE){
 }
 
 pyGetSimple <- function(key, autoTypecast=TRUE, simplify = TRUE){
-  .Call("PythonInR_Run_String", key, 258L, autoTypecast, FALSE, FALSE, 1L, simplify)
+  .Call("PythonInR_Run_String", key, 258L, autoTypecast, FALSE, FALSE, 1L, simplify, PACKAGE="PythonEmbedInR")
 }
 
 pyGetPoly <- function(key, autoTypecast, simplify, pyClass){
