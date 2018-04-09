@@ -11,8 +11,11 @@ Imports:
     pack,
     methods,
     stats
-SystemRequirements: Python (>= 2.7.0) with header files and shared library
-    (UNIX) / static library (Windows)
+SystemRequirements: 
+    Python (>= 2.7.0) with header files and shared library,
+    libssl-dev,
+    libcurl-dev,
+    zlib-dev
 Note: More information about the system requirements can be found in the README
     file.
 URL: https://bitbucket.org/Floooo/pythoninr/
