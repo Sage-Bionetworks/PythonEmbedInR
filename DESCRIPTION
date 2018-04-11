@@ -11,8 +11,7 @@ Imports:
     pack,
     methods,
     stats
-SystemRequirements: 
-    Python (>= 2.7.0) with header files and shared library,
+SystemRequirements:
     libssl-dev,
     libcurl-dev,
     zlib-dev
