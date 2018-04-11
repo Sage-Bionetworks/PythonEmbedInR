@@ -39,7 +39,7 @@ in a given Python container
 or returns NULL to omit it from the set of generated functions. The metadata object is a list
 having fields:\preformatted{'name': character
 'args': named list having fields:
-    'args': a list of the argument names (it may contain nested lists)
+    'args': a list of the argument names
     'varargs':  character
     'keywords': character
     'defaults': character
@@ -47,12 +47,14 @@ having fields:\preformatted{'name': character
 'module':character
 }
 
+Please see \href{https://docs.python.org/2/library/inspect.html#inspect.getargspec}{inspect.getargspec}
+for more information about the named list \code{args}.
 See example 2.
 \item \code{classFilter} takes as input the metadata for a generated class and either modifies it
 or returns NULL to omit it from the set of generated classes The metadata object is a list
 having fields:\preformatted{'name': character
 'constructorArgs': named list having fields:
-    'args': a list of the argument names (it may contain nested lists)
+    'args': a list of the argument names
     'varargs':  character
     'keywords': character
     'defaults': character
@@ -61,18 +63,20 @@ having fields:\preformatted{'name': character
     'name': character
     'doc': character
     'args': named list having fields:
-        'args': a list of the argument names (it may contain nested lists)
+        'args': a list of the argument names
         'varargs':  character
         'keywords': character
         'defaults': character
 }
 
+Please see \href{https://docs.python.org/2/library/inspect.html#inspect.getargspec}{inspect.getargspec}
+for more information about the named list \code{args}.
 See example 3.
 }
 }
 \note{
 Python documentation may contains key words and terms that are only meaningful to Python users.
-The generated .Rd files, localed in 'srcRootDir/auto-man', do not auto correct these terms, nor provide
+The generated .Rd files, located in 'srcRootDir/auto-man', do not auto correct these terms, nor provide
 examples in R. One must copy all auto-generated .Rd files to their package \code{/man} folder and make sure
 that the language being used in these documents are friendly to R users.
 }
