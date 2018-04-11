@@ -11,6 +11,7 @@
 # @param name the class name
 defineConstructor <- function(module, setGenericCallback, name) {
   force(name)
+  force(module)
   assign(sprintf(".%s", name), function(...) {
     pyModule <- pyGet(module)
     argsAndKwArgs <- determineArgsAndKwArgs(...)
@@ -305,13 +306,15 @@ cleanUpStackTrace <- function(callable, args) {
 #'   ```
 #'   'name': character
 #'   'args': named list having fields:
-#'       'args': a list of the argument names (it may contain nested lists)
+#'       'args': a list of the argument names
 #'       'varargs':  character
 #'       'keywords': character
 #'       'defaults': character
 #'   'doc': character
 #'   'module':character
 #'   ```
+#'   Please see [inspect.getargspec](https://docs.python.org/2/library/inspect.html#inspect.getargspec)
+#'     for more information about the named list `args`.
 #'   See example 2.
 #'   
 #' * `classFilter` takes as input the metadata for a generated class and either modifies it
@@ -320,7 +323,7 @@ cleanUpStackTrace <- function(callable, args) {
 #'   ```
 #'   'name': character
 #'   'constructorArgs': named list having fields:
-#'       'args': a list of the argument names (it may contain nested lists)
+#'       'args': a list of the argument names
 #'       'varargs':  character
 #'       'keywords': character
 #'       'defaults': character
@@ -329,11 +332,13 @@ cleanUpStackTrace <- function(callable, args) {
 #'       'name': character
 #'       'doc': character
 #'       'args': named list having fields:
-#'           'args': a list of the argument names (it may contain nested lists)
+#'           'args': a list of the argument names
 #'           'varargs':  character
 #'           'keywords': character
 #'           'defaults': character
 #'   ```
+#'   Please see [inspect.getargspec](https://docs.python.org/2/library/inspect.html#inspect.getargspec)
+#'     for more information about the named list `args`.
 #'   See example 3.
 #'   
 #' * `transformReturnObject` is used to intercept and modify the values returned by the
@@ -391,7 +396,7 @@ cleanUpStackTrace <- function(callable, args) {
 #' }
 #' 
 #' 5. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", transforming all returned values,
-#'   and setting each returned object class name to "newName"
+#'    setting each returned object class name to "newName"
 #'   
 #' myTransform <- function(x) {
 #'   # replace the object name
@@ -867,13 +872,15 @@ writeContent <- function(content, name, targetFolder) {
 #'   ```
 #'   'name': character
 #'   'args': named list having fields:
-#'       'args': a list of the argument names (it may contain nested lists)
+#'       'args': a list of the argument names
 #'       'varargs':  character
 #'       'keywords': character
 #'       'defaults': character
 #'   'doc': character
 #'   'module':character
 #'   ```
+#'   Please see [inspect.getargspec](https://docs.python.org/2/library/inspect.html#inspect.getargspec)
+#'     for more information about the named list `args`.
 #'   See example 2.
 #'   
 #' * `classFilter` takes as input the metadata for a generated class and either modifies it
@@ -882,7 +889,7 @@ writeContent <- function(content, name, targetFolder) {
 #'   ```
 #'   'name': character
 #'   'constructorArgs': named list having fields:
-#'       'args': a list of the argument names (it may contain nested lists)
+#'       'args': a list of the argument names
 #'       'varargs':  character
 #'       'keywords': character
 #'       'defaults': character
@@ -891,15 +898,17 @@ writeContent <- function(content, name, targetFolder) {
 #'       'name': character
 #'       'doc': character
 #'       'args': named list having fields:
-#'           'args': a list of the argument names (it may contain nested lists)
+#'           'args': a list of the argument names
 #'           'varargs':  character
 #'           'keywords': character
 #'           'defaults': character
 #'   ```
+#'   Please see [inspect.getargspec](https://docs.python.org/2/library/inspect.html#inspect.getargspec)
+#'     for more information about the named list `args`.
 #'   See example 3.
 #' 
 #' @note Python documentation may contains key words and terms that are only meaningful to Python users.
-#'   The generated .Rd files, localed in 'srcRootDir/auto-man', do not auto correct these terms, nor provide
+#'   The generated .Rd files, located in 'srcRootDir/auto-man', do not auto correct these terms, nor provide
 #'   examples in R. One must copy all auto-generated .Rd files to their package `/man` folder and make sure
 #'   that the language being used in these documents are friendly to R users.
 #' @examples

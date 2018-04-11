@@ -132,19 +132,14 @@ else
   exit 1
 fi
 
-echo ".libPaths('../RLIB');" > runTestthat.R
-echo "setwd(sprintf('%s/tests', getwd()));" >> runTestthat.R
-echo "source('testthat.R')" >> runTestthat.R
-R --vanilla < runTestthat.R
-rm runTestthat.R
-  
-# test that load works after detach
-echo ".libPaths('../RLIB');" > testDetach.R
-echo "library(PythonEmbedInR);" >> testDetach.R
-echo "detach(\"package:PythonEmbedInR\", unload=TRUE);" >> testDetach.R
-echo "library(PythonEmbedInR)" >> testDetach.R
-R --vanilla < testDetach.R
-rm testDetach.R
+echo ".libPaths('../RLIB');" > runTests.R
+echo "setwd(sprintf('%s/tests', getwd()));" >> runTests.R
+echo "source('testthat.R')" >> runTests.R
+echo "library(PythonEmbedInR);" >> runTests.R
+echo "detach(\"package:PythonEmbedInR\", unload=TRUE);" >> runTests.R
+echo "library(PythonEmbedInR)" >> runTests.R
+R --vanilla < runTests.R
+rm runTests.R
 
 ## clean up the temporary R library dir
 rm -rf ../RLIB

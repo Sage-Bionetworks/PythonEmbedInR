@@ -48,6 +48,11 @@ PYTHON_VERSION<-"3.5"
   }
 
   pyConnect()
+  tryCatch({
+    pyImport("pip")
+  }, error = function(e) {
+    stop("ERROR: Missing system dependencies. Please make sure that your machine has the required dependencies listed in the SystemRequirements field of the DESCRIPTION file: https://github.com/Sage-Bionetworks/PythonEmbedInR/blob/master/DESCRIPTION")
+  })
   pyImport("sys")
   pyExec(sprintf("sys.path.insert(0, \"%s\")", file.path(packageRootDir, "python")))
   invisible(NULL)
