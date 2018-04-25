@@ -22,7 +22,7 @@ def myFunc():
 
   # test that r_class is an environment
   expect_true(is.environment(r_class))
-  expect_true(environmentIsLocked(r_class))
+  expect_false(environmentIsLocked(r_class))
   expect_true(exists("increment", r_class))
 
   # test that r_object is initialized
@@ -57,5 +57,24 @@ def myFunc():
 
   returnValue <- pyCall("myFunc")
   expect_equal("MyClass", class(returnValue)[1])
+})
+
+test_that("a pyObject can have a new field added", {
+
+    pyExec('
+class MyClass:
+  def __init__(self):
+    self.x = 0
+  def increment(self):
+    self.x += 1
+
+myObj=MyClass()
+')
+
+x<-pyGet("myObj")
+x$foo<-"bar"
+
+#expect_equal(pyGet("myObj")$foo, "bar")
+
 })
 

@@ -16,6 +16,7 @@ src/Makevars
 
 ..Rcheck/
 tests/testthat/__pycache__/
+tests/testthat/auto-man/*
 
 *.Rproj*
 .Rproj.user

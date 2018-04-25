@@ -1,18 +1,20 @@
 Package: PythonEmbedInR
 Title: Use an embedded Python from Within R
-Version: 0.1.17
-Date: 2018-03-22
+Version: 0.2.20
+Date: 2018-04-11
 Author: Florian Schwendinger [aut, cre]
 Maintainer: Florian Schwendinger <FlorianSchwendinger@gmx.at>
 Description: Interact with Python from within R.
 Depends:
-    R (>= 2.15), R6
+    R (>= 2.15), R6, rjson
 Imports:
     pack,
     methods,
     stats
-SystemRequirements: Python (>= 2.7.0) with header files and shared library
-    (UNIX) / static library (Windows)
+SystemRequirements:
+    libssl-dev,
+    libcurl-dev,
+    zlib-dev
 Note: More information about the system requirements can be found in the README
     file.
 URL: https://bitbucket.org/Floooo/pythoninr/
