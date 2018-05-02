@@ -34,6 +34,11 @@ class MyObj():
     self.x += 1
     return(self.x)
 
+digits = [0, 1]
+def myGenerator():
+  for digit in digits:
+    yield digit
+
 def myFun(n):
   """
   Absolute value
