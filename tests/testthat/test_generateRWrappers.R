@@ -41,6 +41,20 @@ test_that("defineFunction with different name", {
   expect_equal(myRFunc(4), 4)
 })
 
+test_that("GeneratorWrapper", {
+  pyImport("testPyPkgWrapper")
+  pyImport("gateway")
+  PythonEmbedInR:::defineFunction(rName = "myGenerator",
+                                  pyName = "myGenerator",
+                                  functionContainerName = "testPyPkgWrapper",
+                                  setGenericCallback = callback)
+  generator <- myGenerator()
+  expect_equal("GeneratorWrapper", class(generator)[1])
+  expect_equal(0, generator$nextElem())
+  expect_equal(1, generator$nextElem())
+  expect_error(generator$nextElem())
+})
+
 test_that("defineFunction with transform return object", {
   pyImport("testPyPkgWrapper")
   pyImport("gateway")
