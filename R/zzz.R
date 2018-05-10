@@ -46,6 +46,9 @@ PYTHON_VERSION<-"3.5"
       dyn.load(sharedObjectFile, local = FALSE)
     }
   }
+  
+  pyExec("from patchStdoutStdErr import patch_stdout_stderr")
+  pyCall("patch_stdout_stderr()")
 
   pyConnect()
   tryCatch({
