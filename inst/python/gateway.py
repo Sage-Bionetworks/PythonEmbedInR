@@ -1,4 +1,5 @@
 import types
+from abbreviateStackTrace import abbreviateStackTrace
 
 class GeneratorWrapper():
     def __init__(self, wrapped):
