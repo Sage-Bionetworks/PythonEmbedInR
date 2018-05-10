@@ -2,9 +2,8 @@ import sys
 import os
 import tempfile
 
-EXCEPTION_MESSAGE_BOUNDARY='exception-message-boundary'
-
-def stdouterrCapture(function, abbreviateStackTrace=True):
+# Note abbreviateStackTrace is no longer used but is kept as a parameter for backwards compatibility
+def stdouterrCapture(function, abbreviateStackTrace=False):
     origStdout=sys.stdout
     origStderr=sys.stderr 
     
@@ -16,11 +15,8 @@ def stdouterrCapture(function, abbreviateStackTrace=True):
     stderrFilehandle = open(stderrFilepath, 'w', encoding="utf-8")
     sys.stderr = stderrFilehandle
      
-    exceptionToRaise = None
     try:
         return function()
-    except Exception as e:
-        exceptionToRaise = e
     finally:
         sys.stdout=origStdout
         sys.stderr=origStderr
@@ -35,12 +31,5 @@ def stdouterrCapture(function, abbreviateStackTrace=True):
             print(f.read())
         with open(stderrFilepath, 'r') as f:
             print(f.read())
-            
-    # We do this to suppress the automatic exception chaining that occurs when rethrowing
-    # with an 'except' block
-    if exceptionToRaise is not None:
-        if abbreviateStackTrace:
-            raise Exception(EXCEPTION_MESSAGE_BOUNDARY+str(exceptionToRaise)+EXCEPTION_MESSAGE_BOUNDARY)
-        else:
-            raise exceptionToRaise
+
        
