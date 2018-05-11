@@ -12,3 +12,5 @@ def patch_stream(stream):
         stream.isatty = lambda: True
     if not hasattr(stream, 'encoding') or stream.encoding is None:
         stream.encoding = sys.getdefaultencoding()
+    if not hasattr(stream, 'errors'):
+        stream.errors = None
