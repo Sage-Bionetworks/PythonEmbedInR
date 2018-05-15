@@ -1,46 +1,6 @@
-import sys   
-import os
-import tempfile
+from patchStdoutStdErr import patch_stdout_stderr
 
-EXCEPTION_MESSAGE_BOUNDARY='exception-message-boundary'
-
-def stdouterrCapture(function, abbreviateStackTrace=True):
-    origStdout=sys.stdout
-    origStderr=sys.stderr 
-    
-    stdoutFilepath=tempfile.mkstemp()[1]
-    stdoutFilehandle = open(stdoutFilepath, 'w', encoding="utf-8")
-    sys.stdout = stdoutFilehandle
-    
-    stderrFilepath=tempfile.mkstemp()[1]
-    stderrFilehandle = open(stderrFilepath, 'w', encoding="utf-8")
-    sys.stderr = stderrFilehandle
-     
-    exceptionToRaise = None
-    try:
-        return function()
-    except Exception as e:
-        exceptionToRaise = e
-    finally:
-        sys.stdout=origStdout
-        sys.stderr=origStderr
-        try:
-            stdoutFilehandle.flush()
-            stderrFilehandle.flush()
-            stdoutFilehandle.close()
-            stderrFilehandle.close()
-        except:
-            pass # nothing to do
-        with open(stdoutFilepath, 'r') as f:
-            print(f.read())
-        with open(stderrFilepath, 'r') as f:
-            print(f.read())
-            
-    # We do this to suppress the automatic exception chaining that occurs when rethrowing
-    # with an 'except' block
-    if exceptionToRaise is not None:
-        if abbreviateStackTrace:
-            raise Exception(EXCEPTION_MESSAGE_BOUNDARY+str(exceptionToRaise)+EXCEPTION_MESSAGE_BOUNDARY)
-        else:
-            raise exceptionToRaise
-       
+# Note stdouterrCapture is no longer used but is temporarily maintained for backwards compatibility
+def stdouterrCapture(function, abbreviateStackTrace=False):
+    patch_stdout_stderr()
+    return function()
