@@ -10,7 +10,7 @@ def patch_stdout_stderr():
 def patch_stream(stream):
     if not hasattr(stream, 'isatty'):
         stream.isatty = lambda: True
-    if not hasattr(stream, 'encoding') or stream.encoding is None:
+    if not hasattr(stream, 'encoding'):
         stream.encoding = sys.getdefaultencoding()
     if not hasattr(stream, 'errors'):
         stream.errors = None
