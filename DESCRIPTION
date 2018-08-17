@@ -14,6 +14,7 @@ Imports:
 SystemRequirements:
     libssl-dev,
     libcurl-dev,
+    libffi-dev,
     zlib-dev
 Note: More information about the system requirements can be found in the README
     file.
