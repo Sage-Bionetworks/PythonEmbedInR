@@ -6,26 +6,22 @@
 
 # Helper function to generate R wrappers for Enum classes in a python module
 #
-# @param module the python module
 # @param assignEnumCallback the callback to defined the enum in the target R package
 # @param enumInfo the Enum classes to generate R wrappers for
-autoGenerateEnum <- function(module, assignEnumCallback, enumInfo) {
+autoGenerateEnum <- function(assignEnumCallback, enumInfo) {
   for (e in enumInfo) {
-    defineEnum(module, assignEnumCallback, e$name, e$keys, e$values)
+    defineEnum(assignEnumCallback, e$name, e$keys, e$values)
   }
 }
 
 # Define an R wrapper for an Enum in Python
 #
-# @param module the python module
 # @param assignEnumCallback the callback to defined the enum in the target R package
 # @param name the Enum class name
 # @param keys the Enum item names
 # @param values the Enum item values
-defineEnum <- function(module, assignEnumCallback, name, keys, values) {
+defineEnum <- function(assignEnumCallback, name, keys, values) {
   force(name)
-  force(module)
-  values <- lapply(X = values, function(x) pyGet(sprintf("%s.%s", module, x)))
   assignEnumCallback(name, keys, values)
 }
 
@@ -502,7 +498,6 @@ generateRWrappers <- function(pyPkg,
     classInfo
   )
   autoGenerateEnum(
-    container,
     assignEnumCallback,
     enumInfo
   )

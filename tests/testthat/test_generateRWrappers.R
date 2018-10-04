@@ -9,8 +9,19 @@ callback <- function(name, def) {
 }
 
 assignEnumCallback <- function(name, keys, values) {
-  assign(name, setNames(values, keys))
+  assign(name, setNames(values, keys), globalenv())
 }
+
+test_that("defineEnum", {
+  pyImport("gateway")
+  keys = c("BLACK", "WHITE")
+  values = c("#000000", "#FFFFFF")
+  PythonEmbedInR:::defineEnum(assignEnumCallback = assignEnumCallback,
+                             name = "COLOR",
+                             keys = keys,
+                             values = values)
+  expect_equal(COLOR, setNames(values, keys))
+})
 
 test_that("defineConstructor", {
   pyImport("testPyPkgWrapper")
@@ -90,8 +101,7 @@ test_that("generateRWrappers", {
   obj = MyObj()
   expect_equal(obj$print(), 0)
   expect_equal(obj$inc(), 1)
-  obj$setx(DIGIT$FOUR)
-  expect_equal(obj$print(), 4)
+  expect_equal(5, testGetValue(DIGIT$FIVE))
   expect_equal(testMyFun(-4), 4)
 })
 
