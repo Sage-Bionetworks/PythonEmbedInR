@@ -1,4 +1,17 @@
 # test module
+from enum import Enum
+
+class DIGIT(Enum):
+  ZERO = 0
+  ONE = 1
+  TWO = 2
+  THREE = 3
+  FOUR = 4
+  FIVE = 5
+  SIX = 6
+  SEVEN = 7
+  EIGHT = 8
+  NINE = 9
 
 class MyObj():
   """
@@ -33,6 +46,14 @@ class MyObj():
     """
     self.x += 1
     return(self.x)
+  def setx(x):
+    """
+    Takes a DIGIT and set its value to self.x
+    """
+    if isinstance(DIGIT, x):
+      self.x = x.value
+    else:
+      raise ValueError("Input must be an instance of DIGIT")
 
 digits = [0, 1]
 def myGenerator():

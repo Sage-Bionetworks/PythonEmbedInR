@@ -8,6 +8,10 @@ callback <- function(name, def) {
   setGeneric(name, def)
 }
 
+assignEnumCallback <- function(name, keys, values) {
+  assign(name, setNames(values, keys))
+}
+
 test_that("defineConstructor", {
   pyImport("testPyPkgWrapper")
   pyImport("gateway")
@@ -80,11 +84,14 @@ test_that("generateRWrappers", {
   generateRWrappers(pyPkg = "testPyPkgWrapper",
                     container = "testPyPkgWrapper",
                     setGenericCallback = callback,
+                    assignEnumCallback = assignEnumCallback,
                     functionFilter = removeIncObj,
                     functionPrefix = "test")
   obj = MyObj()
   expect_equal(obj$print(), 0)
   expect_equal(obj$inc(), 1)
+  obj$setx(DIGIT$FOUR)
+  expect_equal(obj$print(), 4)
   expect_equal(testMyFun(-4), 4)
 })
 
@@ -92,11 +99,13 @@ test_that("generateRWrappers", {
 test_that("generateRWrappers with mismatch params", {
   expect_error(generateRWrappers(pyPkg = "testPyPkgWrapper",
                                  container = "testPyPkgWrapper.MyObj",
-                                 setGenericCallback = callback
+                                 setGenericCallback = callback,
+                                 assignEnumCallback = assignEnumCallback
   ))
   expect_error(generateRWrappers(pyPkg = "testPyPkgWrapper",
                                  container = "testPyPkgWrapper",
                                  setGenericCallback = callback,
+                                 assignEnumCallback = assignEnumCallback,
                                  pySingletonName = "myObj"
   ))
 })
@@ -106,6 +115,7 @@ test_that("generateRWrappers with singleton object", {
   generateRWrappers(pyPkg = "testPyPkgWrapper",
                     container = "testPyPkgWrapper.MyObj",
                     setGenericCallback = callback,
+                    assignEnumCallback = assignEnumCallback,
                     pySingletonName = "myObj")
   pyImport("testPyPkgWrapper")
   pyExec("myObj = testPyPkgWrapper.MyObj()")
