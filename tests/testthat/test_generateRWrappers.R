@@ -8,8 +8,9 @@ callback <- function(name, def) {
   setGeneric(name, def)
 }
 
+.namespace <- environment()
 assignEnumCallback <- function(name, keys, values) {
-  assign(name, setNames(values, keys), globalenv())
+  assign(name, setNames(values, keys), .namespace)
 }
 
 test_that("defineEnum", {
@@ -105,7 +106,6 @@ test_that("generateRWrappers", {
   expect_equal(testMyFun(-4), 4)
 })
 
-
 test_that("generateRWrappers with mismatch params", {
   expect_error(generateRWrappers(pyPkg = "testPyPkgWrapper",
                                  container = "testPyPkgWrapper.MyObj",
@@ -118,6 +118,10 @@ test_that("generateRWrappers with mismatch params", {
                                  assignEnumCallback = assignEnumCallback,
                                  pySingletonName = "myObj"
   ))
+  expect_error(generateRWrappers(pyPkg = "testPyPkgWrapper",
+                                 container = "testPyPkgWrapper",
+                                 setGenericCallback = callback,
+                                 enumFilter = function(x){x}))
 })
 
 

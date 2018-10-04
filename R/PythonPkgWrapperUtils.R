@@ -452,7 +452,7 @@ cleanUpStackTrace <- function(callable, args) {
 generateRWrappers <- function(pyPkg,
                               container,
                               setGenericCallback,
-                              assignEnumCallback,
+                              assignEnumCallback = NULL,
                               functionFilter = NULL,
                               classFilter = NULL,
                               enumFilter = NULL,
@@ -468,6 +468,8 @@ generateRWrappers <- function(pyPkg,
     stop("`container` is a class, but `pySingtonName` is not specified.")
   if (!isClass && !is.null(pySingletonName))
     stop("`container` is not a class, but `pySingtonName` is specified.")
+  if (is.null(assignEnumCallback) && !is.null(enumFilter))
+    stop("`enumFilter` is specified, but `assignEnumCallback` is not.")
 
   functionInfo <- getFunctionInfo(
     pyPkg,
@@ -481,11 +483,6 @@ generateRWrappers <- function(pyPkg,
     container,
     classFilter
   )
-  enumInfo <- getEnumInfo(
-    pyPkg,
-    container,
-    enumFilter
-  )
 
   autoGenerateFunctions(
     setGenericCallback,
@@ -497,10 +494,17 @@ generateRWrappers <- function(pyPkg,
     setGenericCallback,
     classInfo
   )
-  autoGenerateEnum(
-    assignEnumCallback,
-    enumInfo
-  )
+  if (!is.null(assignEnumCallback)) {
+    enumInfo <- getEnumInfo(
+      pyPkg,
+      container,
+      enumFilter
+    )
+    autoGenerateEnum(
+      assignEnumCallback,
+      enumInfo
+    )
+  }
 }
 
 # ------------------------------------------------------------------------------
