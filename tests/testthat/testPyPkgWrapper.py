@@ -1,4 +1,26 @@
 # test module
+from enum import Enum
+
+class DIGIT(Enum):
+  ZERO = 0
+  ONE = 1
+  TWO = 2
+  THREE = 3
+  FOUR = 4
+  FIVE = 5
+  SIX = 6
+  SEVEN = 7
+  EIGHT = 8
+  NINE = 9
+
+def getValue(input):
+  """
+  Takes a DIGIT and return its value
+  """
+  if isinstance(input, DIGIT):
+    return(input.value)
+  else:
+    raise ValueError("Input must be an instance of DIGIT")
 
 class MyObj():
   """

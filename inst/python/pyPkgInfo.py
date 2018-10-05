@@ -31,6 +31,19 @@ def getFunctionInfo(module):
         result.append(methodAttributes(name, method))
     return result
 
+def getEnumInfo(module):
+    result = []
+    for member in inspect.getmembers(module, inspect.isclass):
+        name = member[0]
+        classdefinition = member[1]
+        if name != "Enum" and str(type(classdefinition))=="<class 'enum.EnumMeta'>":
+            enumValues = inspect.getmembers(classdefinition)
+            enumValues = [item for item in enumValues if (not item[0].startswith('_') and item[0] not in ['name', 'value'])]
+            keys = [x[0] for x in enumValues]
+            values = [x[1] for x in enumValues]
+            result.append({'name':name, 'keys':keys, 'values':values})
+    return result
+
 def getClassInfo(module):
     result = []
     for member in inspect.getmembers(module, inspect.isclass):

@@ -253,7 +253,7 @@ The `synapseutils` module in `synapsePythonClient` package has the following str
             function: notifyMe
 ```
 
-### Expose all functions and classes within a Python module
+### Expose all functions, classes, and enums within a Python module
 
 #### Generate .Rd files
 
@@ -293,11 +293,18 @@ To generate R wrappers for Python functions and constructors, we need to add an 
 callback <- function(name, def) {
   setGeneric(name, def)
 }
+# `assign` must be call in the `synapserutils` package with the `synapserutils`
+# package environment.
+.NAMESPACE <- environment()
+assignEnumCallback <- function(name, keys, values) {
+  assign(name, setNames(values, keys), .NAMESPACE)
+}
 
 .onLoad <- function(libname, pkgname) {
   generateRWrappers(pyPkg = "synapseutils",
                     container = "synapseutils",
-                    setGenericCallback = callback)
+                    setGenericCallback = callback,
+                    assignEnumCallback = assignEnumCallback)
 }
 ```
 
@@ -341,6 +348,7 @@ And from `zzz.R`, update `generateRWrappers` to maintain consistency as follows:
 generateRWrappers(pyPkg = "synapseutils",
                   container = "synapseutils",
                   setGenericCallback = callback,
+                  assignEnumCallback = assignEnumCallback,
                   functionFilter = selectFunctions)
 ```
 
@@ -410,6 +418,7 @@ generateRdFiles(srcRootDir,
 generateRWrappers(pyPkg = "synapseclient",
                   container = "synapseclient.entity",
                   setGenericCallback = callback,
+                  assignEnumCallback = assignEnumCallback,
                   classFilter = selectClasses)
 ```
 
@@ -452,6 +461,7 @@ To generate the R wrappers, we need to instantiate the Python object in `zzz.R` 
   generateRWrappers(pyPkg = "synapseclient",
                     container = "synapseclient.client.Synapse",
                     setGenericCallback = callback,
+                    assignEnumCallback = assignEnumCallback,
                     pySingletonName = "synapse",
                     functionPrefix = "syn")
 }
@@ -472,6 +482,7 @@ objectDefinitionHelper <- function(object) {
 generateRWrappers(pyPkg = "synapseclient",
                   container = "synapseclient.client.Synapse",
                   setGenericCallback = callback,
+                  assignEnumCallback = assignEnumCallback,
                   transformReturnObject = objectDefinitionHelper)
 ```
 
