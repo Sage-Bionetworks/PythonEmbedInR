@@ -6,7 +6,7 @@
 
 # Helper function to generate R wrappers for Enum classes in a python module
 #
-# @param assignEnumCallback the callback to defined the enum in the target R package
+# @param assignEnumCallback the callback to define the enum in the target R package
 # @param enumInfo the Enum classes to generate R wrappers for
 autoGenerateEnum <- function(assignEnumCallback, enumInfo) {
   for (e in enumInfo) {
@@ -16,7 +16,7 @@ autoGenerateEnum <- function(assignEnumCallback, enumInfo) {
 
 # Define an R wrapper for an Enum in Python
 #
-# @param assignEnumCallback the callback to defined the enum in the target R package
+# @param assignEnumCallback the callback to define the enum in the target R package
 # @param name the Enum class name
 # @param keys the Enum item names
 # @param values the Enum item values
@@ -325,7 +325,7 @@ cleanUpStackTrace <- function(callable, args) {
 #' @param pyPkg The Python package name
 #' @param container The fully qualified name of a Python module or a Python class to be wrapped
 #' @param setGenericCallback The callback to setGeneric defined in the target R package
-#' @param assignEnumCallback The callback to defined the Python Enum in the target R package.
+#' @param assignEnumCallback The callback to define the Python Enum in the target R package.
 #' @param functionFilter Optional function to intercept and modify the auto-generated function metadata.
 #' @param classFilter Optional function to intercept and modify the auto-generated class metadata.
 #' @param functionPrefix Optional text to add to the name of the wrapped functions.
