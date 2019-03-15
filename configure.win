@@ -39,7 +39,7 @@ install_python() {
   cd ..
   
   PIP_INSTALL_SCRIPT=get-pip.py
-  wget -O $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/get-pip.py
+  wget -O $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/3.3/get-pip.py
   ./python.exe $PIP_INSTALL_SCRIPT pip==9.0.3
   cd ../..
 }

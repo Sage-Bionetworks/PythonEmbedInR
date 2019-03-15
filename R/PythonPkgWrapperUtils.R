@@ -4,6 +4,27 @@
 #
 # ------------------------------------------------------------------------------
 
+# Helper function to generate R wrappers for Enum classes in a python module
+#
+# @param assignEnumCallback the callback to define the enum in the target R package
+# @param enumInfo the Enum classes to generate R wrappers for
+autoGenerateEnum <- function(assignEnumCallback, enumInfo) {
+  for (e in enumInfo) {
+    defineEnum(assignEnumCallback, e$name, e$keys, e$values)
+  }
+}
+
+# Define an R wrapper for an Enum in Python
+#
+# @param assignEnumCallback the callback to define the enum in the target R package
+# @param name the Enum class name
+# @param keys the Enum item names
+# @param values the Enum item values
+defineEnum <- function(assignEnumCallback, name, keys, values) {
+  force(name)
+  assignEnumCallback(name, keys, values)
+}
+
 # Define an R wrapper for a object constructor in Python
 #
 # @param module the python module
@@ -179,6 +200,23 @@ getFunctionInfo <- function(pyPkg,
   functionInfo
 }
 
+# Helper function to get a list of Python Enum classes in a given module
+#
+# @param pyPkg the Python package name
+# @param module the Python module
+# @param enumFilter optional function to modify the returned Enum classes
+getEnumInfo <- function(pyPkg, module, enumFilter = NULL) {
+  pyImport("pyPkgInfo")
+  pyImport(pyPkg)
+  pyExec(sprintf("enumInfo = pyPkgInfo.getEnumInfo(%s)", module))
+  enumInfo <- pyGet("enumInfo", simplify = F)
+  if (!is.null(enumFilter)) {
+    enumInfo <- lapply(X = enumInfo, enumFilter)
+  }
+  # scrub the nulls
+  removeNulls(enumInfo)
+}
+
 # Helper function to get a list of Python classes in a given module
 #
 # @param pyPkg the Python package name
@@ -287,6 +325,7 @@ cleanUpStackTrace <- function(callable, args) {
 #' @param pyPkg The Python package name
 #' @param container The fully qualified name of a Python module or a Python class to be wrapped
 #' @param setGenericCallback The callback to setGeneric defined in the target R package
+#' @param assignEnumCallback The callback to define the Python Enum in the target R package.
 #' @param functionFilter Optional function to intercept and modify the auto-generated function metadata.
 #' @param classFilter Optional function to intercept and modify the auto-generated class metadata.
 #' @param functionPrefix Optional text to add to the name of the wrapped functions.
@@ -354,15 +393,20 @@ cleanUpStackTrace <- function(callable, args) {
 #' * `generateRWrappers` and `generateRdFiles` must be called with corresponding parameters to ensure
 #'    all R wrappers has sufficient documentation.
 #' @examples
-#' 1. Generate R wrappers for all functions and classes in "pyPackageName.aModuleInPyPackageName"
+#' 1. Generate R wrappers for all functions, classes, and enums in "pyPackageName.aModuleInPyPackageName"
 #' 
 #' callback <- function(name, def) {
 #'   setGeneric(name, def)
 #' }
+# .NAMESPACE <- environment()
+#' assignEnumCallback <- function(name, keys, values) {
+#'   assign(name, setNames(values, keys), .NAMESPACE)
+#' }
 #' PythonEmbedInR::generateRWrappers(
 #'   pyPkg = "pyPackageName",
 #'   container = "pyPackageName.aModuleInPyPackageName",
-#'   setGenericCallback = callback)
+#'   setGenericCallback = callback,
+#'   assignEnumCallback = assignEnumCallback)
 #' 
 #' 2. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", omitting function "myFun"
 #' 
@@ -373,6 +417,7 @@ cleanUpStackTrace <- function(callable, args) {
 #'   pyPkg = "pyPackageName",
 #'   container = "pyPackageName.aModuleInPyPackageName",
 #'   setGenericCallback = callback,
+#'   assignEnumCallback = assignEnumCallback,
 #'   functionFilter = myfunctionFilter)
 #' 
 #' 3. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", omitting the "MyObj" class
@@ -384,19 +429,19 @@ cleanUpStackTrace <- function(callable, args) {
 #'   pyPkg = "pyPackageName",
 #'   container = "pyPackageName.aModuleInPyPackageName",
 #'   setGenericCallback = callback,
+#'   assignEnumCallback = assignEnumCallback,
 #'   classFilter = myclassFilter)
 #' 
 #' 4. Generate R wrappers for class "synapseclient.client.Synapse" without exposing the "Synapse" object
 #' 
-#' .onLoad <- function(libname, pkgname) {
-#'   pyImport("synapseclient")
-#'   pyExec("syn = synapseclient.Synapse()")
-#'   # `pySingletonName` must be the name of the object defined in Python.
-#'   generateRWrappers(pyPkg = "synapseclient",
-#'                     container = "synapseclient.client.Synapse",
-#'                     setGenericCallback = callback,
-#'                     pySingletonName = "syn")
-#' }
+#' pyImport("synapseclient")
+#' pyExec("syn = synapseclient.Synapse()")
+#' # `pySingletonName` must be the name of the object defined in Python.
+#' generateRWrappers(pyPkg = "synapseclient",
+#'                   container = "synapseclient.client.Synapse",
+#'                   setGenericCallback = callback,
+#'                   assignEnumCallback = assignEnumCallback,
+#'                   pySingletonName = "syn")
 #' 
 #' 5. Generate R wrappers for module "pyPackageName.aModuleInPyPackageName", transforming all returned values,
 #'    setting each returned object class name to "newName"
@@ -409,13 +454,17 @@ cleanUpStackTrace <- function(callable, args) {
 #'   pyPkg = "pyPackageName",
 #'   container = "pyPackageName.aModuleInPyPackageName",
 #'   setGenericCallback = callback,
+#'   assignEnumCallback = assignEnumCallback,
 #'   transformReturnObject = myTransform)
+#' 
 #' @md
 generateRWrappers <- function(pyPkg,
                               container,
                               setGenericCallback,
+                              assignEnumCallback = NULL,
                               functionFilter = NULL,
                               classFilter = NULL,
+                              enumFilter = NULL,
                               functionPrefix = NULL,
                               pySingletonName = NULL,
                               transformReturnObject = NULL) {
@@ -428,6 +477,8 @@ generateRWrappers <- function(pyPkg,
     stop("`container` is a class, but `pySingtonName` is not specified.")
   if (!isClass && !is.null(pySingletonName))
     stop("`container` is not a class, but `pySingtonName` is specified.")
+  if (is.null(assignEnumCallback) && !is.null(enumFilter))
+    stop("`enumFilter` is specified, but `assignEnumCallback` is not.")
 
   functionInfo <- getFunctionInfo(
     pyPkg,
@@ -452,6 +503,17 @@ generateRWrappers <- function(pyPkg,
     setGenericCallback,
     classInfo
   )
+  if (!is.null(assignEnumCallback)) {
+    enumInfo <- getEnumInfo(
+      pyPkg,
+      container,
+      enumFilter
+    )
+    autoGenerateEnum(
+      assignEnumCallback,
+      enumInfo
+    )
+  }
 }
 
 # ------------------------------------------------------------------------------
