@@ -22,7 +22,7 @@ More documentation can be found at [https://bitbucket.org/Floooo/pythoninr](http
 
 ## Installation
 ```r
-install.packages("PythonEmbedInR", repos=c("http://cran.fhcrc.org", "https://sage-bionetworks.github.io/ran"))
+install.packages("PythonEmbedInR", repos=c("http://cran.fhcrc.org", "http://ran.synapse.org"))
 # (Use your favorite CRAN mirror above.  See https://cran.r-project.org/mirrors.html for a list of available mirrors.)
 ```
 

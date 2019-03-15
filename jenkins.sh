@@ -8,9 +8,8 @@ mkdir -p ../RLIB
 
 ## Install required R libraries
 echo "try(remove.packages('synapser'), silent=T);" > installReqPkgs.R
-echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson');" >> installReqPkgs.R
-echo "new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,'Package'])];" >> installReqPkgs.R
-echo "if(length(new.packages)) install.packages(new.packages, repos='http://cran.fhcrc.org')" >> installReqPkgs.R
+echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson', 'rlang');" >> installReqPkgs.R
+echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org')" >> installReqPkgs.R
 R --vanilla < installReqPkgs.R
 rm installReqPkgs.R
 
