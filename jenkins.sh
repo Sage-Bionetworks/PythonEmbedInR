@@ -1,3 +1,4 @@
+#!/bin/bash
 ##
 ## build the artifacts and install the package
 ## for the active R version
@@ -33,8 +34,7 @@ fi
 export PACKAGE_VERSION=`grep Version DESCRIPTION | awk '{print $2}'`
 
 ## Now build/install the package
-if [ $label = ubuntu ] || [ $label = ubuntu-remote ]
-then
+if [[ $label = $LINUX_LABEL_PREFIX* ]]; then
   ## build the package, including the vignettes
   R CMD build ./
 
@@ -47,8 +47,7 @@ then
   	echo "Linux artifact was not created"
   	exit 1
   fi  
-elif [ $label = osx ] || [ $label = osx-lion ] || [ $label = osx-leopard ] || [ $label = MacOS-10.11 ]
-then
+elif [[ $label = $MAC_LABEL_PREFIX* ]]; then
   ## build the package, including the vignettes
   # for some reason latex is not on the path.  So we add it.
   export PATH="$PATH:/usr/texbin"
@@ -94,8 +93,7 @@ then
   	echo "osx artifact was not created"
   	exit 1
   fi  
-elif  [ $label = windows-aws ]
-then
+elif  [[ $label = $WINDOWS_LABEL_PREFIX* ]]; then
   export TZ=UTC
   echo TZ=$TZ
 
