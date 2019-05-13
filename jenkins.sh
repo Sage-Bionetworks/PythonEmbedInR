@@ -16,7 +16,7 @@ rm installReqPkgs.R
 
 ## export the jenkins-defined environment variables
 export label
-export RVERS
+export RVERS=$(R --version| grep -Eo 'R version [0-9.]+' | grep -Eo '[0-9].[0-9]')
 
 PACKAGE_NAME=PythonEmbedInR
 # if version is specified, build the given version
