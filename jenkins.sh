@@ -113,7 +113,7 @@ elif  [[ $label = $WINDOWS_LABEL_PREFIX* ]]; then
   ## build the binary for Windows
   for f in ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz
   do
-     R CMD INSTALL --build "$f" --library=../RLIB --no-test-load --force-biarch
+     R CMD INSTALL --build "$f" --library=../RLIB --no-test-load --merge-multiarch
   done
   ## This is very important, otherwise the source packages from the windows build overwrite 
   ## the ones created on the unix machine.
