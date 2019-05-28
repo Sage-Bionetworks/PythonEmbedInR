@@ -46,33 +46,34 @@ EMBED_PYTHON_DIR=${PWD}
 cd ${PYTHON_ARCHIVE_NAME}
 
 if [ $(uname) == "Darwin" ]; then
-	echo "Mac specific configuration"
-	# When installing openssl on Mac there is a message:
-	# For compilers to find this software you may need to set:
-	#     LDFLAGS:  -L/usr/local/opt/openssl/lib
-	#     CPPFLAGS: -I/usr/local/opt/openssl/include
-	# export LDFLAGS=-L/usr/local/opt/openssl/lib
-	export CPPFLAGS=-I/usr/local/opt/openssl/include
-	
-	# However the above isn't enough since the libraries have to be bundled into 
-	# the package
-	mkdir -p ${EMBED_PYTHON_DIR}/lib
-	cp /usr/local/opt/openssl/lib/libcrypto.a ${EMBED_PYTHON_DIR}/lib/
-	cp /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib ${EMBED_PYTHON_DIR}/lib/
-	cp /usr/local/opt/openssl/lib/libssl.a ${EMBED_PYTHON_DIR}/lib/
-	cp /usr/local/opt/openssl/lib/libssl.1.0.0.dylib ${EMBED_PYTHON_DIR}/lib/
+  echo "Mac specific configuration"
+  # When installing openssl on Mac there is a message:
+  # For compilers to find this software you may need to set:
+  #     LDFLAGS:  -L/usr/local/opt/openssl/lib
+  #     CPPFLAGS: -I/usr/local/opt/openssl/include
+  # export LDFLAGS=-L/usr/local/opt/openssl/lib
+  export CPPFLAGS=-I/usr/local/opt/openssl/include
 
-	# https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
-	install_name_tool -change \
-	"/usr/local/Cellar/openssl/1.0.2l/lib/libcrypto.1.0.0.dylib"   \
-	"@loader_path/libcrypto.1.0.0.dylib" \
-	${EMBED_PYTHON_DIR}/lib/libssl.1.0.0.dylib
+  # However the above isn't enough since the libraries have to be bundled into 
+  # the package
+  mkdir -p ${EMBED_PYTHON_DIR}/lib
+  cp /usr/local/opt/openssl/lib/libcrypto.a ${EMBED_PYTHON_DIR}/lib/
+  cp /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib ${EMBED_PYTHON_DIR}/lib/
+  cp /usr/local/opt/openssl/lib/libssl.a ${EMBED_PYTHON_DIR}/lib/
+  cp /usr/local/opt/openssl/lib/libssl.1.0.0.dylib ${EMBED_PYTHON_DIR}/lib/
 
-	# https://wiki.python.org/moin/BuildStatically
-	# https://stackoverflow.com/questions/1150373/compile-the-python-interpreter-statically
-	# errors occur when either of the following is enabled
-	# echo $'*static*\n_ssl _ssl.c -DUSE_SSL ${CPPFLAGS} ${LDFLAGS} -lssl -lcrypto' >> Modules/Setup.local
-	# echo $'_ssl _ssl.c -DUSE_SSL ${CPPFLAGS} ${LDFLAGS} -lssl -lcrypto' >> Modules/Setup.local
+  export libcrypto_path=$(otool -L ${EMBED_PYTHON_DIR}/lib/libssl.1.0.0.dylib | grep libcrypto.1.0.0.dylib | cut -d" " -f1)
+  # https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
+  install_name_tool -change \
+  $libcrypto_path   \
+  "@loader_path/libcrypto.1.0.0.dylib" \
+  ${EMBED_PYTHON_DIR}/lib/libssl.1.0.0.dylib
+
+  # https://wiki.python.org/moin/BuildStatically
+  # https://stackoverflow.com/questions/1150373/compile-the-python-interpreter-statically
+  # errors occur when either of the following is enabled
+  # echo $'*static*\n_ssl _ssl.c -DUSE_SSL ${CPPFLAGS} ${LDFLAGS} -lssl -lcrypto' >> Modules/Setup.local
+  # echo $'_ssl _ssl.c -DUSE_SSL ${CPPFLAGS} ${LDFLAGS} -lssl -lcrypto' >> Modules/Setup.local
 fi
 
 # in the following line the '--prefix' parameter is the installation location
