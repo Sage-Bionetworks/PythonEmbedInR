@@ -130,7 +130,7 @@ else
   exit 1
 fi
 
-echo ".libPaths('../RLIB');" > runTests.R
+echo ".libPaths(c('../RLIB', .libPaths()));" > runTests.R
 echo "setwd(sprintf('%s/tests', getwd()));" >> runTests.R
 echo "source('testthat.R')" >> runTests.R
 echo "library(PythonEmbedInR);" >> runTests.R
