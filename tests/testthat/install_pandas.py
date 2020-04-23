@@ -5,6 +5,9 @@ import errno
 import pkg_resources
 import glob
 import shutil
+import subprocess
+import sys
+
 
 def localSitePackageFolder(root):
     if os.name=='nt':
@@ -43,7 +46,8 @@ def main(command, path):
       raise Exception("command not supported: "+command)
 
 def call_pip(packageName, target):
-    rc = pip.main(['install', packageName,  '--upgrade', '--quiet', '--target', target])
+    # pip main is not a stable interface, invoke via subprocess instead
+    rc = subprocess.call([sys.executable, "-m", "pip", "install", packageName,  '--upgrade', '--quiet', '--target', target])
     if rc!=0:
       raise Exception('pip.main returned '+str(rc))
 
