@@ -21,8 +21,8 @@
 set -e
 
 # ----- install the Python package -----
-EMBED_PYTHON_VERSION=3.5
-EMBED_PYTHON_VERSION_EXTENDED=${EMBED_PYTHON_VERSION}.3
+EMBED_PYTHON_VERSION=3.6
+EMBED_PYTHON_VERSION_EXTENDED=${EMBED_PYTHON_VERSION}.8
 PYTHON_ARCHIVE_NAME=Python-${EMBED_PYTHON_VERSION_EXTENDED}
 PYTHON_RUNTIME_BUNDLE=https://www.python.org/ftp/python/${EMBED_PYTHON_VERSION_EXTENDED}/${PYTHON_ARCHIVE_NAME}.tgz
 
@@ -85,8 +85,9 @@ cd ..
 rm -R ${PYTHON_ARCHIVE_NAME}
 cd ..
 
-MYPYTHONCONFIG=${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}m-config
-MYPYTHON=${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}
+# these exact paths vary by python version so use wildcard expansions to find the actual path
+MYPYTHONCONFIG=$(ls ${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}*-config)
+MYPYTHONLIBDIR=$(ls -d ${EMBED_PYTHON_DIR}/lib/python${EMBED_PYTHON_VERSION}/*config-${EMBED_PYTHON_VERSION}*)
 
 # Extract the linker and include flags for python
 : ${PYTHONCONFIG=`which ${MYPYTHONCONFIG}`}
@@ -97,7 +98,7 @@ fi
 
 echo "python version is ${EMBED_PYTHON_VERSION_EXTENDED}"
 PYXY="PYTHONLIBXY=libpython${EMBED_PYTHON_VERSION}m.so"
-PYLIBS="PKG_LIBS=-L${EMBED_PYTHON_DIR}/lib/python${EMBED_PYTHON_VERSION}/config-${EMBED_PYTHON_VERSION}m "`$PYTHONCONFIG --libs`
+PYLIBS="PKG_LIBS=-L$MYPYTHONLIBDIR "`$PYTHONCONFIG --libs`
 PYCFLAGS="PKG_CFLAGS="`$PYTHONCONFIG --cflags`" -D $PYXY -D PYTHON_IN_R_NO_EXPLICIT_LINKING"
 
 #clean up the old compilation or else it wont recompile
@@ -112,6 +113,5 @@ echo ""
 # replacing Wstrict-prototypes removes some unnecessary warnings
 echo $PYLIBS > src/Makevars
 echo $PYCFLAGS | sed 's/Wstrict-prototypes/pedantic/' | sed 's/ -fstack-protector-strong//' >> src/Makevars	
-
 
 
