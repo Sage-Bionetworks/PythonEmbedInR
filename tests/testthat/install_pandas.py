@@ -1,13 +1,18 @@
 import sys   
-import pip
 import os
 import errno
 import pkg_resources
 import glob
 import shutil
-import subprocess
-import sys
 
+# pip main is not a public interface and is programatically accessible
+# in a stable way across python versions. the typical approach is to
+# call pip in a subprocess using sys.executable, but running inside
+# PythonEmbedInR sys.executable may not be what we want.
+try:
+    from pip import main as pipmain
+except ImportError:
+    from pip._internal import main as pipmain
 
 def localSitePackageFolder(root):
     if os.name=='nt':
@@ -46,8 +51,8 @@ def main(command, path):
       raise Exception("command not supported: "+command)
 
 def call_pip(packageName, target):
-    # pip main is not a stable interface, invoke via subprocess instead
-    rc = subprocess.call([sys.executable, "-m", "pip", "install", packageName,  '--upgrade', '--quiet', '--target', target])
+    # tgipip main is not a stable interface, invoke via subprocess instead
+    rc = pipmain(["install", packageName,  '--upgrade', '--quiet', '--target', target])
     if rc!=0:
       raise Exception('pip.main returned '+str(rc))
 
