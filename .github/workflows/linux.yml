@@ -20,14 +20,43 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-  
+
       - name: set-R-env
+        shell: bash
         run: |
           PACKAGE_NAME=PythonEmbedInR
-          PACKAGE_VERSION=1.2.3 # TODO
           echo "::set-env name=PACKAGE_NAME::$PACKAGE_NAME" 
+
+          PACKAGE_VERSION=$(grep "Version: " DESCRIPTION | awk '{print $2'})
+
+          # if this looks like a version e.g. v1.2.3 then
+          # we use that to generate our package artifact
+          # treat last part of ref splitting on / as branch
+          BRANCH=${GITHUB_REF##*/}
+
+          if [[ $BRANCH =~ ^v([[:digit:]\.]+)(-rc)? ]]; then
+            BRANCH_VERSION=${BASH_REMATCH[1]}
+
+            if [[ -n "$BRANCH_VERSION" ]]; then
+              # a version defined in the branch overrides the package version
+              # for purposes of creating artifacts
+              PACKAGE_VERSION=$BRANCH_VERSION
+
+              DATE=`date +%Y-%m-%d`
+              # replace DESCRIPTION with $VERSION & $DATE
+              # sed -i not portable on OSX so we wash through some temp files
+              sed "s|^Version: .*$|Version: $PACKAGE_VERSION|g" DESCRIPTION > DESCRIPTION.temp
+              sed "s|^Date: .*$|Date: $DATE|g" DESCRIPTION.temp > DESCRIPTION2.temp
+
+              rm DESCRIPTION
+              mv DESCRIPTION2.temp DESCRIPTION
+              rm DESCRIPTION.temp
+            fi
+          fi
+
+          echo "::set-env name=BRANCH_VERSION::$BRANCH_VERSION"
           echo "::set-env name=PACKAGE_VERSION::$PACKAGE_VERSION"
-          
+
           R_VERSION=${{matrix.r}}
           R_MAJOR_VERSION=$(echo $R_VERSION | cut -f1 -d".")
           echo "::set-env name=R_VERSION::$R_VERSION" 
@@ -37,14 +66,10 @@ jobs:
           R_DIR="/usr/lib/R"
           echo "::set-env name=R_DIR::$R_DIR" 
           echo "::set-env name=R::$R_DIR/bin/R"
-      
+
           R_LIBS=${GITHUB_WORKSPACE}/R_LIBS
           mkdir -p $R_LIBS
           echo "::set-env name=R_LIBS::$R_LIBS" 
-
-          PACKAGE_BUILD_DIR=${GITHUB_WORKSPACE}/build
-          mkdir -p $PACKAGE_BUILD_DIR
-          echo "::set-env name=PACKAGE_BUILD_DIR::$PACKAGE_BUILD_DIR"
 
       - name: add-ubuntu-R-repos
         run: |
@@ -110,8 +135,6 @@ jobs:
         run: |
           $R CMD build ./
           $R CMD INSTALL ./ --library=$R_LIBS --no-test-load
-          
-          ls *.tar.gz
 
       - name: run-tests
         run: |
