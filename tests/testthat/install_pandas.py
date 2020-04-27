@@ -1,9 +1,15 @@
-import sys   
+import sys
 import os
 import errno
 import pkg_resources
 import glob
 import shutil
+
+# pin the version that we use in this test
+# e.g. 1.0.3 has issues installing from a wheel on Windows
+# not related to PythonEmbedInR
+# https://stackoverflow.com/q/60767017
+PANDAS_VERSION="1.0.1"
 
 # pip main is not a public interface and is programatically accessible
 # in a stable way across python versions. the typical approach is to
@@ -44,15 +50,16 @@ def main(command, path):
       os.makedirs(localSitePackages)
 
     if command == 'install':
-      call_pip('pandas', localSitePackages)
+      call_pip('pandas', localSitePackages, PANDAS_VERSION)
     elif command == 'uninstall':
       remove_dirs('pandas', localSitePackages)
     else:
       raise Exception("command not supported: "+command)
 
-def call_pip(packageName, target):
-    # tgipip main is not a stable interface, invoke via subprocess instead
-    rc = pipmain(["install", packageName,  '--upgrade', '--quiet', '--target', target])
+def call_pip(packageName, target, packageVersion=None):
+    package = packageName if not packageVersion else "{}=={}".format(packageName, packageVersion)
+    # pip main is not a stable interface, invoke via subprocess instead
+    rc = pipmain(["install", package, '--upgrade', '--quiet', '--target', target])
     if rc!=0:
       raise Exception('pip.main returned '+str(rc))
 
