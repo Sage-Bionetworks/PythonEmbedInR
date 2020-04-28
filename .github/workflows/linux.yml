@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-18.04]
-        r: [3.5.3, 3.6.3, 4.0.0]
+        r: [4.0.0]
 
     steps:
       - name: checkout
@@ -73,9 +73,15 @@ jobs:
 
       - name: add-ubuntu-R-repos
         run: |
-          # cran35 repos also contain 3.6. will need to check back what they do w/ v4.
-          echo "deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/" | sudo tee /etc/apt/sources.list.d/rcran.list >> /dev/null
-          echo "deb-src https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/" | sudo tee -a /etc/apt/sources.list.d/rcran.list >> /dev/null
+          if [[ "$R_MAJOR_VERSION" == "4" ]]; then
+            CRAN_VERSION="40"
+          else
+            # 3.5 and 3.6 both use "35" repos...
+            CRAN_VERSON="35"
+          fi
+
+          echo "deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran${CRAN_VERSION}/" | sudo tee /etc/apt/sources.list.d/rcran.list >> /dev/null
+          echo "deb-src https://cloud.r-project.org/bin/linux/ubuntu bionic-cran${CRAN_VERSION}/" | sudo tee -a /etc/apt/sources.list.d/rcran.list >> /dev/null
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
 
       # much faster to install from packages if we can
@@ -85,7 +91,9 @@ jobs:
           # the R ubuntu CRAN repos seem to often be corrupt with broken dependencies.
           # if they return any error we'll try to handle it gracefully by compiling from source instead (slow)
           set +e
-          sudo apt-get update
+
+          # TODO restore valid check once CRAN is stable again...
+          sudo apt-get -o Acquire::Check-Valid-Until=false update
 
           INSTALLED=false
           PKG_VERSION=$(apt-cache madison r-base | grep $R_VERSION | head -1 | cut -f2 -d"|" | xargs)
