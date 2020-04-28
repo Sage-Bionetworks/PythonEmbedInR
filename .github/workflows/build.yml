@@ -437,22 +437,22 @@ jobs:
           # github windows bash uses git-bash, wget not available
           curl -O $R_INSTALLER_URL
 
-          # headless install
-          start /wait $R_INSTALLER_FILE /VERYSILENT /DIR="$R_DIR" 
-
           if [ "$R_MAJOR_VERSION" == "4" ]
           then
-            R_TOOLS_FILE="rtools40-x86_64.exe"         
+            R_TOOLS_FILE="rtools40-x86_64.exe"
+            R_TOOLS_HOME="c:/rtools40"
           else
             # assume 3
             R_TOOLS_FILE="Rtools35.exe"
+            R_TOOLS_HOME="c:/Rtools"
           fi
-          
+
           # github windows bash uses git-bash, wget not available
           curl -O "https://cran.r-project.org/bin/windows/Rtools/${R_TOOLS_FILE}"
-          
+
           echo "::set-env name=R_INSTALLER_FILE::$R_INSTALLER_FILE"
           echo "::set-env name=R_TOOLS_FILE::$R_TOOLS_FILE"
+          echo "::add-path::$R_TOOLS_HOME/bin"
 
       # installers are normally interactive, the /VERYSILENT flag will install non-interactive
       # but is asynchronous so we use "start /wait" but that seems to be incompatible
