@@ -1,4 +1,4 @@
-name: build-PythonEmbedInR
+name: build
 
 on:
   push:
@@ -539,14 +539,67 @@ jobs:
       - name: artifact-name
         shell: bash
         run: |
+          # we format our artifact names so we align to the same pattern
+          # used by the deploy gist written to work with jenkins.
+
           ARTIFACT_NAME="${PACKAGE_NAME}_${PACKAGE_VERSION}.${ARTIFACT_EXTENSION}"
-          UPLOAD_NAME=$(echo ${{runner.os}} | tr '[:upper:]' '[:lower:]')_${R_VERSION}_${PACKAGE_NAME}_${PACKAGE_VERSION}
+
+          OS_LABEL=$(echo ${{runner.os}} | tr '[:upper:]' '[:lower:]')
+          if [[ "$OS_LABEL" == "macos" ]]; then
+            OS_LABEL="mac"
+          fi
+
+          # only the first two parts of the version here, e.g. 3.6
+          RVERS=$(echo $R_VERSION | awk -F"." '{print $1"."$2}')
+
+          UPLOAD_NAME="label=${OS_LABEL}-RVERS-${RVERS}"
           echo "::set-env name=ARTIFACT_NAME::$ARTIFACT_NAME"
           echo "::set-env name=UPLOAD_NAME::$UPLOAD_NAME"
 
       - name: upload-artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: ${{env.UPLOAD_NAME}}
           path: ${{env.ARTIFACT_NAME}}
+
+  deploy:
+    runs-on: ubuntu-18.04
+    needs: build
+
+    steps:
+      - name: check-deployment-target
+        shell: bash
+        run: |
+          BRANCH=${GITHUB_REF##*/}
+          if [[ $BRANCH =~ ^v([[:digit:]\.]+)-rc ]]; then
+            # this looks like a staging branch
+            echo "::set-env name=DEPLOY_TARGET::staging"
+          fi
+
+          # TODO probably we'd decide to deploy to prod only if this is s release event
+
+      - name: download-artifacts
+        uses: actions/download-artifact@v2
+        if: ${{env.DEPLOY_TARGET}} != ""
+        with:
+          path: deploy_artifacts
+
+      - name: deploy-to-target
+        if: ${{env.DEPLOY_TARGET}} != ""
+        shell: bash
+        run: |
+          # we use a gist to upload and the gist instead uses R so we need R on this runner.
+          # TODO could make a non-R dependent deploy script or run this using a container
+          # image that already has R installed.
+          sudo apt-get update && sudo apt-get install -y r-base
+
+          export ARTIFACTS_DIR=deploy_artifacts
+          if [[ "$DEPLOY_TARGET" == "staging" ]]; then
+            export AWS_ACCESS_KEY_ID=${{secrets.S3_RAN_STAGING_AWS_ACCESS_KEY_ID}}
+            export AWS_SECRET_ACCESS_KEY=${{secrets.S3_RAN_STAGING_AWS_SECRET_ACCESS_KEY}}
+            export AWS_DEFAULT_REGION=us-east-1
+            export S3_RAN=staging-ran.synapse.org
+          fi
+
+          curl -s https://raw.githubusercontent.com/Sage-Bionetworks/CI-Build-Tools/master/r-pkg/deploy.sh | bash
 
