@@ -14,14 +14,14 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-18.04]
+        os: [ubuntu-18.04, macos-10.15]
         r: [4.0.0]
 
     steps:
       - name: checkout
         uses: actions/checkout@v2
 
-      - name: set-R-env
+      - name: set-env
         shell: bash
         run: |
           PACKAGE_NAME=PythonEmbedInR
@@ -62,6 +62,12 @@ jobs:
           echo "::set-env name=R_VERSION::$R_VERSION" 
           echo "::set-env name=R_MAJOR_VERSION::$R_MAJOR_VERSION"
 
+############################
+# start Linux specific steps
+
+      - name: linux-env
+        if: runner.os == 'Linux'
+        run: |
           # repo package installs to this dir, if we compile from source we install there too for consistency
           R_DIR="/usr/lib/R"
           echo "::set-env name=R_DIR::$R_DIR" 
@@ -72,6 +78,7 @@ jobs:
           echo "::set-env name=R_LIBS::$R_LIBS" 
 
       - name: add-ubuntu-R-repos
+        if: runner.os == 'Linux'
         run: |
           if [[ "$R_MAJOR_VERSION" == "4" ]]; then
             CRAN_VERSION="40"
@@ -85,8 +92,9 @@ jobs:
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
 
       # much faster to install from packages if we can
-      - name: install-R-from-package
-        id: install-R-from-package
+      - name: linux-install-R-from-package
+        id: linux-install-R-from-package
+        if: runner.os == 'Linux'
         run: |
           # the R ubuntu CRAN repos seem to often be corrupt with broken dependencies.
           # if they return any error we'll try to handle it gracefully by compiling from source instead (slow)
@@ -110,8 +118,7 @@ jobs:
       # if the version is not available as a package we'll see if we can download and compile
       # it from source. this can be necessary on brand new versions which appear first as source.
       - name: install-R-from-source
-        if: steps.install-R-from-package.outputs.installed != 'true'
-        
+        if: runner.os == 'Linux' && steps.linux-install-R-from-package.outputs.installed != 'true'
         run: |
           # even if the version didn't exist we'll use whatever version
           # is available to install it's dependencies (and hope that they haven't changed in the desired version).
@@ -130,18 +137,86 @@ jobs:
           sudo make install
           popd
 
-      - name: install-R-lib-deps
+      - name: linux-install-R-lib-deps
+        if: runner.os == 'Linux'
         run: |
           echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson', 'rlang');" >> installReqPkgs.R
           echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org', destdir=\"${R_LIBS}\")" >> installReqPkgs.R
           $R --vanilla < installReqPkgs.R
 
-      - name: build-package
+      - name: linux-build-package
+        if: runner.os == 'Linux'
         run: |
           $R CMD build ./
           $R CMD INSTALL ./ --library=$R_LIBS --no-test-load
 
+# end Linux specific steps
+##########################
+# begin Mac specific steps
+
+      - name: mac-env
+        if: runner.os == 'macOS'
+        run: |
+          R_LIBS=${GITHUB_WORKSPACE}/R_LIBS
+          mkdir -p $R_LIBS
+          echo "::set-env name=R_LIBS::$R_LIBS" 
+
+      - name: mac-install-R
+        if: runner.os == 'macOS'
+        run: |
+          R_INSTALLER_FILE="R-${R_VERSION}.pkg"
+          R_INSTALLER_URL="https://cloud.r-project.org/bin/macosx/${R_INSTALLER_FILE}"
+
+          wget $R_INSTALLER_URL
+          sudo installer -pkg $R_INSTALLER_FILE -target /
+
+      - name: mac-install-R-lib-deps
+        if: runner.os == 'macOS'
+        run: |
+          echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson', 'rlang');" >> installReqPkgs.R
+          echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org', destdir=\"${R_LIBS}\")" >> installReqPkgs.R
+          R --vanilla < installReqPkgs.R
+
+      - name: build-package
+        if: runner.os == 'macOS'
+        run: |
+            # need some additional headers (zlib) on catalina to compile python
+            # https://stackoverflow.com/a/58349403
+            for HEADER_PATH in /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/*
+            do
+              INCLUDE_PATH="/usr/local/include/$(basename $HEADER_PATH)"
+              if [ ! -f $INCLUDE_PATH ]; then
+                sudo ln -s $HEADER_PATH $INCLUDE_PATH 
+              fi
+            done
+            
+            R CMD build ./
+
+            sudo R CMD INSTALL --build ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz --library=$R_LIBS --no-test-load
+            
+            ## Now fix the binaries, per SYNR-341:
+            # it's v 3.0 or greater, with just one platform
+            mkdir -p ${PACKAGE_NAME}/libs
+            cp $R_LIBS/${PACKAGE_NAME}/libs/PythonEmbedInR.so ${PACKAGE_NAME}/libs
+            install_name_tool -change "/Library/Frameworks/R.framework/Versions/${R_VERSION}/Resources/lib/libR.dylib"  "/Library/Frameworks/R.framework/Versions/Current/Resources/lib/libR.dylib" ${PACKAGE_NAME}/libs/PythonEmbedInR.so
+
+            # update archive with modified binaries
+            for f in *.tgz
+            do
+              prefix="${f%.*}"
+              gunzip "$f"
+              # Note, >=3.0 there is only one platform
+              tar -rf "$prefix".tar ${PACKAGE_NAME}/libs/PythonEmbedInR.so
+              rm "$prefix".tar.gz
+              gzip "$prefix".tar
+              mv "$prefix".tar.gz "$prefix".tgz
+            done
+
+# end Mac specific steps
+########################
+
       - name: run-tests
+        shell: bash
         run: |
           echo ".libPaths(c('$R_LIBS', .libPaths()));" > runTests.R
           echo "setwd(sprintf('%s/tests', getwd()));" >> runTests.R
