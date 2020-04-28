@@ -14,14 +14,14 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-18.04, macos-10.15]
+        os: [ubuntu-18.04, macos-10.15, windows-2019]
         r: [4.0.0]
 
     steps:
       - name: checkout
         uses: actions/checkout@v2
 
-      - name: set-env
+      - name: shared-env
         shell: bash
         run: |
           PACKAGE_NAME=PythonEmbedInR
@@ -77,7 +77,7 @@ jobs:
           mkdir -p $R_LIBS
           echo "::set-env name=R_LIBS::$R_LIBS" 
 
-      - name: add-ubuntu-R-repos
+      - name: linux-add-ubuntu-R-repos
         if: runner.os == 'Linux'
         run: |
           if [[ "$R_MAJOR_VERSION" == "4" ]]; then
@@ -117,7 +117,7 @@ jobs:
 
       # if the version is not available as a package we'll see if we can download and compile
       # it from source. this can be necessary on brand new versions which appear first as source.
-      - name: install-R-from-source
+      - name: linux-install-R-from-source
         if: runner.os == 'Linux' && steps.linux-install-R-from-package.outputs.installed != 'true'
         run: |
           # even if the version didn't exist we'll use whatever version
@@ -177,7 +177,7 @@ jobs:
           echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org', destdir=\"${R_LIBS}\")" >> installReqPkgs.R
           R --vanilla < installReqPkgs.R
 
-      - name: build-package
+      - name: mac-build-package
         if: runner.os == 'macOS'
         run: |
             # need some additional headers (zlib) on catalina to compile python
@@ -213,7 +213,81 @@ jobs:
             done
 
 # end Mac specific steps
-########################
+##############################
+# begin windows specific steps
+#
+      - name: windows-env
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          # forward slashes easier to work with than double backslashes on windows...
+          R_LIBS=$(echo $GITHUB_WORKSPACE | sed 's/\\/\//g')/R_LIBS
+          mkdir -p $R_LIBS
+          echo "::set-env name=R_LIBS::$R_LIBS"
+
+          R_DIR="C:/R/R-${R_VERSION}"
+          R="$R_DIR/bin/R"
+          echo "::set-env name=R_DIR::$R_DIR"
+          echo "::set-env name=R::$R"
+
+          echo "::set-env name=TZ::UTC"
+
+      - name: windows-install-R
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          R_INSTALLER_FILE="R-${R_VERSION}-win.exe"
+
+          # conveniently even the current version is available under "old"
+          R_INSTALLER_URL="https://cloud.r-project.org/bin/windows/base/old/${R_VERSION}/${R_INSTALLER_FILE}"
+
+          # github windows bash uses git-bash, wget not available
+          curl -O $R_INSTALLER_URL
+
+          # headless install
+          start /wait $R_INSTALLER_FILE /VERYSILENT /DIR="$R_DIR" 
+
+          if [ "$R_MAJOR_VERSION" == "4" ]
+          then
+            R_TOOLS_FILE="rtools40-x86_64.exe"         
+          else
+            # assume 3
+            R_TOOLS_FILE="Rtools35.exe"
+          fi
+          
+          # github windows bash uses git-bash, wget not available
+          curl -O "https://cran.r-project.org/bin/windows/Rtools/${R_TOOLS_FILE}"
+          
+          echo "::set-env name=R_INSTALLER_FILE::$R_INSTALLER_FILE"
+          echo "::set-env name=R_TOOLS_FILE::$R_TOOLS_FILE"
+
+      # installers are normally interactive, the /VERYSILENT flag will install non-interactive
+      # but is asynchronous so we use "start /wait" but that seems to be incompatible
+      # with the bash shell used here so we run these commands under a windows cmd shell.
+      - name: windows-install-R-cmd
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          start /wait %R_INSTALLER_FILE% /VERYSILENT /DIR="%R_DIR%"
+          start /wait %R_TOOLS_FILE% /VERYSILENT
+
+      - name: windows-install-R-lib-deps
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson', 'rlang');" >> installReqPkgs.R
+          echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org', destdir=\"${R_LIBS}\")" >> installReqPkgs.R
+          $R --vanilla < installReqPkgs.R
+
+      - name: windows-build-package
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          $R CMD build ./
+          $R CMD INSTALL --build ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz --library=$R_LIBS --no-test-load --merge-multiarch
+
+# end Windows specific steps
+############################
 
       - name: run-tests
         shell: bash
