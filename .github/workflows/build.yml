@@ -440,11 +440,11 @@ jobs:
           if [ "$R_MAJOR_VERSION" == "4" ]
           then
             R_TOOLS_FILE="rtools40-x86_64.exe"
-            R_TOOLS_HOME="c:/rtools40"
+            R_TOOLS_BIN="c:/rtools40/usr/bin"
           else
             # assume 3
             R_TOOLS_FILE="Rtools35.exe"
-            R_TOOLS_HOME="c:/Rtools"
+            R_TOOLS_BIN="c:/Rtools/bin"
           fi
 
           # github windows bash uses git-bash, wget not available
@@ -452,7 +452,7 @@ jobs:
 
           echo "::set-env name=R_INSTALLER_FILE::$R_INSTALLER_FILE"
           echo "::set-env name=R_TOOLS_FILE::$R_TOOLS_FILE"
-          echo "::add-path::$R_TOOLS_HOME/bin"
+          echo "::add-path::$R_TOOLS_BIN"
 
       # installers are normally interactive, the /VERYSILENT flag will install non-interactive
       # but is asynchronous so we use "start /wait" but that seems to be incompatible
