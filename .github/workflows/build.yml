@@ -540,7 +540,7 @@ jobs:
         shell: bash
         run: |
           ARTIFACT_NAME="${PACKAGE_NAME}_${PACKAGE_VERSION}.${ARTIFACT_EXTENSION}"
-          UPLOAD_NAME=$(echo ${{runner.os}} | tr '[:upper:]' '[:lower:]')_${ARTIFACT_NAME}
+          UPLOAD_NAME=$(echo ${{runner.os}} | tr '[:upper:]' '[:lower:]')_${R_VERSION}_${ARTIFACT_NAME}
           echo "::set-env name=ARTIFACT_NAME::$ARTIFACT_NAME"
           echo "::set-env name=UPLOAD_NAME::$UPLOAD_NAME"
 
