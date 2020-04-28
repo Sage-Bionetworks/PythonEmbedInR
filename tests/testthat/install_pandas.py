@@ -11,7 +11,7 @@ import shutil
 # https://stackoverflow.com/q/60767017
 PANDAS_VERSION="1.0.1"
 
-# pip main is not a public interface and is programatically accessible
+# pip main is not a public interface and is not programatically accessible
 # in a stable way across python versions. the typical approach is to
 # call pip in a subprocess using sys.executable, but running inside
 # PythonEmbedInR sys.executable may not be what we want.
@@ -58,7 +58,6 @@ def main(command, path):
 
 def call_pip(packageName, target, packageVersion=None):
     package = packageName if not packageVersion else "{}=={}".format(packageName, packageVersion)
-    # pip main is not a stable interface, invoke via subprocess instead
     rc = pipmain(["install", package, '--upgrade', '--quiet', '--target', target])
     if rc!=0:
       raise Exception('pip.main returned '+str(rc))
