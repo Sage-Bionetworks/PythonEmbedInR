@@ -62,9 +62,6 @@ jobs:
           echo "::set-env name=R_VERSION::$R_VERSION" 
           echo "::set-env name=R_MAJOR_VERSION::$R_MAJOR_VERSION"
 
-############################
-# start Linux specific steps
-
       - name: linux-env
         if: runner.os == 'Linux'
         run: |
@@ -137,29 +134,13 @@ jobs:
           sudo make install
           popd
 
-      - name: linux-install-R-lib-deps
-        if: runner.os == 'Linux'
-        run: |
-          echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson', 'rlang');" >> installReqPkgs.R
-          echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org', destdir=\"${R_LIBS}\")" >> installReqPkgs.R
-          $R --vanilla < installReqPkgs.R
-
-      - name: linux-build-package
-        if: runner.os == 'Linux'
-        run: |
-          $R CMD build ./
-          $R CMD INSTALL ./ --library=$R_LIBS --no-test-load
-
-# end Linux specific steps
-##########################
-# begin Mac specific steps
-
       - name: mac-env
         if: runner.os == 'macOS'
         run: |
           R_LIBS=${GITHUB_WORKSPACE}/R_LIBS
           mkdir -p $R_LIBS
-          echo "::set-env name=R_LIBS::$R_LIBS" 
+          echo "::set-env name=R_LIBS::$R_LIBS"
+          echo "::set-env name=R::R"
 
       - name: mac-install-R
         if: runner.os == 'macOS'
@@ -170,52 +151,6 @@ jobs:
           wget $R_INSTALLER_URL
           sudo installer -pkg $R_INSTALLER_FILE -target /
 
-      - name: mac-install-R-lib-deps
-        if: runner.os == 'macOS'
-        run: |
-          echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson', 'rlang');" >> installReqPkgs.R
-          echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org', destdir=\"${R_LIBS}\")" >> installReqPkgs.R
-          R --vanilla < installReqPkgs.R
-
-      - name: mac-build-package
-        if: runner.os == 'macOS'
-        run: |
-            # need some additional headers (zlib) on catalina to compile python
-            # https://stackoverflow.com/a/58349403
-            for HEADER_PATH in /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/*
-            do
-              INCLUDE_PATH="/usr/local/include/$(basename $HEADER_PATH)"
-              if [ ! -f $INCLUDE_PATH ]; then
-                sudo ln -s $HEADER_PATH $INCLUDE_PATH 
-              fi
-            done
-            
-            R CMD build ./
-
-            sudo R CMD INSTALL --build ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz --library=$R_LIBS --no-test-load
-            
-            ## Now fix the binaries, per SYNR-341:
-            # it's v 3.0 or greater, with just one platform
-            mkdir -p ${PACKAGE_NAME}/libs
-            cp $R_LIBS/${PACKAGE_NAME}/libs/PythonEmbedInR.so ${PACKAGE_NAME}/libs
-            install_name_tool -change "/Library/Frameworks/R.framework/Versions/${R_VERSION}/Resources/lib/libR.dylib"  "/Library/Frameworks/R.framework/Versions/Current/Resources/lib/libR.dylib" ${PACKAGE_NAME}/libs/PythonEmbedInR.so
-
-            # update archive with modified binaries
-            for f in *.tgz
-            do
-              prefix="${f%.*}"
-              gunzip "$f"
-              # Note, >=3.0 there is only one platform
-              tar -rf "$prefix".tar ${PACKAGE_NAME}/libs/PythonEmbedInR.so
-              rm "$prefix".tar.gz
-              gzip "$prefix".tar
-              mv "$prefix".tar.gz "$prefix".tgz
-            done
-
-# end Mac specific steps
-##############################
-# begin windows specific steps
-#
       - name: windows-env
         if: runner.os == 'Windows'
         shell: bash
@@ -271,13 +206,53 @@ jobs:
           start /wait %R_INSTALLER_FILE% /VERYSILENT /DIR="%R_DIR%"
           start /wait %R_TOOLS_FILE% /VERYSILENT
 
-      - name: windows-install-R-lib-deps
-        if: runner.os == 'Windows'
+      - name: install-R-lib-deps
         shell: bash
         run: |
           echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson', 'rlang');" >> installReqPkgs.R
           echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org', destdir=\"${R_LIBS}\")" >> installReqPkgs.R
           $R --vanilla < installReqPkgs.R
+
+      - name: linux-build-package
+        if: runner.os == 'Linux'
+        run: |
+          $R CMD build ./
+          $R CMD INSTALL ./ --library=$R_LIBS --no-test-load 
+
+      - name: mac-build-package
+        if: runner.os == 'macOS'
+        run: |
+            # need some additional headers (zlib) on catalina to compile python
+            # https://stackoverflow.com/a/58349403
+            for HEADER_PATH in /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/*
+            do
+              INCLUDE_PATH="/usr/local/include/$(basename $HEADER_PATH)"
+              if [ ! -f $INCLUDE_PATH ]; then
+                sudo ln -s $HEADER_PATH $INCLUDE_PATH 
+              fi
+            done
+            
+            R CMD build ./
+
+            sudo R CMD INSTALL --build ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz --library=$R_LIBS --no-test-load
+
+            ## Now fix the binaries, per SYNR-341:
+            # it's v 3.0 or greater, with just one platform
+            mkdir -p ${PACKAGE_NAME}/libs
+            cp $R_LIBS/${PACKAGE_NAME}/libs/PythonEmbedInR.so ${PACKAGE_NAME}/libs
+            install_name_tool -change "/Library/Frameworks/R.framework/Versions/${R_VERSION}/Resources/lib/libR.dylib"  "/Library/Frameworks/R.framework/Versions/Current/Resources/lib/libR.dylib" ${PACKAGE_NAME}/libs/PythonEmbedInR.so
+
+            # update archive with modified binaries
+            for f in *.tgz
+            do
+              prefix="${f%.*}"
+              gunzip "$f"
+              # Note, >=3.0 there is only one platform
+              tar -rf "$prefix".tar ${PACKAGE_NAME}/libs/PythonEmbedInR.so
+              rm "$prefix".tar.gz
+              gzip "$prefix".tar
+              mv "$prefix".tar.gz "$prefix".tgz
+            done
 
       - name: windows-build-package
         if: runner.os == 'Windows'
@@ -285,9 +260,6 @@ jobs:
         run: |
           $R CMD build ./
           $R CMD INSTALL --build ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz --library=$R_LIBS --no-test-load --merge-multiarch
-
-# end Windows specific steps
-############################
 
       - name: run-tests
         shell: bash
