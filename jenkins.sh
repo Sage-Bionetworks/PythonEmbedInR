@@ -7,12 +7,15 @@ set -e
 ## create the temporary library directory
 mkdir -p ../RLIB
 
-## Install required R libraries
-echo "try(remove.packages('synapser'), silent=T);" > installReqPkgs.R
-echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson', 'rlang');" >> installReqPkgs.R
-echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org')" >> installReqPkgs.R
-R --vanilla < installReqPkgs.R
-rm installReqPkgs.R
+
+function install_required_packages {
+    ## Install required R libraries
+    echo "try(remove.packages('synapser'), silent=T);" > installReqPkgs.R
+    echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson', 'rlang');" >> installReqPkgs.R
+    echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org')" >> installReqPkgs.R
+    $1 --vanilla < installReqPkgs.R
+    rm installReqPkgs.R
+}
 
 ## export the jenkins-defined environment variables
 export label
@@ -33,13 +36,31 @@ then
 fi
 export PACKAGE_VERSION=`grep Version DESCRIPTION | awk '{print $2}'`
 
+# helper function returns an R matching a $1 glob expansion if it exists.
+# helps getting the appropriate R on a slave with multiple R versions installed
+function get_R {
+    set +e
+    R=$(ls -d $1)
+    if [ -n "$R" ]; then
+        echo $R
+    else
+        # we'll assume there may be an R on the $PATH somewhere
+        echo "R"
+    fi
+    set -e
+}
+
 ## Now build/install the package
 if [[ $label = $LINUX_LABEL_PREFIX* ]]; then
   ## build the package, including the vignettes
-  R CMD build ./
+
+  R=$(get_R "/usr/local/R/R-${RVERS}*/bin/R")
+  install_required_packages $R
+
+  $R CMD build ./
 
   ## now install it
-  R CMD INSTALL ./ --library=../RLIB --no-test-load
+  $R CMD INSTALL ./ --library=../RLIB --no-test-load
 
   CREATED_ARCHIVE=${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz
   
@@ -54,13 +75,17 @@ elif [[ $label = $MAC_LABEL_PREFIX* ]]; then
   # make sure there are no stray .tar.gz files
   rm -f ${PACKAGE_NAME}*.tar.gz
   rm -f ${PACKAGE_NAME}*.tgz
-  R CMD build ./
+
+  R=$(get_R "/usr/local/R/R-${RVERS}*/bin/R")
+  install_required_packages $R
+
+  $R CMD build ./
   # now there should be exactly one ${PACKAGE_NAME}*.tar.gz file
 
   ## build the binary for MacOS
   for f in ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz
   do
-     R CMD INSTALL --build "$f" --library=../RLIB --no-test-load
+     $R CMD INSTALL --build "$f" --library=../RLIB --no-test-load
   done
 
   ## Now fix the binaries, per SYNR-341:
@@ -107,13 +132,17 @@ elif  [[ $label = $WINDOWS_LABEL_PREFIX* ]]; then
   rm ${PACKAGE_NAME}*.tar.gz
   rm ${PACKAGE_NAME}*.tgz
   set -e
-  R CMD build ./
+
+  R=$(get_R "c:/R/R-${RVERS}*/bin/R")
+  install_required_packages $R
+
+  $R CMD build ./
   # now there should be exactly one ${PACKAGE_NAME}*.tar.gz file
 
   ## build the binary for Windows
   for f in ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz
   do
-     R CMD INSTALL --build "$f" --library=../RLIB --no-test-load --merge-multiarch
+     $R CMD INSTALL --build "$f" --library=../RLIB --no-test-load --merge-multiarch
   done
   ## This is very important, otherwise the source packages from the windows build overwrite 
   ## the ones created on the unix machine.
@@ -136,7 +165,7 @@ echo "source('testthat.R')" >> runTests.R
 echo "library(PythonEmbedInR);" >> runTests.R
 echo "detach(\"package:PythonEmbedInR\", unload=TRUE);" >> runTests.R
 echo "library(PythonEmbedInR)" >> runTests.R
-R --vanilla < runTests.R
+$R --vanilla < runTests.R
 rm runTests.R
 
 ## clean up the temporary R library dir
