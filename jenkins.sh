@@ -22,8 +22,13 @@ export RVERS=$(echo $label | awk -F[-] '{print $3}')
 # create the temporary library directory
 # include the label in the directory name so that
 # separate concurrent intallations using different
-# labels on the same machine won't be writing to the same folder
+# labels on the same machine won't be writing to the same folder.
+# we that separation we assume we can delete the folder completely.
+# clearing the folder prevents R library locks that may be left behind
+# from previous builds from interfering. this assumes that the same
+# build and label doesn't run concurrently on the same machine.
 RLIB_DIR="../RLIB_${label}"
+rm -rf $RLIB_DIR
 mkdir -p $RLIB_DIR
 
 PACKAGE_NAME=PythonEmbedInR
