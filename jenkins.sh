@@ -4,8 +4,6 @@
 ## for the active R version
 
 set -e
-## create the temporary library directory
-mkdir -p ../RLIB
 
 
 function install_required_packages {
@@ -20,6 +18,13 @@ function install_required_packages {
 ## export the jenkins-defined environment variables
 export label
 export RVERS=$(echo $label | awk -F[-] '{print $3}')
+
+# create the temporary library directory
+# include the label in the directory name so that
+# separate concurrent intallations using different
+# labels on the same machine won't be writing to the same folder
+RLIB_DIR="../RLIB_${label}"
+mkdir -p $RLIB_DIR
 
 PACKAGE_NAME=PythonEmbedInR
 # if version is specified, build the given version
@@ -60,7 +65,7 @@ if [[ $label = $LINUX_LABEL_PREFIX* ]]; then
   $R CMD build ./
 
   ## now install it
-  $R CMD INSTALL ./ --library=../RLIB --no-test-load
+  $R CMD INSTALL ./ --library=$RLIB_DIR --no-test-load
 
   CREATED_ARCHIVE=${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz
   
@@ -85,13 +90,13 @@ elif [[ $label = $MAC_LABEL_PREFIX* ]]; then
   ## build the binary for MacOS
   for f in ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz
   do
-     $R CMD INSTALL --build "$f" --library=../RLIB --no-test-load
+     $R CMD INSTALL --build "$f" --library=$RLIB_DIR --no-test-load
   done
 
   ## Now fix the binaries, per SYNR-341:
   # it's v 3.0 or greater, with just one platform
   mkdir -p ${PACKAGE_NAME}/libs
-  cp ../RLIB/${PACKAGE_NAME}/libs/PythonEmbedInR.so ${PACKAGE_NAME}/libs
+  cp $RLIB_DIR/${PACKAGE_NAME}/libs/PythonEmbedInR.so ${PACKAGE_NAME}/libs
   install_name_tool -change "/Library/Frameworks/R.framework/Versions/$RVERS/Resources/lib/libR.dylib"  "/Library/Frameworks/R.framework/Versions/Current/Resources/lib/libR.dylib" ${PACKAGE_NAME}/libs/PythonEmbedInR.so
 
 
@@ -142,7 +147,7 @@ elif  [[ $label = $WINDOWS_LABEL_PREFIX* ]]; then
   ## build the binary for Windows
   for f in ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz
   do
-     $R CMD INSTALL --build "$f" --library=../RLIB --no-test-load --merge-multiarch
+     $R CMD INSTALL --build "$f" --library=$RLIB_DIR --no-test-load --merge-multiarch
   done
   ## This is very important, otherwise the source packages from the windows build overwrite 
   ## the ones created on the unix machine.
@@ -159,7 +164,7 @@ else
   exit 1
 fi
 
-echo ".libPaths(c('../RLIB', .libPaths()));" > runTests.R
+echo ".libPaths(c('$RLIB_DIR', .libPaths()));" > runTests.R
 echo "setwd(sprintf('%s/tests', getwd()));" >> runTests.R
 echo "source('testthat.R')" >> runTests.R
 echo "library(PythonEmbedInR);" >> runTests.R
@@ -169,4 +174,4 @@ $R --vanilla < runTests.R
 rm runTests.R
 
 ## clean up the temporary R library dir
-rm -rf ../RLIB
+rm -rf $RLIB_DIR
