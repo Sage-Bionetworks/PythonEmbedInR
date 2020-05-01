@@ -58,7 +58,7 @@ def main(command, path):
 
 def call_pip(packageName, target, packageVersion=None):
     package = packageName if not packageVersion else "{}=={}".format(packageName, packageVersion)
-    rc = pipmain(["install", package, '--disable-pip-version-check', '--upgrade', '--quiet', '--target', target])
+    rc = pipmain(["install", package, '--no-cache-dir', '--disable-pip-version-check', '--upgrade', '--quiet', '--target', target])
     if rc!=0:
       raise Exception('pip.main returned '+str(rc))
 
