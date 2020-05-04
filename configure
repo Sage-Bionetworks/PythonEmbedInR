@@ -52,7 +52,9 @@ if [ $(uname) == "Darwin" ]; then
   #     LDFLAGS:  -L/usr/local/opt/openssl/lib
   #     CPPFLAGS: -I/usr/local/opt/openssl/include
   # export LDFLAGS=-L/usr/local/opt/openssl/lib
-  export CPPFLAGS=-I/usr/local/opt/openssl/include
+
+  # sdk path needed for zlib on catalina
+  export CPPFLAGS="-I/usr/local/opt/openssl/include -I$(xcrun --show-sdk-path)/usr/include"
 
   # However the above isn't enough since the libraries have to be bundled into 
   # the package
@@ -66,6 +68,7 @@ if [ $(uname) == "Darwin" ]; then
   cp $LIBCRYPTO_DYLIB_PATH ${EMBED_PYTHON_DIR}/lib/
   cp /usr/local/opt/openssl/lib/libssl.a ${EMBED_PYTHON_DIR}/lib/
   cp $LIBSSL_DYLIB_PATH ${EMBED_PYTHON_DIR}/lib/
+  chmod u+w ${EMBED_PYTHON_DIR}/lib/*
 
   export LIBCRYPTO_LOAD_DYLIB_PATH=$(otool -L ${EMBED_PYTHON_DIR}/lib/$LIBSSL_DYLIB_FILENAME | grep libcrypto | cut -d" " -f1)
   # https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
