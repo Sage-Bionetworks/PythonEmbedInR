@@ -57,17 +57,22 @@ if [ $(uname) == "Darwin" ]; then
   # However the above isn't enough since the libraries have to be bundled into 
   # the package
   mkdir -p ${EMBED_PYTHON_DIR}/lib
-  cp /usr/local/opt/openssl/lib/libcrypto.a ${EMBED_PYTHON_DIR}/lib/
-  cp /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib ${EMBED_PYTHON_DIR}/lib/
-  cp /usr/local/opt/openssl/lib/libssl.a ${EMBED_PYTHON_DIR}/lib/
-  cp /usr/local/opt/openssl/lib/libssl.1.0.0.dylib ${EMBED_PYTHON_DIR}/lib/
+  LIBCRYPTO_DYLIB_PATH=$(ls -a /usr/local/opt/openssl/lib/libcrypto.1*.dylib)
+  LIBCRYPTO_DYLIB_FILENAME=$(basename $LIBCRYPTO_DYLIB_PATH)
+  LIBSSL_DYLIB_PATH=$(ls -a /usr/local/opt/openssl/lib/libssl.1*.dylib)
+  LIBSSL_DYLIB_FILENAME=$(basename $LIBSSL_DYLIB_PATH)
 
-  export libcrypto_path=$(otool -L ${EMBED_PYTHON_DIR}/lib/libssl.1.0.0.dylib | grep libcrypto.1.0.0.dylib | cut -d" " -f1)
+  cp /usr/local/opt/openssl/lib/libcrypto.a ${EMBED_PYTHON_DIR}/lib/
+  cp $LIBCRYPTO_DYLIB_PATH ${EMBED_PYTHON_DIR}/lib/
+  cp /usr/local/opt/openssl/lib/libssl.a ${EMBED_PYTHON_DIR}/lib/
+  cp $LIBSSL_DYLIB_PATH ${EMBED_PYTHON_DIR}/lib/
+
+  export LIBCRYPTO_LOAD_DYLIB_PATH=$(otool -L ${EMBED_PYTHON_DIR}/lib/$LIBSSL_DYLIB_FILENAME | grep libcrypto | cut -d" " -f1)
   # https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
   install_name_tool -change \
-  $libcrypto_path   \
-  "@loader_path/libcrypto.1.0.0.dylib" \
-  ${EMBED_PYTHON_DIR}/lib/libssl.1.0.0.dylib
+  $LIBCRYPTO_LOAD_DYLIB_PATH \
+  "@loader_path/$LIBCRYPTO_DYLIB_FILENAME" \
+  ${EMBED_PYTHON_DIR}/lib/$LIBSSL_DYLIB_FILENAME
 
   # https://wiki.python.org/moin/BuildStatically
   # https://stackoverflow.com/questions/1150373/compile-the-python-interpreter-statically
