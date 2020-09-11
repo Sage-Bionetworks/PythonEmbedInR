@@ -35,27 +35,25 @@ jobs:
 
           PACKAGE_VERSION=$(grep "Version: " DESCRIPTION | awk '{print $2'})
 
-          # if this looks like a version e.g. v1.2.3 then
-          # we use that to generate our package artifact
-          BRANCH=${GITHUB_REF#refs/heads/}
-          if [[ $BRANCH =~ ^v([[:digit:]\.]+)(-rc)? ]]; then
-            BRANCH_VERSION="${BASH_REMATCH[1]}.${GITHUB_RUN_NUMBER}"
+          # if this was triggered by a release and the release tag
+          # looks like semver then we use that for the package version.
+          RELEASE_TAG=${{ github.event.release.tag_name }}
+          if [[ $RELEASE_TAG =~ ^v?([[:digit:]\.]+)(-rc)? ]]; then
+            RELEASE_VERSION="${BASH_REMATCH[1]}"
 
-            if [[ -n "$BRANCH_VERSION" ]]; then
-              # a version defined in the branch overrides the package version
-              # for purposes of creating artifacts
-              PACKAGE_VERSION=$BRANCH_VERSION
+            # a release version overrides the package version
+            # for purposes of creating artifacts
+            PACKAGE_VERSION=$RELEASE_VERSION
 
-              DATE=`date +%Y-%m-%d`
-              # replace DESCRIPTION with $VERSION & $DATE
-              # sed -i not portable on OSX so we wash through some temp files instead
-              sed "s|^Version: .*$|Version: $PACKAGE_VERSION|g" DESCRIPTION > DESCRIPTION.temp
-              sed "s|^Date: .*$|Date: $DATE|g" DESCRIPTION.temp > DESCRIPTION2.temp
+            DATE=`date +%Y-%m-%d`
+            # replace DESCRIPTION with $VERSION & $DATE
+            # sed -i not portable on OSX so we wash through some temp files instead
+            sed "s|^Version: .*$|Version: $PACKAGE_VERSION|g" DESCRIPTION > DESCRIPTION.temp
+            sed "s|^Date: .*$|Date: $DATE|g" DESCRIPTION.temp > DESCRIPTION2.temp
 
-              rm DESCRIPTION
-              mv DESCRIPTION2.temp DESCRIPTION
-              rm DESCRIPTION.temp
-            fi
+            rm DESCRIPTION
+            mv DESCRIPTION2.temp DESCRIPTION
+            rm DESCRIPTION.temp
           fi
 
           echo "::set-env name=BRANCH_VERSION::$BRANCH_VERSION"
@@ -292,17 +290,23 @@ jobs:
     steps:
       - name: check-deployment-target
         id: check-deployment-target
+        if: ${{github.event.action == 'published'}}
         shell: bash
         run: |
           DEPLOY_TARGET=""
-          BRANCH=${GITHUB_REF#refs/heads/}
-          if [[ $BRANCH =~ ^v([[:digit:]\.]+)-rc$ ]]; then
-            # e.g. v1.2.3-rc is a staging release client branch
-            DEPLOY_TARGET="staging"
+          RELEASE_VERSION=""
+          RELEASE_TAG=${{ github.event.release.tag_name }}
+          if [[ $RELEASE_TAG =~ ^v?([[:digit:]\.]+)(-rc)? ]]; then
+            RELEASE_VERSION="${BASH_REMATCH[1]}"
+            echo $RELEASE_VERSION
+            if [[ -n "$RELEASE_VERSION" ]]; then
+              if [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
+                DEPLOY_TARGET="staging"
+              else
+                DEPLOY_TARGET="prod"
+              fi
+            fi
           fi
-
-          # TODO probably we'd decide to deploy to prod only if this is s release event
-          # (i.e. somebody created a release in github)
 
           echo "::set-env name=DEPLOY_TARGET::$DEPLOY_TARGET"
           echo "::set-output name=deploy_target::$DEPLOY_TARGET"
@@ -327,6 +331,11 @@ jobs:
             export AWS_SECRET_ACCESS_KEY=${{secrets.S3_RAN_STAGING_AWS_SECRET_ACCESS_KEY}}
             export AWS_DEFAULT_REGION=us-east-1
             export S3_RAN=staging-ran.synapse.org
+          elif [[ "$DEPLOY_TARGET" == "prod" ]]; then
+            export AWS_ACCESS_KEY_ID=${{secrets.S3_RAN_PROD_AWS_ACCESS_KEY_ID}}
+            export AWS_SECRET_ACCESS_KEY=${{secrets.S3_RAN_PROD_AWS_SECRET_ACCESS_KEY}}
+            export AWS_DEFAULT_REGION=us-east-1
+            export S3_RAN=ran.synapse.org
           fi
 
           curl -s https://raw.githubusercontent.com/Sage-Bionetworks/CI-Build-Tools/master/r-pkg/deploy.sh | bash
