@@ -4,10 +4,14 @@
 name: build
 
 on:
+
+  # we build artifacts on every push and release.
+  # on release events we additionally upload the artifacts to our RAN server
+
   push:
-    branches-ignore:
-      - 'master'
-      - 'develop'
+  release:
+    types:
+      - published
 
 jobs:
   build:
