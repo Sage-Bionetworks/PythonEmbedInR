@@ -19,7 +19,7 @@ install_python() {
   PYTHON_LIB_PATH=inst/pythonLibs$arch
   mkdir -p ${PYTHON_LIB_PATH}
   cd ${PYTHON_LIB_PATH}
-  wget -O python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip $EMBEDDED_ZIP
+  curl -o python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip $EMBEDDED_ZIP
   if [ "$?" -ne "0" ]; then
     echo "Failed to download $EMBEDDED_ZIP"
     exit 1
@@ -39,7 +39,7 @@ install_python() {
   cd ..
   
   PIP_INSTALL_SCRIPT=get-pip.py
-  wget -O $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/3.3/get-pip.py
+  curl -o $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/3.3/get-pip.py
   ./python.exe $PIP_INSTALL_SCRIPT pip==9.0.3
   cd ../..
 }
@@ -52,7 +52,7 @@ install_python "i386"
 PYTHON_ARCHIVE_NAME=Python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}
 PYTHON_RUNTIME_BUNDLE=https://www.python.org/ftp/python/${RWITHPYTHON_PYTHON_VERSION_EXTENDED}/${PYTHON_ARCHIVE_NAME}.tgz
 
-wget -O ${PYTHON_ARCHIVE_NAME}.tgz ${PYTHON_RUNTIME_BUNDLE}
+curl -o ${PYTHON_ARCHIVE_NAME}.tgz ${PYTHON_RUNTIME_BUNDLE}
 if [ "$?" -ne "0" ]; then
   echo "Failed to download ${PYTHON_RUNTIME_BUNDLE}"
   exit 1
