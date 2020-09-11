@@ -1,11 +1,19 @@
 # helper that load before tests are run
 
 # determine the package directory path
-package_dir <- gsub("(PythonEmbedInR).*", "\\1", getwd())
+wd = getwd()
+package_dir <- gsub("(PythonEmbedInR).*", "\\1", wd)
 
 # import pandas in python
 print("Intalling Pandas ...")
+
+# explicitly include the absolute current working directory in the python path
+# in order to pick up install_pandas.py across platforms
+pyImport("sys")
+pyExec(paste("if '", wd, "' not in sys.path: sys.path.append('", wd ,"');", sep=""))
+
 pyImport("install_pandas")
+
 pyExec(sprintf("install_pandas.main('install', '%s')", package_dir))
 
 use_pandas <- function() {  

@@ -21,8 +21,8 @@
 set -e
 
 # ----- install the Python package -----
-EMBED_PYTHON_VERSION=3.5
-EMBED_PYTHON_VERSION_EXTENDED=${EMBED_PYTHON_VERSION}.3
+EMBED_PYTHON_VERSION=3.6
+EMBED_PYTHON_VERSION_EXTENDED=${EMBED_PYTHON_VERSION}.8
 PYTHON_ARCHIVE_NAME=Python-${EMBED_PYTHON_VERSION_EXTENDED}
 PYTHON_RUNTIME_BUNDLE=https://www.python.org/ftp/python/${EMBED_PYTHON_VERSION_EXTENDED}/${PYTHON_ARCHIVE_NAME}.tgz
 
@@ -52,22 +52,30 @@ if [ $(uname) == "Darwin" ]; then
   #     LDFLAGS:  -L/usr/local/opt/openssl/lib
   #     CPPFLAGS: -I/usr/local/opt/openssl/include
   # export LDFLAGS=-L/usr/local/opt/openssl/lib
-  export CPPFLAGS=-I/usr/local/opt/openssl/include
+
+  # sdk path needed for zlib on catalina
+  export CPPFLAGS="-I/usr/local/opt/openssl/include -I$(xcrun --show-sdk-path)/usr/include"
 
   # However the above isn't enough since the libraries have to be bundled into 
   # the package
   mkdir -p ${EMBED_PYTHON_DIR}/lib
-  cp /usr/local/opt/openssl/lib/libcrypto.a ${EMBED_PYTHON_DIR}/lib/
-  cp /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib ${EMBED_PYTHON_DIR}/lib/
-  cp /usr/local/opt/openssl/lib/libssl.a ${EMBED_PYTHON_DIR}/lib/
-  cp /usr/local/opt/openssl/lib/libssl.1.0.0.dylib ${EMBED_PYTHON_DIR}/lib/
+  LIBCRYPTO_DYLIB_PATH=$(ls -a /usr/local/opt/openssl/lib/libcrypto.1*.dylib)
+  LIBCRYPTO_DYLIB_FILENAME=$(basename $LIBCRYPTO_DYLIB_PATH)
+  LIBSSL_DYLIB_PATH=$(ls -a /usr/local/opt/openssl/lib/libssl.1*.dylib)
+  LIBSSL_DYLIB_FILENAME=$(basename $LIBSSL_DYLIB_PATH)
 
-  export libcrypto_path=$(otool -L ${EMBED_PYTHON_DIR}/lib/libssl.1.0.0.dylib | grep libcrypto.1.0.0.dylib | cut -d" " -f1)
+  cp /usr/local/opt/openssl/lib/libcrypto.a ${EMBED_PYTHON_DIR}/lib/
+  cp $LIBCRYPTO_DYLIB_PATH ${EMBED_PYTHON_DIR}/lib/
+  cp /usr/local/opt/openssl/lib/libssl.a ${EMBED_PYTHON_DIR}/lib/
+  cp $LIBSSL_DYLIB_PATH ${EMBED_PYTHON_DIR}/lib/
+  chmod u+w ${EMBED_PYTHON_DIR}/lib/*
+
+  export LIBCRYPTO_LOAD_DYLIB_PATH=$(otool -L ${EMBED_PYTHON_DIR}/lib/$LIBSSL_DYLIB_FILENAME | grep libcrypto | cut -d" " -f1)
   # https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
   install_name_tool -change \
-  $libcrypto_path   \
-  "@loader_path/libcrypto.1.0.0.dylib" \
-  ${EMBED_PYTHON_DIR}/lib/libssl.1.0.0.dylib
+  $LIBCRYPTO_LOAD_DYLIB_PATH \
+  "@loader_path/$LIBCRYPTO_DYLIB_FILENAME" \
+  ${EMBED_PYTHON_DIR}/lib/$LIBSSL_DYLIB_FILENAME
 
   # https://wiki.python.org/moin/BuildStatically
   # https://stackoverflow.com/questions/1150373/compile-the-python-interpreter-statically
@@ -85,8 +93,9 @@ cd ..
 rm -R ${PYTHON_ARCHIVE_NAME}
 cd ..
 
-MYPYTHONCONFIG=${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}m-config
-MYPYTHON=${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}
+# these exact paths vary by python version so use wildcard expansions to find the actual path
+MYPYTHONCONFIG=$(ls ${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}*-config)
+MYPYTHONLIBDIR=$(ls -d ${EMBED_PYTHON_DIR}/lib/python${EMBED_PYTHON_VERSION}/*config-${EMBED_PYTHON_VERSION}*)
 
 # Extract the linker and include flags for python
 : ${PYTHONCONFIG=`which ${MYPYTHONCONFIG}`}
@@ -97,7 +106,7 @@ fi
 
 echo "python version is ${EMBED_PYTHON_VERSION_EXTENDED}"
 PYXY="PYTHONLIBXY=libpython${EMBED_PYTHON_VERSION}m.so"
-PYLIBS="PKG_LIBS=-L${EMBED_PYTHON_DIR}/lib/python${EMBED_PYTHON_VERSION}/config-${EMBED_PYTHON_VERSION}m "`$PYTHONCONFIG --libs`
+PYLIBS="PKG_LIBS=-L$MYPYTHONLIBDIR "`$PYTHONCONFIG --libs`
 PYCFLAGS="PKG_CFLAGS="`$PYTHONCONFIG --cflags`" -D $PYXY -D PYTHON_IN_R_NO_EXPLICIT_LINKING"
 
 #clean up the old compilation or else it wont recompile
@@ -112,6 +121,5 @@ echo ""
 # replacing Wstrict-prototypes removes some unnecessary warnings
 echo $PYLIBS > src/Makevars
 echo $PYCFLAGS | sed 's/Wstrict-prototypes/pedantic/' | sed 's/ -fstack-protector-strong//' >> src/Makevars	
-
 
 

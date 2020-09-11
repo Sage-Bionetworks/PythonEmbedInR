@@ -2,9 +2,9 @@
 
 set -e # exit immediately if any step fails
 
-RWITHPYTHON_PYTHON_VERSION=3.5
-RWITHPYTHON_PYTHON_VERSION_EXTENDED=${RWITHPYTHON_PYTHON_VERSION}.3
-VERSION_FILE_SUFFIX=35
+RWITHPYTHON_PYTHON_VERSION=3.6
+RWITHPYTHON_PYTHON_VERSION_EXTENDED=${RWITHPYTHON_PYTHON_VERSION}.8
+VERSION_FILE_SUFFIX=`echo $RWITHPYTHON_PYTHON_VERSION | sed 's/\.//g'`
 
 install_python() {
   arch=$1
@@ -26,7 +26,7 @@ install_python() {
   fi
 
   unzip python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip
-  
+
   # per https://bugs.python.org/issue24960 we unzip the file inst/pythonLibs/python35.zip into a folder of the same name
   # our current directory is inst/pythonLibs$arch
   PYTHON_ZIP_FILE_NAME=python${VERSION_FILE_SUFFIX}.zip
@@ -37,10 +37,20 @@ install_python() {
   cd ${PYTHON_ZIP_FILE_NAME}
   unzip ${TEMP_ZIP_FILE}
   cd ..
-  
+
+  # embedded python doesn't normally support pip and as of 3.6 won't even
+  # check the site directory for a side loaded pip as below. we force it to check sites
+  # to use the pip we install via get-pip.
+  # https://stackoverflow.com/a/48906746
+  PTH_FILE="./python${VERSION_FILE_SUFFIX}._pth"
+  if [ -f "$PTH_FILE" ];
+  then
+      sed -i 's/#import site/import site/g' $PTH_FILE
+  fi
+
   PIP_INSTALL_SCRIPT=get-pip.py
-  curl -o $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/3.3/get-pip.py
-  ./python.exe $PIP_INSTALL_SCRIPT pip==9.0.3
+  curl -o $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/get-pip.py
+  ./python.exe $PIP_INSTALL_SCRIPT pip==18.1
   cd ../..
 }
 

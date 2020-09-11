@@ -9,7 +9,7 @@ pathToPythonLibraries<-function(libname, pkgname) {
 }
 
 # NOTE:  This is one of several places the version is hard coded.  See also AutodetectPython.R, configure, configure.win 
-PYTHON_VERSION<-"3.5"
+PYTHON_VERSION<-"3.6"
 
 .onLoad <- function(libname, pkgname) {
   packageRootDir<-file.path(libname, pkgname)
