@@ -83,6 +83,10 @@ jobs:
             CRAN_VERSION="35"
           fi
 
+          # some version of R may already be installed on Github runners.
+          # remove it so we can install our desired version.
+          sudo apt-get remove r-*
+
           echo "deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran${CRAN_VERSION}/" | sudo tee /etc/apt/sources.list.d/rcran.list >> /dev/null
           echo "deb-src https://cloud.r-project.org/bin/linux/ubuntu bionic-cran${CRAN_VERSION}/" | sudo tee -a /etc/apt/sources.list.d/rcran.list >> /dev/null
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
@@ -156,10 +160,14 @@ jobs:
             R_TOOLS_BIN="c:/Rtools/bin"
           fi
 
-          curl -O "https://cran.r-project.org/bin/windows/Rtools/${R_TOOLS_FILE}"
+          # rtools may already be installed on windows runners
+          if [ ! -d "$R_TOOLS_BIN" ]; then
+            curl -O "https://cran.r-project.org/bin/windows/Rtools/${R_TOOLS_FILE}"
+          fi
 
           echo "::set-env name=R_INSTALLER_FILE::$R_INSTALLER_FILE"
           echo "::set-env name=R_TOOLS_FILE::$R_TOOLS_FILE"
+          echo "::set-env name=R_TOOLS_BIN::$R_TOOLS_BIN"
           echo "::add-path::$R_TOOLS_BIN"
 
       # installers are normally interactive, the /VERYSILENT flag will install non-interactive
@@ -170,7 +178,10 @@ jobs:
         shell: cmd
         run: |
           start /wait %R_INSTALLER_FILE% /VERYSILENT /DIR="%R_DIR%"
-          start /wait %R_TOOLS_FILE% /VERYSILENT
+
+          IF NOT EXIST %R_TOOLS_BIN% (
+            start /wait %R_TOOLS_FILE% /VERYSILENT
+          )
 
       - name: install-R-lib-deps
         shell: bash
