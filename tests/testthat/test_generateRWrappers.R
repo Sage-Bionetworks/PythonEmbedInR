@@ -27,9 +27,11 @@ test_that("defineEnum", {
 test_that("defineConstructor", {
   pyImport("testPyPkgWrapper")
   pyImport("gateway")
+  pyParams = list(args=c('self'))
   PythonEmbedInR:::defineConstructor(module = "testPyPkgWrapper",
                                      setGenericCallback = callback,
-                                     name = "MyObj")
+                                     name = "MyObj",
+                                     pyParams = pyParams)
   obj <- MyObj()
   expect_equal(obj$print(), 0)
   expect_equal(obj$inc(), 1)
@@ -38,8 +40,10 @@ test_that("defineConstructor", {
 test_that("defineFunction with same name", {
   pyImport("testPyPkgWrapper")
   pyImport("gateway")
+  pyParams = list(args=c('input'), varargs=NULL, keywords=NULL, defaults=c())
   PythonEmbedInR:::defineFunction(rName = "myFun",
                                   pyName = "myFun",
+                                  pyParams = pyParams,
                                   functionContainerName = "testPyPkgWrapper",
                                   setGenericCallback = callback)
   expect_equal(myFun(-4), 4)
@@ -49,8 +53,10 @@ test_that("defineFunction with same name", {
 test_that("defineFunction with different name", {
   pyImport("testPyPkgWrapper")
   pyImport("gateway")
+  pyParams = list(args=c('input'), varargs=NULL, keywords=NULL, defaults=c())
   PythonEmbedInR:::defineFunction(rName = "myRFunc",
                                   pyName = "myFun",
+                                  pyParams = pyParams,
                                   functionContainerName = "testPyPkgWrapper",
                                   setGenericCallback = callback)
   expect_equal(myRFunc(-4), 4)
@@ -60,8 +66,10 @@ test_that("defineFunction with different name", {
 test_that("GeneratorWrapper", {
   pyImport("testPyPkgWrapper")
   pyImport("gateway")
+  pyParams = list(args=c('input'), varargs=NULL, keywords=NULL, defaults=c())
   PythonEmbedInR:::defineFunction(rName = "myGenerator",
                                   pyName = "myGenerator",
+                                  pyParams = pyParams,
                                   functionContainerName = "testPyPkgWrapper",
                                   setGenericCallback = callback)
   generator <- myGenerator()
@@ -77,8 +85,10 @@ test_that("defineFunction with transform return object", {
   inc <- function(x) {
     x + 1
   }
+  pyParams = list(args=c('input'), varargs=NULL, keywords=NULL, defaults=c())
   PythonEmbedInR:::defineFunction(rName = "myFun",
                                   pyName = "myFun",
+                                  pyParams = pyParams,
                                   functionContainerName = "testPyPkgWrapper",
                                   setGenericCallback = callback,
                                   transformReturnObject = inc)
