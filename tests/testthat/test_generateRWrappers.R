@@ -53,7 +53,7 @@ test_that("defineFunction with same name", {
 test_that("defineFunction with different name", {
   pyImport("testPyPkgWrapper")
   pyImport("gateway")
-  pyParams = list(args=c('input'), varargs=NULL, keywords=NULL, defaults=c())
+  pyParams = list(args=c('n'), varargs=NULL, keywords=NULL, defaults=c())
   PythonEmbedInR:::defineFunction(rName = "myRFunc",
                                   pyName = "myFun",
                                   pyParams = pyParams,
@@ -63,10 +63,28 @@ test_that("defineFunction with different name", {
   expect_equal(myRFunc(4), 4)
 })
 
+test_that("defineFunction complex signature", {
+  pyImport("testPyPkgWrapper")
+  pyImport("gateway")
+  pyParams = list(args=c('a', 'b', 'c'), varargs=NULL, keywords='**kwargs', defaults=c(2, 3))
+  PythonEmbedInR:::defineFunction(rName = "myRFuncComplexArgs",
+                                  pyName = "myFunComplexArgs",
+                                  pyParams = pyParams,
+                                  functionContainerName = "testPyPkgWrapper",
+                                  setGenericCallback = callback)
+  expect_equal(myRFuncComplexArgs(1, d=4), 10)
+  expect_equal(myRFuncComplexArgs(1, b=3, c=5), 9)
+
+  # also confirm formals are assigned to the wrapper
+  expected_formals <- alist(a=, b=2, c=3, ...=)
+  expect_equal(names(expected_formals), names(formals(myRFuncComplexArgs)))
+  expect_equal(unlist(expected_formals, use.names=FALSE), unlist(formals(myRFuncComplexArgs), use.names=FALSE))
+})
+
 test_that("GeneratorWrapper", {
   pyImport("testPyPkgWrapper")
   pyImport("gateway")
-  pyParams = list(args=c('input'), varargs=NULL, keywords=NULL, defaults=c())
+  pyParams = list(args=c(), varargs=NULL, keywords=NULL, defaults=c())
   PythonEmbedInR:::defineFunction(rName = "myGenerator",
                                   pyName = "myGenerator",
                                   pyParams = pyParams,
@@ -85,7 +103,7 @@ test_that("defineFunction with transform return object", {
   inc <- function(x) {
     x + 1
   }
-  pyParams = list(args=c('input'), varargs=NULL, keywords=NULL, defaults=c())
+  pyParams = list(args=c('n'), varargs=NULL, keywords=NULL, defaults=c())
   PythonEmbedInR:::defineFunction(rName = "myFun",
                                   pyName = "myFun",
                                   pyParams = pyParams,
