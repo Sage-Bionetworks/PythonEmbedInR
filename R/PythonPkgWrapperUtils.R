@@ -38,7 +38,6 @@ defineEnum <- function(assignEnumCallback, name, keys, values) {
 
   newArgs <- setNames(rep(list(quote(expr =)), length(argNames)), argNames)
 
-  ## If there are no defaults
   if (length(defaults) > 0) {
     ## Otherwise fill in arguments with defaults at the end, and add empty symbols
     ## to any remaining arguments
