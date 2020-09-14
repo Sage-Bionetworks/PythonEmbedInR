@@ -4,9 +4,30 @@ import gateway
 def isFunctionOrRoutine(member):
     return inspect.isfunction(member) or inspect.isroutine(member)
 
-def argspecContent(argspec):
-    return {'args':argspec.args, 'varargs':argspec.varargs,
-        'keywords':argspec.keywords, 'defaults':argspec.defaults}
+def argspecContent(fn):
+    # follow_wrapped since we generally are not concerned about decorators
+    fn_signature = inspect.signature(fn, follow_wrapped=True)
+
+    args = []
+    defaults = []
+    varargs = None
+    keywords = None
+    for name, param in fn_signature.parameters.items():
+        if param.kind == inspect.Parameter.VAR_POSITIONAL:
+            varargs = name
+        elif param.kind == inspect.Parameter.VAR_KEYWORD:
+            keywords = name
+        else:
+            args.append(name)
+            if param.default != inspect.Signature.empty:
+                defaults.append(param.default)
+
+    return {
+        'args': args,
+        'varargs': varargs,
+        'keywords': keywords,
+        'defaults': tuple(defaults),
+    }
 
 def getCleanedDoc(member):
     doc = inspect.getdoc(member)
@@ -16,8 +37,7 @@ def getCleanedDoc(member):
         return inspect.cleandoc(doc)
 
 def methodAttributes(name, method):
-    argspec = inspect.getargspec(method)
-    args = argspecContent(argspec)
+    args = argspecContent(method)
     cleaneddoc = getCleanedDoc(method)
     return({'name':name, 'args':args, 'doc':cleaneddoc, 'module':method.__module__})
 
@@ -55,10 +75,10 @@ def getClassInfo(module):
         for classmember in inspect.getmembers(classdefinition, inspect.isfunction):
             methodName = classmember[0]
             if methodName=='__init__':
-                constructorArgs = argspecContent(inspect.getargspec(classmember[1]))
+                constructorArgs = argspecContent(classmember[1])
             elif (not methodName.startswith("_")) and classmember[1].__module__==classdefinition.__module__:
                 # this is a non-private, non-inherited function defined in the class
-                methodArgs = argspecContent(inspect.getargspec(classmember[1]))
+                methodArgs = argspecContent(classmember[1])
                 methodDescription = getCleanedDoc(classmember[1])
                 methods.append({'name':methodName, 'doc':methodDescription, 'args':methodArgs})
         if constructorArgs is None:

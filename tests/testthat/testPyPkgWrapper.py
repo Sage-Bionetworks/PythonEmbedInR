@@ -1,5 +1,6 @@
 # test module
 from enum import Enum
+import functools
 
 class DIGIT(Enum):
   ZERO = 0
@@ -81,3 +82,11 @@ def incObj(x):
   :return: the value of x.inc().
   """
   return(x.inc())
+
+# a more complex signature. our wrapper should be able to
+# follow through a decorator, handle keyword only args,
+# and not get tripped up by type annotations.
+@functools.lru_cache()
+def myFunComplexArgs(a: int, b=2, *, c=3, **kwargs):
+  return a + b + c + kwargs.get('d', 0)
+
