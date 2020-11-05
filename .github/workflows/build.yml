@@ -118,7 +118,8 @@ jobs:
 
           # downgrade gettext for better binary compatibility with older MacOS version (libintl.8.dylib)
           brew unlink gettext
-          brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/d8d5099339909b5e5abf25449881257a27d829b9/Formula/gettext.rb
+          wget https://raw.githubusercontent.com/Homebrew/homebrew-core/d8d5099339909b5e5abf25449881257a27d829b9/Formula/gettext.rb
+          brew install gettext.rb
 
       - name: mac-install-R
         if: ${{runner.os == 'macOS'}}
