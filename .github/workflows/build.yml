@@ -31,7 +31,7 @@ jobs:
         shell: bash
         run: |
           PACKAGE_NAME=PythonEmbedInR
-          echo "::set-env name=PACKAGE_NAME::$PACKAGE_NAME" 
+          echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
 
           PACKAGE_VERSION=$(grep "Version: " DESCRIPTION | awk '{print $2'})
 
@@ -56,24 +56,24 @@ jobs:
             rm DESCRIPTION.temp
           fi
 
-          echo "::set-env name=BRANCH_VERSION::$BRANCH_VERSION"
-          echo "::set-env name=PACKAGE_VERSION::$PACKAGE_VERSION"
+          echo "BRANCH_VERSION=$BRANCH_VERSION" >> $GITHUB_ENV
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
 
           R_VERSION=${{matrix.r}}
           R_MAJOR_VERSION=$(echo $R_VERSION | cut -f1 -d".")
-          echo "::set-env name=R_VERSION::$R_VERSION" 
-          echo "::set-env name=R_MAJOR_VERSION::$R_MAJOR_VERSION"
+          echo "R_VERSION=$R_VERSION" >> $GITHUB_ENV
+          echo "R_MAJOR_VERSION=$R_MAJOR_VERSION" >> $GITHUB_ENV
 
       - name: linux-env
         if: ${{runner.os == 'Linux'}}
         run: |
           R_DIR="/usr/lib/R"
-          echo "::set-env name=R_DIR::$R_DIR" 
-          echo "::set-env name=R::$R_DIR/bin/R"
+          echo "R_DIR=$R_DIR" >> $GITHUB_ENV
+          echo "R=$R_DIR/bin/R" >> $GITHUB_ENV
 
           R_LIBS=${GITHUB_WORKSPACE}/R_LIBS
           mkdir -p $R_LIBS
-          echo "::set-env name=R_LIBS::$R_LIBS"
+          echo "R_LIBS=$R_LIBS" >> $GITHUB_ENV
 
       - name: linux-add-ubuntu-R-repos
         if: ${{runner.os == 'Linux'}}
@@ -113,8 +113,8 @@ jobs:
         run: |
           R_LIBS=${GITHUB_WORKSPACE}/R_LIBS
           mkdir -p $R_LIBS
-          echo "::set-env name=R_LIBS::$R_LIBS"
-          echo "::set-env name=R::R"
+          echo "R_LIBS=$R_LIBS" >> $GITHUB_ENV
+          echo "R=R" >> $GITHUB_ENV
 
           # downgrade gettext for better binary compatibility with older MacOS version (libintl.8.dylib)
           brew unlink gettext
@@ -136,14 +136,14 @@ jobs:
           # forward slashes easier to work with than double backslashes on windows...
           R_LIBS=$(echo $GITHUB_WORKSPACE | sed 's/\\/\//g')/R_LIBS
           mkdir -p $R_LIBS
-          echo "::set-env name=R_LIBS::$R_LIBS"
+          echo "R_LIBS=$R_LIBS" >> $GITHUB_ENV
 
           R_DIR="C:/R/R-${R_VERSION}"
           R="$R_DIR/bin/R"
-          echo "::set-env name=R_DIR::$R_DIR"
-          echo "::set-env name=R::$R"
+          echo "R_DIR=$R_DIR" >> $GITHUB_ENV
+          echo "R=$R" >> $GITHUB_ENV
 
-          echo "::set-env name=TZ::UTC"
+          echo "TZ=UTC" >> $GITHUB_ENV
 
       - name: windows-install-R
         if: ${{runner.os == 'Windows'}}
@@ -171,10 +171,10 @@ jobs:
             curl -O "https://cran.r-project.org/bin/windows/Rtools/${R_TOOLS_FILE}"
           fi
 
-          echo "::set-env name=R_INSTALLER_FILE::$R_INSTALLER_FILE"
-          echo "::set-env name=R_TOOLS_FILE::$R_TOOLS_FILE"
-          echo "::set-env name=R_TOOLS_BIN::$R_TOOLS_BIN"
-          echo "::add-path::$R_TOOLS_BIN"
+          echo "R_INSTALLER_FILE=$R_INSTALLER_FILE" >> $GITHUB_ENV
+          echo "R_TOOLS_FILE=$R_TOOLS_FILE" >> $GITHUB_ENV
+          echo "R_TOOLS_BIN=$R_TOOLS_BIN" >> $GITHUB_ENV
+          echo "$R_TOOLS_BIN" >> $GITHUB_PATH
 
       # installers are normally interactive, the /VERYSILENT flag will install non-interactive
       # but is asynchronous so we use "start /wait" but that seems to be incompatible
@@ -202,7 +202,7 @@ jobs:
           $R CMD build ./
           $R CMD INSTALL ./ --library=$R_LIBS --no-test-load
 
-          echo "::set-env name=ARTIFACT_EXTENSION::tar.gz"
+          echo "ARTIFACT_EXTENSION=tar.gz" >> $GITHUB_ENV
 
       - name: mac-build-package
         if: ${{runner.os == 'macOS'}}
@@ -239,7 +239,7 @@ jobs:
               mv "$prefix".tar.gz "$prefix".tgz
             done
 
-            echo "::set-env name=ARTIFACT_EXTENSION::tgz"
+            echo "ARTIFACT_EXTENSION=tgz" >> $GITHUB_ENV
 
       - name: windows-build-package
         if: ${{runner.os == 'Windows'}}
@@ -248,7 +248,7 @@ jobs:
           $R CMD build ./
           $R CMD INSTALL --build ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz --library=$R_LIBS --no-test-load --merge-multiarch
 
-          echo "::set-env name=ARTIFACT_EXTENSION::zip"
+          echo "ARTIFACT_EXTENSION=zip" >> $GITHUB_ENV
 
       - name: run-tests
         shell: bash
@@ -278,8 +278,8 @@ jobs:
           RVERS=$(echo $R_VERSION | awk -F"." '{print $1"."$2}')
 
           UPLOAD_NAME="label=${OS_LABEL}-RVERS-${RVERS}"
-          echo "::set-env name=ARTIFACT_NAME::$ARTIFACT_NAME"
-          echo "::set-env name=UPLOAD_NAME::$UPLOAD_NAME"
+          echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
+          echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
 
       - name: upload-artifact
         uses: actions/upload-artifact@v2
@@ -312,7 +312,7 @@ jobs:
             fi
           fi
 
-          echo "::set-env name=DEPLOY_TARGET::$DEPLOY_TARGET"
+          echo "DEPLOY_TARGET=$DEPLOY_TARGET" >> $GITHUB_ENV
           echo "::set-output name=deploy_target::$DEPLOY_TARGET"
 
       - name: download-artifacts
