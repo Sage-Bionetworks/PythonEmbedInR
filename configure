@@ -93,6 +93,10 @@ cd ..
 rm -R ${PYTHON_ARCHIVE_NAME}
 cd ..
 
+# ensure that the embedded python interpreter has newer version of pip so that
+# downstream package installations will have a better chance of installing precompiled wheels
+${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION} -m pip install pip==21.0.1
+
 # these exact paths vary by python version so use wildcard expansions to find the actual path
 MYPYTHONCONFIG=$(ls ${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}*-config)
 MYPYTHONLIBDIR=$(ls -d ${EMBED_PYTHON_DIR}/lib/python${EMBED_PYTHON_VERSION}/*config-${EMBED_PYTHON_VERSION}*)
