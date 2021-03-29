@@ -44,11 +44,12 @@ def _find_python_interpreter():
 PYTHON_INTERPRETER = _find_python_interpreter()
 
 
-def install(package, package_dir):
+def install(package, package_dir, extras=[]):
     """
     Programatically install a package via pip
     :param package: the name of the python package to install via pip
     :param package_dir: the directory to install the package into
+    :param extras: a list of package extras to install
     """
 
     # the recommended way to call pip at runtime is by invoking a subprocess,
@@ -58,7 +59,11 @@ def install(package, package_dir):
     # find the interpreter. this seems to work better here than calling main
     # on pip directly which doesn't work for some of these packages (separately
     # from the other issues above...)
-    rc = subprocess.call([PYTHON_INTERPRETER, "-m", "pip", "install", package, "--upgrade", "--quiet", "--target", package_dir])
+    install_pkg = package
+    if extras:
+        install_pkg = "{}[{}]".format(install_pkg, ','.join(extras))
+
+    rc = subprocess.call([PYTHON_INTERPRETER, "-m", "pip", "install", install_pkg, "--upgrade", "--quiet", "--target", package_dir])
     if rc != 0:
         raise Exception("pip returned {} when installing {}".format(rc, package))
 
