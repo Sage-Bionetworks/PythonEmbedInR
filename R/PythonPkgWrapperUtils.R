@@ -133,7 +133,6 @@ defineFunction <- function(rName,
   force(pyName)
   force(functionContainerName)
   force(pyParams)
-
   rWrapperName <- sprintf(".%s", rName)
 
   assign(rWrapperName, function(...) {
