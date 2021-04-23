@@ -197,21 +197,26 @@ autoGenerateFunctions <- function(setGenericCallback,
   }
 }
 
+
+# Helper function to capitalize the first letter of the input
+#
+# @param x the input string
+capitalizeFirstLetter <- function(x) {
+  paste0(
+    toupper(substring(x, 1, 1)),
+    substring(x, 2, nchar(x))
+  )
+}
+
+
 # Helper function to camel case the given input
 #
 # @param x the input string
 snakeToCamel <- function(x) {
-  title <- function(x) {
-    paste0(
-      toupper(substring(x, 1, 1)),
-      substring(x, 2, nchar(x))
-    )
-  }
-
   sapply(
     strsplit(x, "_"),
     function(x) {
-      paste(title(x), collapse="")
+      paste(capitalizeFirstLetter(x), collapse="")
     }
   )
 }
