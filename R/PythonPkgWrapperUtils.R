@@ -197,14 +197,39 @@ autoGenerateFunctions <- function(setGenericCallback,
   }
 }
 
+
+# Helper function to capitalize the first letter of the input
+#
+# @param x the input string
+capitalizeFirstLetter <- function(x) {
+  paste0(
+    toupper(substring(x, 1, 1)),
+    substring(x, 2, nchar(x))
+  )
+}
+
+
+# Helper function to camel case the given input
+#
+# @param x the input string
+snakeToCamel <- function(x) {
+  sapply(
+    strsplit(x, "_"),
+    function(x) {
+      paste(capitalizeFirstLetter(x), collapse="")
+    }
+  )
+}
+
+
 # Helper function to add prefix to a name
 #
 # @param name the name to add prefix to
 # @param prefix the prefix to add
 addPrefix <- function(name, prefix) {
-  paste(prefix,
-    toupper(substring(name, 1, 1)),
-    substring(name, 2, nchar(name)),
+  paste(
+    prefix,
+    snakeToCamel(name),
     sep = ""
   )
 }
