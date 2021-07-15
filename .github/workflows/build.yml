@@ -4,30 +4,45 @@
 name: build
 
 on:
-
-  # we build artifacts on every push and release.
-  # on release events we additionally upload the artifacts to our RAN server
-
   push:
+    # we build/test all pushed branches, but not tags.
+    # we only push tags with releases, and we handle releases explicitly
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+
+  pull_request:
+
   release:
     types:
-      - published
+      - 'published'
 
 jobs:
   build:
 
     runs-on: ${{ matrix.os }}
+    outputs:
+      package_version: ${{ steps.shared-env.package_version }}
 
     strategy:
       matrix:
-        os: [ubuntu-18.04, macos-10.15, windows-2019]
-        r: [3.6.3, 4.0.3]
+        os: [ubuntu-18.04, windows-2019, macos-mojave]
+        r: [4.0.5, 4.1.0]
 
     steps:
       - name: checkout
         uses: actions/checkout@v2
 
+      - uses: actions/checkout@master
+      - name: setup-r
+        if: ${{matrix.os != 'macos-mojave'}} 
+        uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: ${{ matrix.r }}
+
       - name: shared-env
+        id: shared-env
         shell: bash
         run: |
           PACKAGE_NAME=PythonEmbedInR
@@ -39,7 +54,7 @@ jobs:
           # looks like semver then we use that for the package version.
           RELEASE_TAG=${{ github.event.release.tag_name }}
           if [[ $RELEASE_TAG =~ ^v?([[:digit:]\.]+)(-rc)? ]]; then
-            RELEASE_VERSION="${BASH_REMATCH[1]}"
+            RELEASE_VERSION="${BASH_REMATCH[1]}.$GITHUB_RUN_NUMBER"
 
             # a release version overrides the package version
             # for purposes of creating artifacts
@@ -61,172 +76,70 @@ jobs:
 
           R_VERSION=${{matrix.r}}
           R_MAJOR_VERSION=$(echo $R_VERSION | cut -f1 -d".")
+          R_MINOR_VERSION=$R_MAJOR_VERSION.$(echo $R_VERSION | cut -f2 -d".")
           echo "R_VERSION=$R_VERSION" >> $GITHUB_ENV
           echo "R_MAJOR_VERSION=$R_MAJOR_VERSION" >> $GITHUB_ENV
+          echo "R_MINOR_VERSION=$R_MINOR_VERSION" >> $GITHUB_ENV
 
-      - name: linux-env
-        if: ${{runner.os == 'Linux'}}
+          # replace backslashes with forward slashes for windows.
+          # windows bash will handle forward slashes fine and this
+          # makes it easier to unify the path handling.
+          R_LIBS_USER_SANITIZED=$(echo $R_LIBS_USER | sed 's/\\/\//g')
+          echo "R_LIBS_USER=$R_LIBS_USER_SANITIZED" >> $GITHUB_ENV
+
+          echo "::set-output name=package_version::$PACKAGE_VERSION"
+
+      - name: setup-r-mac-mojave
+        if: ${{matrix.os == 'macos-mojave'}}
         run: |
-          R_DIR="/usr/lib/R"
-          echo "R_DIR=$R_DIR" >> $GITHUB_ENV
-          echo "R=$R_DIR/bin/R" >> $GITHUB_ENV
+          # on macos mojave we use a self-hosted runner we swap among the pre-installed R versions
+          rm -rf /Library/Frameworks/R.framework/Versions/Current
+          ln -s /Library/Frameworks/R.framework/Versions/$R_MINOR_VERSION /Library/Frameworks/R.framework/Versions/Current
 
-          R_LIBS=${GITHUB_WORKSPACE}/R_LIBS
-          mkdir -p $R_LIBS
-          echo "R_LIBS=$R_LIBS" >> $GITHUB_ENV
+          R_LIBS_USER=${GITHUB_WORKSPACE}/R_LIBS
+          rm -rf R_LIBS_USER
+          mkdir -p $R_LIBS_USER
+          echo "R_LIBS_USER=$R_LIBS_USER" >> $GITHUB_ENV
 
-      - name: linux-add-ubuntu-R-repos
-        if: ${{runner.os == 'Linux'}}
-        run: |
-          if [[ "$R_MAJOR_VERSION" == "4" ]]; then
-            CRAN_VERSION="40"
-          else
-            # 3.5 and 3.6 both use "35" repos...
-            CRAN_VERSION="35"
-          fi
-
-          # some version of R may already be installed on Github runners.
-          # remove it so we can install our desired version.
-          sudo apt-get -y remove r-*
-
-          echo "deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran${CRAN_VERSION}/" | sudo tee /etc/apt/sources.list.d/rcran.list >> /dev/null
-          echo "deb-src https://cloud.r-project.org/bin/linux/ubuntu bionic-cran${CRAN_VERSION}/" | sudo tee -a /etc/apt/sources.list.d/rcran.list >> /dev/null
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
-
-      - name: linux-install-R
-        id: linux-install-R-from-package
-        if: ${{runner.os == 'Linux'}}
-        run: |
-          sudo apt-get -y update
-
-          INSTALLED=false
-          PKG_VERSION=$(apt-cache madison r-base | grep $R_VERSION | head -1 | cut -f2 -d"|" | xargs)
-          if [ -n "${PKG_VERSION}" ]; then
-            sudo apt-get -y install r-base=$PKG_VERSION
-            if [ $? -eq 0 ]; then
-              INSTALLED=true
-            fi
-          fi
-
-      - name: mac-env
-        if: ${{runner.os == 'macOS'}}
-        run: |
-          R_LIBS=${GITHUB_WORKSPACE}/R_LIBS
-          mkdir -p $R_LIBS
-          echo "R_LIBS=$R_LIBS" >> $GITHUB_ENV
           echo "R=R" >> $GITHUB_ENV
-
-          # downgrade gettext for better binary compatibility with older MacOS version (libintl.8.dylib)
-          brew unlink gettext
-          wget https://raw.githubusercontent.com/Homebrew/homebrew-core/d8d5099339909b5e5abf25449881257a27d829b9/Formula/gettext.rb
-          brew install gettext.rb
-
-      - name: mac-install-R
-        if: ${{runner.os == 'macOS'}}
-        run: |
-          R_INSTALLER_FILE="R-${R_VERSION}.pkg"
-          R_INSTALLER_URL="https://cloud.r-project.org/bin/macosx/${R_INSTALLER_FILE}"
-
-          wget $R_INSTALLER_URL
-          sudo installer -pkg $R_INSTALLER_FILE -target /
-
-      - name: windows-env
-        if: ${{runner.os == 'Windows'}}
-        shell: bash
-        run: |
-          # forward slashes easier to work with than double backslashes on windows...
-          R_LIBS=$(echo $GITHUB_WORKSPACE | sed 's/\\/\//g')/R_LIBS
-          mkdir -p $R_LIBS
-          echo "R_LIBS=$R_LIBS" >> $GITHUB_ENV
-
-          R_DIR="C:/R/R-${R_VERSION}"
-          R="$R_DIR/bin/R"
-          echo "R_DIR=$R_DIR" >> $GITHUB_ENV
-          echo "R=$R" >> $GITHUB_ENV
-
-          echo "TZ=UTC" >> $GITHUB_ENV
-
-      - name: windows-install-R
-        if: ${{runner.os == 'Windows'}}
-        shell: bash
-        run: |
-          R_INSTALLER_FILE="R-${R_VERSION}-win.exe"
-
-          # conveniently even the current version is available under "old"
-          R_INSTALLER_URL="https://cloud.r-project.org/bin/windows/base/old/${R_VERSION}/${R_INSTALLER_FILE}"
-
-          curl -O $R_INSTALLER_URL
-
-          if [ "$R_MAJOR_VERSION" == "4" ]
-          then
-            R_TOOLS_FILE="rtools40-x86_64.exe"
-            R_TOOLS_BIN="c:/rtools40/usr/bin"
-          else
-            # assume 3
-            R_TOOLS_FILE="Rtools35.exe"
-            R_TOOLS_BIN="c:/Rtools/bin"
-          fi
-
-          # rtools may already be installed on windows runners
-          if [ ! -d "$R_TOOLS_BIN" ]; then
-            curl -O "https://cran.r-project.org/bin/windows/Rtools/${R_TOOLS_FILE}"
-          fi
-
-          echo "R_INSTALLER_FILE=$R_INSTALLER_FILE" >> $GITHUB_ENV
-          echo "R_TOOLS_FILE=$R_TOOLS_FILE" >> $GITHUB_ENV
-          echo "R_TOOLS_BIN=$R_TOOLS_BIN" >> $GITHUB_ENV
-          echo "$R_TOOLS_BIN" >> $GITHUB_PATH
-
-      # installers are normally interactive, the /VERYSILENT flag will install non-interactive
-      # but is asynchronous so we use "start /wait" but that seems to be incompatible
-      # with the bash shell used here so we run these commands under a windows cmd shell.
-      - name: windows-install-R-cmd
-        if: ${{runner.os == 'Windows'}}
-        shell: cmd
-        run: |
-          start /wait %R_INSTALLER_FILE% /VERYSILENT /DIR="%R_DIR%"
-
-          IF NOT EXIST %R_TOOLS_BIN% (
-            start /wait %R_TOOLS_FILE% /VERYSILENT
-          )
 
       - name: install-R-lib-deps
         shell: bash
         run: |
           echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson', 'rlang');" >> installReqPkgs.R
-          echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org', destdir=\"${R_LIBS}\")" >> installReqPkgs.R
-          $R --vanilla < installReqPkgs.R
+          echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org', destdir=\"${R_LIBS_USER}\")" >> installReqPkgs.R
+          R --vanilla < installReqPkgs.R
 
       - name: linux-build-package
         if: ${{runner.os == 'Linux'}}
         run: |
-          $R CMD build ./
-          $R CMD INSTALL ./ --library=$R_LIBS --no-test-load
+          R CMD build ./
+          R CMD INSTALL ./ --library=$R_LIBS_USER --no-test-load
 
           echo "ARTIFACT_EXTENSION=tar.gz" >> $GITHUB_ENV
 
       - name: mac-build-package
         if: ${{runner.os == 'macOS'}}
         run: |
-            # need some additional headers (zlib) on catalina to compile python
-            # https://stackoverflow.com/a/58349403
-            for HEADER_PATH in /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/*
-            do
-              INCLUDE_PATH="/usr/local/include/$(basename $HEADER_PATH)"
-              if [ ! -f $INCLUDE_PATH ]; then
-                sudo ln -s $HEADER_PATH $INCLUDE_PATH 
-              fi
-            done
-            
+            #  # need some additional headers (zlib) on catalina to compile python
+            #  # https://stackoverflow.com/a/58349403
+            #  for HEADER_PATH in /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/*
+            #  do
+            #    INCLUDE_PATH="/usr/local/include/$(basename $HEADER_PATH)"
+            #    if [ ! -f $INCLUDE_PATH ]; then
+            #      sudo ln -s $HEADER_PATH $INCLUDE_PATH 
+            #    fi
+            #  done
+
             R CMD build ./
 
-            sudo R CMD INSTALL --build ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz --library=$R_LIBS --no-test-load
+            R CMD INSTALL --build ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz --library=$R_LIBS_USER --no-test-load
 
             ## Now fix the binaries, per SYNR-341:
             # it's v 3.0 or greater, with just one platform
             mkdir -p ${PACKAGE_NAME}/libs
-            cp $R_LIBS/${PACKAGE_NAME}/libs/PythonEmbedInR.so ${PACKAGE_NAME}/libs
-            install_name_tool -change "/Library/Frameworks/R.framework/Versions/${R_VERSION}/Resources/lib/libR.dylib"  "/Library/Frameworks/R.framework/Versions/Current/Resources/lib/libR.dylib" ${PACKAGE_NAME}/libs/PythonEmbedInR.so
+            cp $R_LIBS_USER/${PACKAGE_NAME}/libs/PythonEmbedInR.so ${PACKAGE_NAME}/libs
+            install_name_tool -change "/Library/Frameworks/R.framework/Versions/${R_MINOR_VERSION}/Resources/lib/libR.dylib"  "/Library/Frameworks/R.framework/Versions/Current/Resources/lib/libR.dylib" ${PACKAGE_NAME}/libs/PythonEmbedInR.so
 
             # update archive with modified binaries
             for f in *.tgz
@@ -246,21 +159,21 @@ jobs:
         if: ${{runner.os == 'Windows'}}
         shell: bash
         run: |
-          $R CMD build ./
-          $R CMD INSTALL --build ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz --library=$R_LIBS --no-test-load --merge-multiarch
+          R CMD build ./
+          R CMD INSTALL --build ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz --library=$R_LIBS_USER --no-test-load --merge-multiarch
 
           echo "ARTIFACT_EXTENSION=zip" >> $GITHUB_ENV
 
       - name: run-tests
         shell: bash
         run: |
-          echo ".libPaths(c('$R_LIBS', .libPaths()));" > runTests.R
+          echo ".libPaths(c('$R_LIBS_USER', .libPaths()));" > runTests.R
           echo "setwd(sprintf('%s/tests', getwd()));" >> runTests.R
           echo "source('testthat.R')" >> runTests.R
           echo "library(PythonEmbedInR);" >> runTests.R
           echo "detach(\"package:PythonEmbedInR\", unload=TRUE);" >> runTests.R
           echo "library(PythonEmbedInR)" >> runTests.R
-          $R --vanilla < runTests.R
+          R --vanilla < runTests.R
 
       - name: artifact-name
         shell: bash
@@ -291,6 +204,9 @@ jobs:
   deploy:
     runs-on: ubuntu-18.04
     needs: build
+    if: github.event_name == 'release'
+    outputs:
+      s3_ran: ${{ steps.deploy-to-target.s3_ran }}
 
     steps:
       - name: check-deployment-target
@@ -323,6 +239,7 @@ jobs:
           path: deploy_artifacts
 
       - name: deploy-to-target
+        id: deploy-to-target
         if: ${{steps.check-deployment-target.outputs.deploy_target != ''}}
         shell: bash
         run: |
@@ -344,4 +261,5 @@ jobs:
           fi
 
           curl -s https://raw.githubusercontent.com/Sage-Bionetworks/CI-Build-Tools/master/r-pkg/deploy.sh | bash
+          echo "::set-output name=s3_ran::$S3_RAN" 
 
