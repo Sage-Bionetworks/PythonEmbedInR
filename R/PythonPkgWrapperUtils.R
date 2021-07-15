@@ -25,15 +25,54 @@ defineEnum <- function(assignEnumCallback, name, keys, values) {
   assignEnumCallback(name, keys, values)
 }
 
+# Create formal args that can be assigned to a function
+# based on the inspected Python signature.
+# @param pyParams the function info args as from getFunctionInfo
+.createFormalArgs <- function(pyParams) {
+  argNames <- pyParams$args
+  defaults <- pyParams$defaults
+
+  if (length(argNames) > 0 && argNames[1] == 'self') {
+    argNames <- argNames[-1]
+  }
+
+  newArgs <- setNames(rep(list(quote(expr =)), length(argNames)), argNames)
+
+  if (length(defaults) > 0) {
+    ## Otherwise fill in arguments with defaults at the end, and add empty symbols
+    ## to any remaining arguments
+    nArgs <- length(argNames)
+    nDefs <- length(defaults)
+
+    ## Position of the last default-less argument
+    lastEmpty <- nArgs - nDefs
+
+    ## Add the defaults to the end
+    newArgs[(lastEmpty + 1):nArgs] <- defaults
+  }
+
+  if (!is.null(pyParams$varargs) || !is.null(pyParams$keywords)) {
+    # if the Python signature uses *args or **kwargs we add
+    # dots to the R signature to match
+    newArgs <- append(newArgs, alist(... =))
+  }
+
+  return(newArgs)
+}
+
 # Define an R wrapper for a object constructor in Python
 #
 # @param module the python module
 # @param setGenericCallback the callback to setGeneric defined in the target R package
 # @param name the class name
-defineConstructor <- function(module, setGenericCallback, name) {
+# @param pyParams the function info args as from getFunctionInfo
+defineConstructor <- function(module, setGenericCallback, name, pyParams) {
   force(name)
   force(module)
-  assign(sprintf(".%s", name), function(...) {
+  force(pyParams)
+
+  rWrapperName <- sprintf(".%s", name)
+  assign(rWrapperName, function(...) {
     pyModule <- pyGet(module)
     argsAndKwArgs <- determineArgsAndKwArgs(...)
     functionAndArgs <- append(list(pyModule, name), argsAndKwArgs$args)
@@ -46,12 +85,22 @@ defineConstructor <- function(module, setGenericCallback, name) {
       )
     )
   })
-  setGenericCallback(
-    name,
-    function(...) {
-      do.call(sprintf(".%s", name), args = list(...))
-    }
-  )
+
+  rFn <- function(...) {
+    # formals will be assigned below, re-create the dots
+    # so we can pass them through to the py call
+    call <- sys.call()
+    call[[1]] <- as.name('list')
+    dots <- eval.parent(call)
+    do.call(rWrapperName, args = dots)
+  }
+
+  newArgs <- .createFormalArgs(pyParams)
+  if (length(newArgs) > 0) {
+    formals(rFn) <- newArgs
+  }
+
+  setGenericCallback(name, rFn)
 }
 
 # Helper function to generate R wrappers for classes in a python module
@@ -61,7 +110,7 @@ defineConstructor <- function(module, setGenericCallback, name) {
 # @param classInfo the classes to generate R wrappers for
 autoGenerateClasses <- function(module, setGenericCallback, classInfo) {
   for (c in classInfo) {
-    defineConstructor(module, setGenericCallback, c$name)
+    defineConstructor(module, setGenericCallback, c$name, c$args)
   }
 }
 
@@ -70,17 +119,20 @@ autoGenerateClasses <- function(module, setGenericCallback, classInfo) {
 # @param rName the R function name
 # @param pyName the Python function name
 # @param functionContainerName the function container name in Python
+# @param pyParams the function info args as from getFunctionInfo
 # @param setGenericCallback the callback to setGeneric defined in the target R package
 # @param transformReturnObject optional function to change returned values in R
 defineFunction <- function(rName,
                            pyName,
                            functionContainerName,
+                           pyParams,
                            setGenericCallback,
                            transformReturnObject = NULL) {
   pyImport("gateway")
   force(rName)
   force(pyName)
   force(functionContainerName)
+  force(pyParams)
   rWrapperName <- sprintf(".%s", rName)
 
   assign(rWrapperName, function(...) {
@@ -107,9 +159,22 @@ defineFunction <- function(rName,
       returnedObject
     }
   })
-  setGenericCallback(rName, function(...) {
-    do.call(rWrapperName, args = list(...))
-  })
+
+  rFn <- function(...) {
+    # formals will be assigned below, re-create the dots
+    # so we can pass them through to the py call
+    call <- sys.call()
+    call[[1]] <- as.name('list')
+    dots <- eval.parent(call)
+    do.call(rWrapperName, args = dots)
+  }
+
+  newArgs <- .createFormalArgs(pyParams)
+  if (length(newArgs) > 0) {
+    formals(rFn) <- newArgs
+  }
+
+  setGenericCallback(rName, rFn)
 }
 
 # Helper function to generate R wrappers for functions in a python module
@@ -125,6 +190,7 @@ autoGenerateFunctions <- function(setGenericCallback,
       f$rName,
       f$pyName,
       f$functionContainerName,
+      f$args,
       setGenericCallback,
       transformReturnObject
     )
