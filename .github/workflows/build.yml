@@ -1,5 +1,4 @@
-# build PythonEmbedInR, and deploy to S3 RAN server if conditions merit.
-# at this point experimental
+# build and test PythonEmbedInR. Additionally deploys to  S3 RAN server on GitHub release.
 
 name: build
 
@@ -23,7 +22,8 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     outputs:
-      package_version: ${{ steps.shared-env.package_version }}
+      package_version: ${{ steps.shared-env.outputs.package_version }}
+      r_minor_version: ${{ steps.shared-env.outputs.r_minor_version }} 
 
     strategy:
       matrix:
@@ -88,6 +88,7 @@ jobs:
           echo "R_LIBS_USER=$R_LIBS_USER_SANITIZED" >> $GITHUB_ENV
 
           echo "::set-output name=package_version::$PACKAGE_VERSION"
+          echo "::set-output name=r_minor_version::$R_MINOR_VERSION"
 
       - name: setup-r-mac-mojave
         if: ${{matrix.os == 'macos-mojave'}}
@@ -121,18 +122,7 @@ jobs:
       - name: mac-build-package
         if: ${{runner.os == 'macOS'}}
         run: |
-            #  # need some additional headers (zlib) on catalina to compile python
-            #  # https://stackoverflow.com/a/58349403
-            #  for HEADER_PATH in /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/*
-            #  do
-            #    INCLUDE_PATH="/usr/local/include/$(basename $HEADER_PATH)"
-            #    if [ ! -f $INCLUDE_PATH ]; then
-            #      sudo ln -s $HEADER_PATH $INCLUDE_PATH 
-            #    fi
-            #  done
-
             R CMD build ./
-
             R CMD INSTALL --build ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz --library=$R_LIBS_USER --no-test-load
 
             ## Now fix the binaries, per SYNR-341:
@@ -188,10 +178,7 @@ jobs:
             OS_LABEL="mac"
           fi
 
-          # only the first two parts of the version here, e.g. 3.6
-          RVERS=$(echo $R_VERSION | awk -F"." '{print $1"."$2}')
-
-          UPLOAD_NAME="label=${OS_LABEL}-RVERS-${RVERS}"
+          UPLOAD_NAME="label=${OS_LABEL}-RVERS-$R_MINOR_VERSION"
           echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
           echo "UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
 
@@ -206,7 +193,7 @@ jobs:
     needs: build
     if: github.event_name == 'release'
     outputs:
-      s3_ran: ${{ steps.deploy-to-target.s3_ran }}
+      s3_ran: ${{ steps.deploy-to-target.outputs.s3_ran }}
 
     steps:
       - name: check-deployment-target
@@ -262,4 +249,44 @@ jobs:
 
           curl -s https://raw.githubusercontent.com/Sage-Bionetworks/CI-Build-Tools/master/r-pkg/deploy.sh | bash
           echo "::set-output name=s3_ran::$S3_RAN" 
+
+  # on each of our matrix platforms, download the newly uploaded package from RAN
+  check-deploy:
+    needs:
+      [build, deploy]
+
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, windows-2019, macos-mojave]
+        r: [4.0.5, 4.1.0]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@master
+      - name: setup-r
+        if: ${{matrix.os != 'macos-mojave'}} 
+        uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: ${{ matrix.r }}
+
+      - name: setup-r-mac-mojave
+        if: ${{matrix.os == 'macos-mojave'}}
+        run: |
+          # on macos mojave we use a self-hosted runner we swap among the pre-installed R versions
+          R_MINOR_VERSION="${{ needs.build.outputs.r_minor_version }}"
+          rm -rf /Library/Frameworks/R.framework/Versions/Current
+          ln -s /Library/Frameworks/R.framework/Versions/$R_MINOR_VERSION /Library/Frameworks/R.framework/Versions/Current
+
+      - name: check-install
+        shell: bash
+        run: |
+          RAN="http://${{ needs.deploy.outputs.s3_ran }}"
+          VERSION_TO_CHECK="${{ needs.build.outputs.package_version }}"
+          PACKAGE="PythonEmbedInR"
+          echo "if (available.packages(repos='$RAN')['$PACKAGE','Version'] != '$VERSION_TO_CHECK') { quit(save = 'no', status = 1) }" > test.R
+          echo "try(remove.packages('$PACKAGE'), silent=T)" >> test.R
+          echo "install.packages('$PACKAGE', repos=c('$RAN', 'http://cran.fhcrc.org'))" >> test.R
+          echo "library('$PACKAGE')" >> test.R
+          R --vanilla < test.R
 
