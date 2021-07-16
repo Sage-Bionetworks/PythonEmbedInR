@@ -107,8 +107,17 @@ jobs:
       - name: install-R-lib-deps
         shell: bash
         run: |
+          # we prefer binary installs wherever available for speed,
+          # even if the binary is somewhat out of date.
+          # this also insulates us from compilation issues that might
+          # arise in upstream packages.
+          if [[ ${{ runner.os }} == 'Linux' ]]; then
+            INSTALL_TYPE='source'
+          else
+            INSTALL_TYPE='binary'
+          fi
           echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson', 'rlang');" >> installReqPkgs.R
-          echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org', destdir=\"${R_LIBS_USER}\")" >> installReqPkgs.R
+          echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org', type=\"${INSTALL_TYPE}\", destdir=\"${R_LIBS_USER}\")" >> installReqPkgs.R
           R --vanilla < installReqPkgs.R
 
       - name: linux-build-package
