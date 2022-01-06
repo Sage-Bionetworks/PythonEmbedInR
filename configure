@@ -95,7 +95,7 @@ cd ..
 
 # ensure that the embedded python interpreter has newer version of pip so that
 # downstream package installations will have a better chance of installing precompiled wheels
-${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION} -m pip install pip==21.2.4
+${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION} -m pip install pip==21.3.1
 
 # these exact paths vary by python version so use wildcard expansions to find the actual path
 MYPYTHONCONFIG=$(ls ${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}*-config)

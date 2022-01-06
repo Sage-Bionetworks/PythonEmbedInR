@@ -51,7 +51,7 @@ install_python() {
   # install pip, match the version we install in the main configure script
   PIP_INSTALL_SCRIPT=get-pip.py
   curl -o $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/get-pip.py
-  ./python.exe $PIP_INSTALL_SCRIPT pip==21.0.1
+  ./python.exe $PIP_INSTALL_SCRIPT pip==21.3.1
   cd ../..
 }
 
