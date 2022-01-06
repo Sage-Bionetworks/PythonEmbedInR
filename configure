@@ -21,8 +21,8 @@
 set -e
 
 # ----- install the Python package -----
-EMBED_PYTHON_VERSION=3.6
-EMBED_PYTHON_VERSION_EXTENDED=${EMBED_PYTHON_VERSION}.8
+EMBED_PYTHON_VERSION=3.9
+EMBED_PYTHON_VERSION_EXTENDED=${EMBED_PYTHON_VERSION}.9
 PYTHON_ARCHIVE_NAME=Python-${EMBED_PYTHON_VERSION_EXTENDED}
 PYTHON_RUNTIME_BUNDLE=https://www.python.org/ftp/python/${EMBED_PYTHON_VERSION_EXTENDED}/${PYTHON_ARCHIVE_NAME}.tgz
 
@@ -83,10 +83,10 @@ if [ $(uname) == "Darwin" ]; then
   # echo $'*static*\n_ssl _ssl.c -DUSE_SSL ${CPPFLAGS} ${LDFLAGS} -lssl -lcrypto' >> Modules/Setup.local
   # echo $'_ssl _ssl.c -DUSE_SSL ${CPPFLAGS} ${LDFLAGS} -lssl -lcrypto' >> Modules/Setup.local
 fi
-
 # in the following line the '--prefix' parameter is the installation location
 # NOTE: removed --enable-shared option and added CFLAGS=-fPIC CXXFLAGS=-fPIC to try to get a static library
 ./configure CFLAGS=-fPIC CXXFLAGS=-fPIC --prefix=${EMBED_PYTHON_DIR}
+
 make
 make altinstall
 cd ..
@@ -95,7 +95,7 @@ cd ..
 
 # ensure that the embedded python interpreter has newer version of pip so that
 # downstream package installations will have a better chance of installing precompiled wheels
-${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION} -m pip install pip==21.0.1
+${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION} -m pip install pip==21.2.4
 
 # these exact paths vary by python version so use wildcard expansions to find the actual path
 MYPYTHONCONFIG=$(ls ${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}*-config)

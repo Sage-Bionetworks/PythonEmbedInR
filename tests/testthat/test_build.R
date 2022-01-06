@@ -1,8 +1,8 @@
 context("test build")
 
-test_that("python version is 3.6.8", {
+test_that("python version is 3.9.9", {
   pyExec('import platform')
-  expect_equal('3.6.8', pyGet('platform.python_version()'))
+  expect_equal('3.9.9', pyGet('platform.python_version()'))
 })
 
 test_that("pip can be imported", {

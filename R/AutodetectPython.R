@@ -20,7 +20,7 @@ autodetectPython <- function(){
 
 		# NOTE:  This is one of several places the version is hard coded.  See also zzz.R, configure, configure.win
 		pyMajorVersion <- as.integer(3) # get major version
-		pyMinorVersion <- as.integer(6) # get minor version
+		pyMinorVersion <- as.integer(9) # get minor version
 		dllName <- sprintf("python%i%i.dll", pyMajorVersion, pyMinorVersion)
 	
 		arch <- substring(Sys.getenv("R_ARCH"), 2)
