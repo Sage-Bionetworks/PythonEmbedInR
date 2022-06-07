@@ -27,7 +27,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-18.04, windows-2019, macos-mojave]
+        os: [ubuntu-20.04, windows-2022, macos-11]
         r: [4.0.5, 4.1.0, 4.2.0]
 
     steps:
