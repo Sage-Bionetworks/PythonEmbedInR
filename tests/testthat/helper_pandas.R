@@ -15,7 +15,7 @@ pyExec(paste("if '", wd, "' not in sys.path: sys.path.append('", wd ,"');", sep=
 pyImport("install_pandas")
 
 pyExec(sprintf("install_pandas.main('install', '%s')", package_dir))
-
+print("finish")
 use_pandas <- function() {  
   # tell PythonEmbedInR to use pandas
   pyExec("import pandas as pd")
