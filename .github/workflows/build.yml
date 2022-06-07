@@ -94,7 +94,7 @@ jobs:
         if: ${{matrix.os == 'macos-11'}}
         run: |
           # on macos mojave we use a self-hosted runner we swap among the pre-installed R versions
-          rm -rf /Library/Frameworks/R.framework/Versions/Current
+          rm -rf /Library/Frameworks/R.framework/Versions/Current/*
           ln -s /Library/Frameworks/R.framework/Versions/$R_MINOR_VERSION /Library/Frameworks/R.framework/Versions/Current
 
           R_LIBS_USER=${GITHUB_WORKSPACE}/R_LIBS
