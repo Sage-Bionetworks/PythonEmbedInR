@@ -36,7 +36,7 @@ jobs:
 
       - uses: actions/checkout@master
       - name: setup-r
-        if: ${{matrix.os != 'macos-mojave'}} 
+        if: ${{matrix.os != 'macos-11'}}
         uses: r-lib/actions/setup-r@v1
         with:
           r-version: ${{ matrix.r }}
@@ -90,8 +90,8 @@ jobs:
           echo "::set-output name=package_version::$PACKAGE_VERSION"
           echo "::set-output name=r_minor_version::$R_MINOR_VERSION"
 
-      - name: setup-r-mac-mojave
-        if: ${{matrix.os == 'macos-mojave'}}
+      - name: setup-r-mac-11
+        if: ${{matrix.os == 'macos-11'}}
         run: |
           # on macos mojave we use a self-hosted runner we swap among the pre-installed R versions
           rm -rf /Library/Frameworks/R.framework/Versions/Current
@@ -113,6 +113,8 @@ jobs:
           # arise in upstream packages.
           if [[ ${{ runner.os }} == 'Linux' ]]; then
             INSTALL_TYPE='source'
+          elif [[ ${{ runner.os }} == 'Windows' ]]; then
+            INSTALL_TYPE='binary'
           else
             INSTALL_TYPE='mac.binary'
           fi
