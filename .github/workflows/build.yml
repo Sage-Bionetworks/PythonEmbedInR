@@ -114,9 +114,8 @@ jobs:
           if [[ ${{ runner.os }} == 'Linux' ]]; then
             INSTALL_TYPE='source'
           else
-            INSTALL_TYPE='binary'
+            INSTALL_TYPE='mac.binary'
           fi
-          INSTALL_TYPE='source'
           echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson', 'rlang');" >> installReqPkgs.R
           echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org', type=\"${INSTALL_TYPE}\", destdir=\"${R_LIBS_USER}\")" >> installReqPkgs.R
           R --vanilla < installReqPkgs.R
