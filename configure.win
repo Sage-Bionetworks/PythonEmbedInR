@@ -25,7 +25,7 @@ install_python() {
     exit 1
   fi
 
-  tar zxvf python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip
+  unzip python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip
 
   # per https://bugs.python.org/issue24960 we unzip the file inst/pythonLibs/python35.zip into a folder of the same name
   # our current directory is inst/pythonLibs$arch
