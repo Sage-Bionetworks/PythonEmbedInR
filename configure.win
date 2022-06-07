@@ -2,8 +2,8 @@
 
 set -e # exit immediately if any step fails
 
-RWITHPYTHON_PYTHON_VERSION=3.6
-RWITHPYTHON_PYTHON_VERSION_EXTENDED=${RWITHPYTHON_PYTHON_VERSION}.8
+RWITHPYTHON_PYTHON_VERSION=3.9
+RWITHPYTHON_PYTHON_VERSION_EXTENDED=${RWITHPYTHON_PYTHON_VERSION}.13
 VERSION_FILE_SUFFIX=`echo $RWITHPYTHON_PYTHON_VERSION | sed 's/\.//g'`
 
 install_python() {
@@ -25,7 +25,7 @@ install_python() {
     exit 1
   fi
 
-  unzip python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip
+  tar zxvf python-${RWITHPYTHON_PYTHON_VERSION_EXTENDED}-embed.zip
 
   # per https://bugs.python.org/issue24960 we unzip the file inst/pythonLibs/python35.zip into a folder of the same name
   # our current directory is inst/pythonLibs$arch
