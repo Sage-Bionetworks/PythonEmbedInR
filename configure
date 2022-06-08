@@ -86,7 +86,8 @@ fi
 
 # in the following line the '--prefix' parameter is the installation location
 # NOTE: removed --enable-shared option and added CFLAGS=-fPIC CXXFLAGS=-fPIC to try to get a static library
-./configure CFLAGS=-fPIC CXXFLAGS=-fPIC --prefix=${EMBED_PYTHON_DIR}
+# ./configure CFLAGS=-fPIC CXXFLAGS=-fPIC --prefix=${EMBED_PYTHON_DIR}
+./configure --prefix=${EMBED_PYTHON_DIR}
 make
 make altinstall
 cd ..
