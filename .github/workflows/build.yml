@@ -113,10 +113,8 @@ jobs:
           # arise in upstream packages.
           if [[ ${{ runner.os }} == 'Linux' ]]; then
             INSTALL_TYPE='source'
-          elif [[ ${{ runner.os }} == 'Windows' ]]; then
-            INSTALL_TYPE='binary'
           else
-            INSTALL_TYPE='mac.binary'
+            INSTALL_TYPE='binary'
           fi
           echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson', 'rlang');" >> installReqPkgs.R
           echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org', type=\"${INSTALL_TYPE}\", destdir=\"${R_LIBS_USER}\")" >> installReqPkgs.R
