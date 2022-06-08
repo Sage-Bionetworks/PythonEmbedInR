@@ -27,7 +27,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-2022, macos-mojave]
+        os: [ubuntu-18.04, windows-2019, macos-11]
         r: [4.0.5, 4.1.3, 4.2.0]
 
     steps:
@@ -36,7 +36,6 @@ jobs:
 
       - uses: actions/checkout@master
       - name: setup-r
-        if: ${{matrix.os != 'macos-mojave'}}
         uses: r-lib/actions/setup-r@v1
         with:
           r-version: ${{ matrix.r }}
@@ -90,19 +89,19 @@ jobs:
           echo "::set-output name=package_version::$PACKAGE_VERSION"
           echo "::set-output name=r_minor_version::$R_MINOR_VERSION"
 
-      - name: setup-r-mac-mojave
-        if: ${{matrix.os == 'macos-mojave'}}
-        run: |
-          # on macos mojave we use a self-hosted runner we swap among the pre-installed R versions
-          rm -rf /Library/Frameworks/R.framework/Versions/Current/*
-          ln -s /Library/Frameworks/R.framework/Versions/$R_MINOR_VERSION /Library/Frameworks/R.framework/Versions/Current
+      # - name: setup-r-mac-mojave
+      #   if: ${{matrix.os == 'macos-mojave'}}
+      #   run: |
+      #     # on macos mojave we use a self-hosted runner we swap among the pre-installed R versions
+      #     rm -rf /Library/Frameworks/R.framework/Versions/Current/*
+      #     ln -s /Library/Frameworks/R.framework/Versions/$R_MINOR_VERSION /Library/Frameworks/R.framework/Versions/Current
 
-          R_LIBS_USER=${GITHUB_WORKSPACE}/R_LIBS
-          rm -rf R_LIBS_USER
-          mkdir -p $R_LIBS_USER
-          echo "R_LIBS_USER=$R_LIBS_USER" >> $GITHUB_ENV
+      #     R_LIBS_USER=${GITHUB_WORKSPACE}/R_LIBS
+      #     rm -rf R_LIBS_USER
+      #     mkdir -p $R_LIBS_USER
+      #     echo "R_LIBS_USER=$R_LIBS_USER" >> $GITHUB_ENV
 
-          echo "R=R" >> $GITHUB_ENV
+      #     echo "R=R" >> $GITHUB_ENV
 
       - name: install-R-lib-deps
         shell: bash
@@ -268,26 +267,25 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-18.04, windows-2019, macos-mojave]
-        r: [4.0.5, 4.1.0]
+        os: [ubuntu-18.04, windows-2019, macos-11]
+        r: [4.0.5, 4.1.0, 4.2.0]
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@master
       - name: setup-r
-        if: ${{matrix.os != 'macos-mojave'}} 
         uses: r-lib/actions/setup-r@v1
         with:
           r-version: ${{ matrix.r }}
 
-      - name: setup-r-mac-mojave
-        if: ${{matrix.os == 'macos-mojave'}}
-        run: |
-          # on macos mojave we use a self-hosted runner we swap among the pre-installed R versions
-          R_MINOR_VERSION="${{ needs.build.outputs.r_minor_version }}"
-          rm -rf /Library/Frameworks/R.framework/Versions/Current
-          ln -s /Library/Frameworks/R.framework/Versions/$R_MINOR_VERSION /Library/Frameworks/R.framework/Versions/Current
+      # - name: setup-r-mac-mojave
+      #   if: ${{matrix.os == 'macos-mojave'}}
+      #   run: |
+      #     # on macos mojave we use a self-hosted runner we swap among the pre-installed R versions
+      #     R_MINOR_VERSION="${{ needs.build.outputs.r_minor_version }}"
+      #     rm -rf /Library/Frameworks/R.framework/Versions/Current
+      #     ln -s /Library/Frameworks/R.framework/Versions/$R_MINOR_VERSION /Library/Frameworks/R.framework/Versions/Current
 
       - name: check-install
         shell: bash
