@@ -134,6 +134,7 @@ jobs:
         run: |
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
             brew reinstall gcc
+            brew link --overwrite gcc
             R CMD build ./
             R CMD INSTALL --build ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz --library=$R_LIBS_USER --no-test-load
 
