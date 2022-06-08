@@ -133,7 +133,8 @@ jobs:
         if: ${{runner.os == 'macOS'}}
         run: |
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-            brew reinstall -f gcc
+            brew unlink gcc
+            brew reinstall gcc
             R CMD build ./
             R CMD INSTALL --build ${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz --library=$R_LIBS_USER --no-test-load
 
