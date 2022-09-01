@@ -28,7 +28,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-18.04, windows-2019, macos-mojave]
-        r: [4.1.0, 4.2.1]
+        r: [4.1, 4.2]
 
     steps:
       - name: checkout
