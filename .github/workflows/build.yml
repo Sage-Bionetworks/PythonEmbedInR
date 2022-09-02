@@ -27,7 +27,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-18.04, windows-2019, macos-11]
+        os: [ubuntu-18.04, windows-2019, macos-mojave]
         r: [4.1, 4.2]
 
     steps:
@@ -36,6 +36,7 @@ jobs:
 
       - uses: actions/checkout@master
       - name: setup-r
+        if: ${{matrix.os != 'macos-mojave'}}
         uses: r-lib/actions/setup-r@v1
         with:
           r-version: ${{ matrix.r }}
@@ -89,10 +90,13 @@ jobs:
           echo "::set-output name=package_version::$PACKAGE_VERSION"
           echo "::set-output name=r_minor_version::$R_MINOR_VERSION"
 
-      - name: setup-r-mac
-        # This is logic from the self-hosted runner.  Not sure if we need it for the Gitahub hosted runner
-        if: ${{runner.os == 'macOS'}}
+      - name: setup-r-mac-mojave
+        if: ${{matrix.os == 'macos-mojave'}}
         run: |
+          # on macos mojave we use a self-hosted runner we swap among the pre-installed R versions
+          rm -rf /Library/Frameworks/R.framework/Versions/Current
+          ln -s /Library/Frameworks/R.framework/Versions/$R_MINOR_VERSION /Library/Frameworks/R.framework/Versions/Current
+ 
           R_LIBS_USER=${GITHUB_WORKSPACE}/R_LIBS
           rm -rf R_LIBS_USER
           mkdir -p $R_LIBS_USER
@@ -109,8 +113,6 @@ jobs:
           # arise in upstream packages.
           if [[ ${{ runner.os }} == 'Linux' ]]; then
             INSTALL_TYPE='source'
-          #elif [[ ${{ runner.os }} == 'macOS' ]]; then
-          #  INSTALL_TYPE='mac.binary'
           else
             INSTALL_TYPE='binary'
           fi
@@ -264,7 +266,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-18.04, windows-2019, macos-11]
+        os: [ubuntu-18.04, windows-2019, macos-mojave]
         r: [4.0.5, 4.1.0]
 
     runs-on: ${{ matrix.os }}
@@ -272,9 +274,18 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - name: setup-r
+        if: ${{matrix.os != 'macos-mojave'}}
         uses: r-lib/actions/setup-r@v1
         with:
           r-version: ${{ matrix.r }}
+
+      - name: setup-r-mac-mojave
+        if: ${{matrix.os == 'macos-mojave'}}
+        run: |
+          # on macos mojave we use a self-hosted runner we swap among the pre-installed R versions
+          R_MINOR_VERSION="${{ needs.build.outputs.r_minor_version }}"
+          rm -rf /Library/Frameworks/R.framework/Versions/Current
+          ln -s /Library/Frameworks/R.framework/Versions/$R_MINOR_VERSION /Library/Frameworks/R.framework/Versions/Current
 
       - name: check-install
         shell: bash
