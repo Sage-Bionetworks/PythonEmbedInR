@@ -27,7 +27,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-18.04, windows-2019, macos-mojave]
+        os: [ubuntu-18.04, windows-2019, macos-11]
         r: [4.1, 4.2]
 
     steps:
@@ -109,8 +109,8 @@ jobs:
           # arise in upstream packages.
           if [[ ${{ runner.os }} == 'Linux' ]]; then
             INSTALL_TYPE='source'
-          elif [[ ${{ runner.os }} == 'macOS' ]]; then
-            INSTALL_TYPE='mac.binary'
+          #elif [[ ${{ runner.os }} == 'macOS' ]]; then
+          #  INSTALL_TYPE='mac.binary'
           else
             INSTALL_TYPE='binary'
           fi
@@ -264,7 +264,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-18.04, windows-2019, macos-mojave]
+        os: [ubuntu-18.04, windows-2019, macos-11]
         r: [4.0.5, 4.1.0]
 
     runs-on: ${{ matrix.os }}
