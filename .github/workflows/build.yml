@@ -98,7 +98,7 @@ jobs:
           ln -s /Library/Frameworks/R.framework/Versions/$R_MINOR_VERSION /Library/Frameworks/R.framework/Versions/Current
 
           R_LIBS_USER=${GITHUB_WORKSPACE}/R_LIBS
-          rm -rf R_LIBS_USER
+          rm -rf $R_LIBS_USER
           mkdir -p $R_LIBS_USER
           echo "R_LIBS_USER=$R_LIBS_USER" >> $GITHUB_ENV
 
@@ -267,7 +267,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-18.04, windows-2019, macos-mojave]
-        r: [4.0.5, 4.1.0]
+        r: [4.1, 4.2]
 
     runs-on: ${{ matrix.os }}
 
