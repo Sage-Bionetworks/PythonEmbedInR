@@ -36,7 +36,7 @@ jobs:
 
       - uses: actions/checkout@master
       - name: setup-r
-        if: ${{matrix.os != 'macos-mojave'}}
+        if: ${{matrix.os != 'macos-mojave'}} 
         uses: r-lib/actions/setup-r@v1
         with:
           r-version: ${{ matrix.r }}
@@ -96,7 +96,7 @@ jobs:
           # on macos mojave we use a self-hosted runner we swap among the pre-installed R versions
           rm -rf /Library/Frameworks/R.framework/Versions/Current
           ln -s /Library/Frameworks/R.framework/Versions/$R_MINOR_VERSION /Library/Frameworks/R.framework/Versions/Current
- 
+
           R_LIBS_USER=${GITHUB_WORKSPACE}/R_LIBS
           rm -rf R_LIBS_USER
           mkdir -p $R_LIBS_USER
@@ -274,7 +274,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - name: setup-r
-        if: ${{matrix.os != 'macos-mojave'}}
+        if: ${{matrix.os != 'macos-mojave'}} 
         uses: r-lib/actions/setup-r@v1
         with:
           r-version: ${{ matrix.r }}
