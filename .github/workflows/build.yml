@@ -27,7 +27,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-18.04, windows-2019, macos-mojave]
+        os: [ubuntu-18.04, ubuntu-latest, windows-2019, macos-mojave, macos-10.15, macos-latest]
         r: [4.1, 4.2]
 
     steps:
@@ -266,7 +266,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-18.04, windows-2019, macos-mojave]
+        os: [ubuntu-18.04, ubuntu-latest, windows-2019, macos-mojave, macos-10.15, macos-latest]
         r: [4.1, 4.2]
 
     runs-on: ${{ matrix.os }}
