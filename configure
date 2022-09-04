@@ -95,7 +95,22 @@ cd ..
 
 # ensure that the embedded python interpreter has newer version of pip so that
 # downstream package installations will have a better chance of installing precompiled wheels
-${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION} -m pip install pip==21.0.1
+PIP_INSTALL_SCRIPT=get-pip.py
+
+# don't halt the script if wget is not found, just switch to curl
+set +e
+wget -O $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/pip/3.6/get-pip.py
+if [ "$?" -ne "0" ]; then
+    curl -o $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/pip/3.6/get-pip.py
+fi
+if [ "$?" -ne "0" ]; then
+  echo "Failed to download ${PIP_INSTALL_SCRIPT}"
+  exit 1
+fi
+# back to the exit-immediately-mode
+set -e
+
+${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION} $PIP_INSTALL_SCRIPT pip==21.0.1
 
 # these exact paths vary by python version so use wildcard expansions to find the actual path
 MYPYTHONCONFIG=$(ls ${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}*-config)
