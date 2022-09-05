@@ -116,7 +116,7 @@ jobs:
           else
             INSTALL_TYPE='binary'
           fi
-          echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson', 'rlang');" >> installReqPkgs.R
+          echo "list.of.packages <- c('pack', 'R6', 'testthat', 'rjson', 'rlang');" > installReqPkgs.R
           echo "if(length(list.of.packages)) install.packages(list.of.packages, repos='http://cran.fhcrc.org', type=\"${INSTALL_TYPE}\", destdir=\"${R_LIBS_USER}\")" >> installReqPkgs.R
           R --vanilla < installReqPkgs.R
 

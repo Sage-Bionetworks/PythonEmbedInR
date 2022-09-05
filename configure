@@ -82,6 +82,8 @@ if [ $(uname) == "Darwin" ]; then
   # errors occur when either of the following is enabled
   # echo $'*static*\n_ssl _ssl.c -DUSE_SSL ${CPPFLAGS} ${LDFLAGS} -lssl -lcrypto' >> Modules/Setup.local
   # echo $'_ssl _ssl.c -DUSE_SSL ${CPPFLAGS} ${LDFLAGS} -lssl -lcrypto' >> Modules/Setup.local
+else
+  apt-get update && apt-get install -y wget openssl libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev
 fi
 
 # in the following line the '--prefix' parameter is the installation location
@@ -95,22 +97,8 @@ cd ..
 
 # ensure that the embedded python interpreter has newer version of pip so that
 # downstream package installations will have a better chance of installing precompiled wheels
-PIP_INSTALL_SCRIPT=get-pip.py
-
 # don't halt the script if wget is not found, just switch to curl
-set +e
-wget -O $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/pip/3.6/get-pip.py
-if [ "$?" -ne "0" ]; then
-    curl -o $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/pip/3.6/get-pip.py
-fi
-if [ "$?" -ne "0" ]; then
-  echo "Failed to download ${PIP_INSTALL_SCRIPT}"
-  exit 1
-fi
-# back to the exit-immediately-mode
-set -e
-
-${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION} $PIP_INSTALL_SCRIPT pip==21.0.1
+${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION} -m pip install pip==21.0.1
 
 # these exact paths vary by python version so use wildcard expansions to find the actual path
 MYPYTHONCONFIG=$(ls ${EMBED_PYTHON_DIR}/bin/python${EMBED_PYTHON_VERSION}*-config)
