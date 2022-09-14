@@ -13,7 +13,7 @@ import subprocess
 # e.g. 1.0.3 has issues installing from a wheel on Windows
 # not related to PythonEmbedInR
 # https://stackoverflow.com/q/60767017
-PANDAS_VERSION="1.0.1"
+PANDAS_VERSION="1.4.4"
 
 
 def localSitePackageFolder(root):
