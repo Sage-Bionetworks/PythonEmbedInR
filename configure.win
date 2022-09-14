@@ -2,7 +2,7 @@
 
 set -e # exit immediately if any step fails
 
-RWITHPYTHON_PYTHON_VERSION=3.6
+RWITHPYTHON_PYTHON_VERSION=3.9
 RWITHPYTHON_PYTHON_VERSION_EXTENDED=${RWITHPYTHON_PYTHON_VERSION}.8
 VERSION_FILE_SUFFIX=`echo $RWITHPYTHON_PYTHON_VERSION | sed 's/\.//g'`
 
@@ -50,7 +50,7 @@ install_python() {
 
   # install pip, match the version we install in the main configure script
   PIP_INSTALL_SCRIPT=get-pip.py
-  curl -o $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/pip/3.6/get-pip.py
+  curl -o $PIP_INSTALL_SCRIPT https://bootstrap.pypa.io/pip/3.9/get-pip.py
   ./python.exe $PIP_INSTALL_SCRIPT pip==21.0.1
   cd ../..
 }
