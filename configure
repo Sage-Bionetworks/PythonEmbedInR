@@ -86,7 +86,7 @@ if [ $(uname) == "Darwin" ]; then
   
   # in the following line the '--prefix' parameter is the installation location
   # NOTE: removed --enable-shared option and added CFLAGS=-fPIC CXXFLAGS=-fPIC to try to get a static library
-  ./configure CFLAGS=-fPIC CXXFLAGS=-fPIC --prefix=${EMBED_PYTHON_DIR} --with-universal-archs "-arch arm64 -arch x86_64"
+  ./configure CFLAGS=-fPIC CXXFLAGS=-fPIC --prefix=${EMBED_PYTHON_DIR} --with-universal-archs "universal2"
 else
   apt-get update && apt-get install -y wget openssl libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev
   # in the following line the '--prefix' parameter is the installation location
