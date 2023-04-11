@@ -1,3 +1,6 @@
+> **Note**
+> This repository is now archived in favor of using [reticulate](https://rstudio.github.io/reticulate/).
+
 ## PythonEmbedInR - Access a private copy of Python embedded in this R package.
 
 This package is a modification of [PythonInR](https://bitbucket.org/Floooo/pythoninr) which embeds a private copy of Python, isolated from any Python installation that might be on the host system. The documentation of the original package follows. 
